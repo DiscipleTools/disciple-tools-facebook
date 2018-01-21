@@ -3,7 +3,7 @@
  * Plugin Name: Disciple Tools - Facebook - Integration
  * Plugin URI: https://github.com/ZumeProject/disciple-tools-facebook
  * Description: Disciple Tools - Facebook - Integration extends the Disciple Tools system to send and receive remote submissions from webform contacts.
- * Version:  0.1.0
+ * Version:  0.0.9
  * Author URI: https://github.com/DiscipleTools
  * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Requires at least: 4.7.0
@@ -115,6 +115,16 @@ class DT_Facebook {
      * @return void
      */
     private function setup_actions() {
+
+        // Check for plugin updates
+        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
+            require( $this->includes_path . 'admin/libraries/plugin-update-checker/plugin-update-checker.php' );
+        }
+        Puc_v4_Factory::buildUpdateChecker(
+        'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-version-control/master/disciple-tools-facebook-version-control.json',
+        __FILE__,
+        'disciple-tools-facebook'
+        );
 
         // Internationalize the text strings used.
         add_action( 'plugins_loaded', array( $this, 'i18n' ), 2 );
