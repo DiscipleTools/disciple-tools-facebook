@@ -121,9 +121,9 @@ class DT_Facebook {
             require( $this->includes_path . 'admin/libraries/plugin-update-checker/plugin-update-checker.php' );
         }
         Puc_v4_Factory::buildUpdateChecker(
-        'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-version-control/master/disciple-tools-facebook-version-control.json',
-        __FILE__,
-        'disciple-tools-facebook'
+            'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-version-control/master/disciple-tools-facebook-version-control.json',
+            __FILE__,
+            'disciple-tools-facebook'
         );
 
         // Internationalize the text strings used.
