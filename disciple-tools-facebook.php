@@ -1,8 +1,8 @@
 <?php
 /**
- * Plugin Name: Disciple Tools - Facebook - Integration
+ * Plugin Name: Disciple Tools - Facebook
  * Plugin URI: https://github.com/ZumeProject/disciple-tools-facebook
- * Description: Disciple Tools - Facebook - Integration extends the Disciple Tools system to send and receive remote submissions from webform contacts.
+ * Description: Disciple Tools - Facebook plugin extends the Disciple Tools system to collect data and contacts from Facebook.
  * Version:  0.1.0
  * Author URI: https://github.com/DiscipleTools
  * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
@@ -19,6 +19,26 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
+
+/**
+ * Gets the instance of the `DT_Facebook` class.
+ *
+ * @since  0.1
+ * @access public
+ * @return object
+ */
+function dt_facebook() {
+    $current_theme = get_option( 'current_theme' );
+    if ( 'Disciple Tools' == $current_theme ) {
+        return DT_FAcebook::get_instance();
+    }
+    else {
+        add_action( 'admin_notices', 'dt_facebook_no_disciple_tools_theme_found' );
+        return new WP_Error( 'current_theme_not_dt', 'Disciple Tools Theme not active.' );
+    }
+
+}
+add_action( 'plugins_loaded', 'dt_facebook' );
 
 /**
  * Singleton class for setting up the plugin.
@@ -80,7 +100,7 @@ class DT_Facebook {
      * @return void
      */
     private function includes() {
-
+        require_once( 'includes/admin/admin-menu-and-tabs.php' );
     }
 
     /**
@@ -202,18 +222,61 @@ class DT_Facebook {
         return null;
     }
 }
+// end main plugin class
 
 /**
- * Gets the instance of the `dt_facebook` class.  This function is useful for quickly grabbing data
- * used throughout the plugin.
- *
- * @since  0.1
- * @access public
- * @return object
+ * Admin alert for when Disciple Tools Theme is not available
  */
-function dt_facebook() {
-    return DT_Facebook::get_instance();
+function dt_facebook_no_disciple_tools_theme_found()
+{
+    ?>
+    <div class="notice notice-error">
+        <p><?php esc_html_e( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or deactivate 'Disciple Tools - Facebook' plugin.", "dt_facebook" ); ?></p>
+    </div>
+    <?php
 }
 
-// Let's roll!
-add_action( 'plugins_loaded', 'dt_facebook' );
+/**
+ * A simple function to assist with development and non-disruptive debugging.
+ * -----------
+ * -----------
+ * REQUIREMENT:
+ * WP Debug logging must be set to true in the wp-config.php file.
+ * Add these definitions above the "That's all, stop editing! Happy blogging." line in wp-config.php
+ * -----------
+ * define( 'WP_DEBUG', true ); // Enable WP_DEBUG mode
+ * define( 'WP_DEBUG_LOG', true ); // Enable Debug logging to the /wp-content/debug.log file
+ * define( 'WP_DEBUG_DISPLAY', false ); // Disable display of errors and warnings
+ * @ini_set( 'display_errors', 0 );
+ * -----------
+ * -----------
+ * EXAMPLE USAGE:
+ * (string)
+ * write_log('THIS IS THE START OF MY CUSTOM DEBUG');
+ * -----------
+ * (array)
+ * $an_array_of_things = ['an', 'array', 'of', 'things'];
+ * write_log($an_array_of_things);
+ * -----------
+ * (object)
+ * $an_object = new An_Object
+ * write_log($an_object);
+ */
+if ( !function_exists( 'dt_write_log' ) ) {
+    /**
+     * A function to assist development only.
+     * This function allows you to post a string, array, or object to the WP_DEBUG log.
+     *
+     * @param $log
+     */
+    function dt_write_log( $log )
+    {
+        if ( true === WP_DEBUG ) {
+            if ( is_array( $log ) || is_object( $log ) ) {
+                error_log( print_r( $log, true ) );
+            } else {
+                error_log( $log );
+            }
+        }
+    }
+}
