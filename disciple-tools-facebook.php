@@ -148,10 +148,6 @@ class DT_Facebook {
 
         // Internationalize the text strings used.
         add_action( 'plugins_loaded', array( $this, 'i18n' ), 2 );
-
-        // Register activation hook.
-        register_activation_hook( __FILE__, [ $this, 'activation' ] );
-        register_deactivation_hook( __FILE__, [ $this, 'deactivation' ] );
     }
 
     /**
@@ -161,7 +157,7 @@ class DT_Facebook {
      * @access public
      * @return void
      */
-    public function activation() {
+    public static function activation() {
     }
 
     /**
@@ -171,7 +167,7 @@ class DT_Facebook {
      * @access public
      * @return void
      */
-    public function deactivation() {
+    public static function deactivation() {
     }
 
     /**
@@ -233,6 +229,10 @@ class DT_Facebook {
     }
 }
 // end main plugin class
+
+// Register activation hook.
+register_activation_hook( __FILE__, [ 'DT_Facebook', 'activation' ] );
+register_deactivation_hook( __FILE__, [ 'DT_Facebook', 'deactivation' ] );
 
 /**
  * Admin alert for when Disciple Tools Theme is not available
