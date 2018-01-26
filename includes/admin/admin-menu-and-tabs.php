@@ -38,7 +38,7 @@ class DT_Facebook_Menu {
 
     /**
      * Constructor function.
-     * @access  portal
+     * @access  public
      * @since   0.1.0
      */
     public function __construct() {
