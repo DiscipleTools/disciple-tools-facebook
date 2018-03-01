@@ -96,7 +96,7 @@ class Disciple_Tools_Facebook_Integration
     /**
      * Admin notice
      */
-    function dt_admin_notice()
+    public function dt_admin_notice()
     {
         $error = get_option( 'dt_facebook_error', "" );
         if ( $error ) { ?>
@@ -106,7 +106,7 @@ class Disciple_Tools_Facebook_Integration
         <?php }
     }
 
-    function dismiss_error()
+    public function dismiss_error()
     {
         update_option( 'dt_facebook_error', "" );
     }
@@ -386,7 +386,7 @@ class Disciple_Tools_Facebook_Integration
      */
 
     // Generate authorization secret
-    static function authorize_secret()
+    public static function authorize_secret()
     {
         return 'dt_auth_' . substr( md5( AUTH_KEY ? AUTH_KEY : get_bloginfo( 'url' ) ), 0, 10 );
     }
