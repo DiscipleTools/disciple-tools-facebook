@@ -346,7 +346,7 @@ class Disciple_Tools_Facebook_Integration
                         $url, [
                             'body' => [
                                 'object'       => 'page',
-                                'callback_url' => $this->get_rest_url() . "/webhook",
+                                'callback_url' => $this->get_rest_url() . "/dt-public/webhook",
                                 'verify_token' => $this->authorize_secret(),
                                 'fields'       => [ 'conversations', 'feed' ],
                             ],
@@ -501,7 +501,7 @@ class Disciple_Tools_Facebook_Integration
                 }
             }
         }
-        wp_redirect( admin_url( "options-general.php?page=" . $this->context ) );
+        wp_redirect( admin_url( "admin.php?page=" . $this->context ) );
         exit;
     }
 
