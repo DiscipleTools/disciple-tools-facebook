@@ -101,6 +101,8 @@ class DT_Facebook {
      */
     private function includes() {
         require_once( 'includes/admin/admin-menu-and-tabs.php' );
+        require_once( 'includes/facebook-integration.php' );
+        Disciple_Tools_Facebook_Integration::instance();
     }
 
     /**

@@ -147,12 +147,12 @@ class DT_Facebook_Tab_General
         <!-- Box -->
         <table class="widefat striped">
             <thead>
-            <th>Header</th>
+            <th>Facebook Integration Settings</th>
             </thead>
             <tbody>
             <tr>
                 <td>
-                    Content
+                    <?php Disciple_Tools_Facebook_Integration::instance()->facebook_settings_page() ?>
                 </td>
             </tr>
             </tbody>
@@ -256,3 +256,8 @@ class DT_Facebook_Tab_Second
         <?php
     }
 }
+https://www.facebook.com/v2.8/dialog/oauth?
+//client_id=2026816850669743&
+//redirect_uri=http%3A%2F%2Fdt.test%2Fwp-json%2Fdt-facebook%2Fv1%2Fauth
+//&scope=public_profile%2Cread_insights%2Cmanage_pages%2Cread_page_mailboxes
+//&state=dt_auth_e17021582d
