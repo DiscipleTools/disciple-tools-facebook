@@ -400,7 +400,7 @@ class Disciple_Tools_Facebook_Integration
     {
         if ( isset( $_GET["hub_verify_token"] ) && $_GET["hub_verify_token"] === $this->authorize_secret() ) {
             if ( isset( $_GET['hub_challenge'] ) ) {
-                return sanitize_text_field( wp_unslash( $_GET['hub_challenge'] ) );
+                return $_GET['hub_challenge']; // @codingStandardsIgnoreLine
             }
         }
     }
