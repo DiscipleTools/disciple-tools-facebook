@@ -398,9 +398,11 @@ class Disciple_Tools_Facebook_Integration
      */
     public function verify_facebook_webhooks()
     {
+        header( "Content-Type: text/plain" );
         if ( isset( $_GET["hub_verify_token"] ) && $_GET["hub_verify_token"] === $this->authorize_secret() ) {
             if ( isset( $_GET['hub_challenge'] ) ) {
-                return $_GET['hub_challenge']; // @codingStandardsIgnoreLine
+                echo esc_html( sanitize_text_field( wp_unslash( $_GET['hub_challenge'] ) ) );
+                exit();
             }
         }
     }
@@ -522,7 +524,7 @@ class Disciple_Tools_Facebook_Integration
             $url = "https://facebook.com/v2.8/dialog/oauth";
             $url .= "?client_id=" . sanitize_key( $_POST["app_id"] );
             $url .= "&redirect_uri=" . $this->get_rest_url() . "/auth";
-            $url .= "&scope=public_profile,read_insights,manage_pages,read_page_mailboxes";
+            $url .= "&scope=public_profile,read_insights,manage_pages,read_page_mailboxes,business_management";
             $url .= "&state=" . $this->authorize_secret();
 
             wp_redirect( $url );
