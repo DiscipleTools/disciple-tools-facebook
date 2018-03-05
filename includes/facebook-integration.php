@@ -398,12 +398,13 @@ class Disciple_Tools_Facebook_Integration
      */
     public function verify_facebook_webhooks()
     {
-        header( "Content-Type: text/plain" );
         if ( isset( $_GET["hub_verify_token"] ) && $_GET["hub_verify_token"] === $this->authorize_secret() ) {
             if ( isset( $_GET['hub_challenge'] ) ) {
                 echo esc_html( sanitize_text_field( wp_unslash( $_GET['hub_challenge'] ) ) );
                 exit();
             }
+        } else {
+            return "Could not verify";
         }
     }
 
