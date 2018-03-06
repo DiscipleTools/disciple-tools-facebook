@@ -51,6 +51,7 @@ class Disciple_Tools_Facebook_Integration
         add_action( 'dt_contact_meta_boxes_setup', [ $this, 'add_contact_meta_box' ] );
 //        add_action( 'admin_notices', [ $this, 'dt_admin_notice' ] );
         add_action( 'wp_ajax_dt-facebook-notice-dismiss', [ $this, 'dismiss_error' ] );
+        add_filter( "dt_custom_fields_settings", [ $this, "dt_facebook_fields" ], 1, 2 );
     } // End __construct()
 
     /**
@@ -91,6 +92,24 @@ class Disciple_Tools_Facebook_Integration
                 'callback' => [ $this, 'rebuild_all_data' ],
             ]
         );
+    }
+
+
+    public static function dt_facebook_fields( array $fields, string $post_type = ""){
+        //check if we are dealing with a contact
+        if ($post_type === "contacts"){
+            //check if the language field is already set
+            if ( !isset( $fields["source_details"] )){
+                //define the language field
+                $fields["source_details"] = [
+                    "name" => __( "Source Details", "disciple_tools_facebook" ),
+                    "type" => "text",
+                    "default" => ""
+                ];
+            }
+        }
+        //don't forget to return the update fields array
+        return $fields;
     }
 
     /**
