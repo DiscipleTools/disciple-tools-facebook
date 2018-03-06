@@ -121,7 +121,7 @@ class Disciple_Tools_Facebook_Integration
         $this->immediate_response();
         $facebook_pages = get_option( "dt_facebook_pages", [] );
         foreach ( $facebook_pages as $page_id => $facebook_page ) {
-            if ( isset( $facebook_page->rebuild ) && $facebook_page->rebuild == true ) {
+            if ( isset( $facebook_page["rebuild"] ) && $facebook_page["rebuild"] == true ) {
                 $long_time_ago = date( 'Y-m-d', strtotime( '-10 years' ) );
                 $reports = Disciple_Tools_Reports_Integrations::facebook_prepared_data( $long_time_ago, $facebook_page );
                 foreach ( $reports as $report ) {
@@ -219,20 +219,20 @@ class Disciple_Tools_Facebook_Integration
                                 foreach ( $facebook_pages as $id => $facebook_page ){
                                 ?>
                                 <tr>
-                                    <td><?php echo esc_html( $facebook_page->name ); ?></td>
+                                    <td><?php echo esc_html( $facebook_page["name"] ); ?></td>
                                     <td>
-                                    <label for="<?php echo esc_attr( $facebook_page->id ) .  "-integrate"; ?>">Sync
+                                    <label for="<?php echo esc_attr( $facebook_page["id"] ) .  "-integrate"; ?>">Sync
                                             Contacts </label>
-                                        <input name="<?php echo esc_attr( $facebook_page->id ) .  "-integrate"; ?>"
+                                        <input name="<?php echo esc_attr( $facebook_page["id"] ) .  "-integrate"; ?>"
                                                type="checkbox"
-                                               value="<?php echo esc_attr( $facebook_page->id ); ?>" <?php echo checked( 1, isset( $facebook_page->integrate ) ? $facebook_page->integrate : false, false ); ?> />
+                                               value="<?php echo esc_attr( $facebook_page["id"] ); ?>" <?php echo checked( 1, isset( $facebook_page["integrate"] ) ? $facebook_page["integrate"] : false, false ); ?> />
                                     </td>
                                     <td>
-                                        <label for="<?php echo esc_attr( $facebook_page->id ) . "-report"; ?>">Include in
+                                        <label for="<?php echo esc_attr( $facebook_page["id"] ) . "-report"; ?>">Include in
                                             Stats </label>
-                                        <input name="<?php echo esc_attr( $facebook_page->id ) . "-report"; ?>"
+                                        <input name="<?php echo esc_attr( $facebook_page["id"] ) . "-report"; ?>"
                                                type="checkbox"
-                                               value="<?php echo esc_attr( $facebook_page->id ); ?>" <?php echo checked( 1, isset( $facebook_page->report ) ? $facebook_page->report : false, false ); ?> />
+                                               value="<?php echo esc_attr( $facebook_page["id"] ); ?>" <?php echo checked( 1, isset( $facebook_page["report"] ) ? $facebook_page["report"] : false, false ); ?> />
                                     </td>
                                     <?php
                                 }
@@ -289,16 +289,16 @@ class Disciple_Tools_Facebook_Integration
                 $this->display_error( $request );
             } else {
                 $body = wp_remote_retrieve_body( $request );
-                $data = json_decode( $body );
-                if ( !empty( $data ) && isset( $data->data ) ) {
+                $data = json_decode( $body, true );
+                if ( !empty( $data ) && isset( $data["data"] ) ) {
                     $pages = get_option( "dt_facebook_pages", [] );
-                    foreach ( $data->data as $page ) {
-                        $pages[ $page->id ] = $page;
+                    foreach ( $data["data"] as $page ) {
+                        $pages[ $page["id"] ] = $page;
                     }
                     update_option( "dt_facebook_pages", $pages );
                 }
-                if ( !empty( $data ) && isset( $data->error ) ) {
-                    $this->display_error( $data->error->message );
+                if ( !empty( $data ) && isset( $data["error"] ) ) {
+                    $this->display_error( $data["error"]["message"] );
                 }
             }
         }
@@ -309,38 +309,38 @@ class Disciple_Tools_Facebook_Integration
             $facebook_pages = get_option( "dt_facebook_pages", [] );
             foreach ( $facebook_pages as $id => $facebook_page ) {
                 //if sync contact checkbox is selected
-                $integrate = str_replace( ' ', '_', $facebook_page->id . "-integrate" );
+                $integrate = str_replace( ' ', '_', $facebook_page["id"] . "-integrate" );
                 if ( isset( $_POST[ $integrate ] ) ) {
-                    $facebook_page->integrate = 1;
+                    $facebook_pages[$id]["integrate"] = 1;
                 } else {
-                    $facebook_page->integrate = 0;
+                    $facebook_pages[$id]["integrate"] = 0;
                 }
                 //if the include in stats checkbox is selected
-                $report = str_replace( ' ', '_', $facebook_page->id . "-report" );
+                $report = str_replace( ' ', '_', $facebook_page["id"] . "-report" );
                 if ( isset( $_POST[ $report ] ) ) {
-                    $facebook_page->report = 1;
-                    $facebook_page->rebuild = true;
+                    $facebook_pages[$id]["report"] = 1;
+                    $facebook_pages[$id]["rebuild"] = true;
                     $get_historical_data = true;
                 } else {
-                    $facebook_page->report = 0;
+                    $facebook_pages[$id]["report"] = 0;
                 }
                 //Add the page to the apps subscriptions (to allow webhooks)
-                if ( $facebook_page->integrate == 1 && ( !isset( $facebook_page->subscribed ) || ( isset( $facebook_page->subscribed ) && $facebook_page->subscribed != 1 ) ) ) {
-                    $url = "https://graph.facebook.com/v2.8/" . $id . "/subscribed_apps?access_token=" . $facebook_page->access_token;
+                if ( $facebook_pages[$id]["integrate"] == 1 && ( !isset( $facebook_pages[$id]["subscribed"] ) || ( isset( $facebook_pages[$id]["subscribed"] ) && $facebook_pages[$id]["subscribed"] != 1 ) ) ) {
+                    $url = "https://graph.facebook.com/v2.8/" . $id . "/subscribed_apps?access_token=" . $facebook_page["access_token"];
                     $request = wp_remote_post( $url );
                     if ( is_wp_error( $request ) ) {
                         $this->display_error( $request );
                     } else {
                         $body = wp_remote_retrieve_body( $request );
-                        $data = json_decode( $body );
-                        if ( !empty( $data ) && isset( $data->error ) ) {
-                            $this->display_error( $data->error->message );
+                        $data = json_decode( $body, true );
+                        if ( !empty( $data ) && isset( $data["error"] ) ) {
+                            $this->display_error( $data["error"]["message"] );
                         }
-                        $facebook_page->subscribed = 1;
+                        $facebook_pages[$id]["subscribed"] = 1;
                     }
                 }
                 //enable and set up webhooks for getting page feed and conversations
-                if ( isset( $facebook_page->subscribed ) && $facebook_page->subscribed == 1 && !isset( $facebook_page->webhooks ) && $facebook_page->integrate === 1 ) {
+                if ( isset( $facebook_pages[$id]["subscribed"] ) && $facebook_pages[$id]["subscribed"] == 1 && !isset( $facebook_pages[$id]["webhooks"] ) && $facebook_pages[$id]["integrate"] === 1 ) {
                     $url = "https://graph.facebook.com/v2.12/" . $id . "/subscriptions?access_token=" . get_option( "disciple_tools_facebook_app_id", "" ) . "|" . get_option( "disciple_tools_facebook_app_secret", "" );
                     $request = wp_remote_post(
                         $url, [
@@ -357,12 +357,12 @@ class Disciple_Tools_Facebook_Integration
                     } else {
 
                         $body = wp_remote_retrieve_body( $request );
-                        $data = json_decode( $body );
-                        if ( !empty( $data ) && isset( $data->error ) ) {
-                            $this->display_error( $data->error->message );
+                        $data = json_decode( $body, true );
+                        if ( !empty( $data ) && isset( $data["error"] ) ) {
+                            $this->display_error( $data["error"]["message"] );
                         }
-                        if ( !empty( $data ) && isset( $data->success ) ) {
-                            $facebook_page->webhooks_set = 1;
+                        if ( !empty( $data ) && isset( $data["success"] ) ) {
+                            $facebook_pages[$id]["webhooks_set"] = 1;
                         }
                     }
                 }
@@ -471,12 +471,12 @@ class Disciple_Tools_Facebook_Integration
                 return $request->errors;
             } else {
                 $body = wp_remote_retrieve_body( $request );
-                $data = json_decode( $body );
+                $data = json_decode( $body, true );
                 if ( !empty( $data ) ) {
-                    if ( isset( $data->access_token ) ) {
-                        update_option( 'disciple_tools_facebook_access_token', $data->access_token );
+                    if ( isset( $data["access_token"] ) ) {
+                        update_option( 'disciple_tools_facebook_access_token', $data["access_token"] );
 
-                        $facebook_pages_url = "https://graph.facebook.com/v2.8/me/accounts?access_token=" . $data->access_token;
+                        $facebook_pages_url = "https://graph.facebook.com/v2.8/me/accounts?access_token=" . $data["access_token"];
                         $pages_request = wp_remote_get( $facebook_pages_url );
 
                         if ( is_wp_error( $pages_request ) ) {
@@ -484,22 +484,22 @@ class Disciple_Tools_Facebook_Integration
                             echo "There was an error";
                         } else {
                             $pages_body = wp_remote_retrieve_body( $pages_request );
-                            $pages_data = json_decode( $pages_body );
+                            $pages_data = json_decode( $pages_body, true );
                             if ( !empty( $pages_data ) ) {
-                                if ( isset( $pages_data->data ) ) {
+                                if ( isset( $pages_data["data"] ) ) {
                                     $pages = get_option( "dt_facebook_pages", [] );
-                                    foreach ( $pages_data->data as $page ) {
-                                        $pages[ $page->id ] = $page;
+                                    foreach ( $pages_data["data"] as $page ) {
+                                        $pages[ $page["id"] ] = $page;
                                     }
                                     update_option( "dt_facebook_pages", $pages );
-                                } elseif ( isset( $pages_data->error ) && isset( $pages_data->error->messages ) ) {
-                                    $this->display_error( $data->error->message );
+                                } elseif ( isset( $pages_data["error"] ) && isset( $pages_data["error"]["message"] ) ) {
+                                    $this->display_error( $data["error"]["message"] );
                                 }
                             }
                         }
                     }
-                    if ( isset( $data->error ) ) {
-                        $this->display_error( $data->error->message );
+                    if ( isset( $data["error"] ) ) {
+                        $this->display_error( $data["error"]["message"] );
                     }
                 }
             }
@@ -584,12 +584,12 @@ class Disciple_Tools_Facebook_Integration
         $facebook_pages = get_option( "dt_facebook_pages", [] );
         //if we have the access token, get and save the conversation
         //make sure the "sync contacts" setting is set.
-        if ( isset( $facebook_pages[ $page_id ] ) && isset( $facebook_pages[ $page_id ]->integrate ) && $facebook_pages[ $page_id ]->integrate == 1 ) {
+        if ( isset( $facebook_pages[ $page_id ] ) && isset( $facebook_pages[ $page_id ]["integrate"] ) && $facebook_pages[ $page_id ]["integrate"] == 1 ) {
 
-            $access_token = $facebook_pages[ $page_id ]->access_token;
+            $access_token = $facebook_pages[ $page_id ]["access_token"];
             $uri_for_conversations = "https://graph.facebook.com/v2.7/" . $thread_id . "?fields=message_count,messages{from,created_time,message},updated_time,participants&access_token=" . $access_token;
             $response = wp_remote_get( $uri_for_conversations );
-            $page_name = $facebook_pages[ $page_id ]->name;
+            $page_name = $facebook_pages[ $page_id ]["name"];
 
             $body = json_decode( $response["body"], true );
             if ( $body ) {
