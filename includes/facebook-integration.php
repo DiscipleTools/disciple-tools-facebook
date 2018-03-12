@@ -568,8 +568,8 @@ class Disciple_Tools_Facebook_Integration
      */
     public function update_from_facebook()
     {
-        //respond to facebook immediately
-        $this->immediate_response();
+//        respond to facebook immediately. Disabled because it was not going past this point.
+//        $this->immediate_response();
 
         //decode the facebook post request from json
         $input = json_decode( file_get_contents( 'php://input' ), true );
@@ -688,7 +688,8 @@ class Disciple_Tools_Facebook_Integration
                 "source_details" => "Facebook Page: " . $page_name
             ];
 
-            Disciple_Tools_Contacts::create_contact( $fields, false );
+            $resp = Disciple_Tools_Contacts::create_contact( $fields, false );
+            print_r($resp);
 
         }
 
