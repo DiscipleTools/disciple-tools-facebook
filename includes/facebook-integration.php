@@ -642,11 +642,10 @@ class Disciple_Tools_Facebook_Integration
     {
 //        respond to facebook immediately. Disabled because it was not going past this point.
 //        $this->immediate_response();
-
         //decode the facebook post request from json
-        $input = json_decode( file_get_contents( 'php://input' ), true );
+        $body = json_decode( file_get_contents( 'php://input' ), true );
 
-        foreach ( $input['entry'] as $entry ) {
+        foreach ( $body['entry'] as $entry ) {
             $facebook_page_id = $entry['id'];
             if ( $entry['changes'] ) {
                 foreach ( $entry['changes'] as $change ) {
@@ -660,6 +659,8 @@ class Disciple_Tools_Facebook_Integration
                 }
             }
         }
+
+        do_action( "dt_update_from_facebook", $body );
     }
 
     /**
@@ -735,25 +736,51 @@ class Disciple_Tools_Facebook_Integration
         }
 
         $facebook_url = "https://www.facebook.com/" . $participant["id"];
-//        @todo upgrade to search for page ids and find only first active contacts
+        $meta_query = [
+            'relation' => "OR",
+            [
+                'key' => 'facebook_data',
+                'value' => $participant["id"],
+                'compare' => 'LIKE'
+            ]
+        ];
+        foreach ( $page_scoped_ids as $page_scoped_id ){
+            $meta_query[] = [
+                'key' => 'facebook_data',
+                'value' => $page_scoped_id,
+                'compare' => 'LIKE'
+            ];
+        }
+
         $query = new WP_Query(
             [
                 'post_type'  => 'contacts',
-                'meta_key'   => 'facebook_data',
-                'meta_value' => $participant["id"],
-                'meta_compare' => 'LIKE'
+                'meta_query' => $meta_query
             ]
         );
 
-        $post_id = null;
-        //update contact
-        if ( $query->have_posts() && $query->found_posts == 1 ) {
-            // update existing contact
-            $post = $query->post;
-            $post_id = $post->ID;
-            //updates last messaged
-            Disciple_Tools_Contacts::add_comment( $post_id, $updated_time, false );
-            $contact = Disciple_Tools_Contacts::get_contact( $post_id, false );
+        $contact_id = null;
+        $contacts = $query->get_posts();
+
+        if ( sizeof( $contacts ) > 2 ){
+            foreach ( $contacts as $contact_post ){
+                $contact = Disciple_Tools_Contacts::get_contact( $contact_post->ID, false );
+                if ( $contact["overall_status"] != "closed" ){
+                    $contact_id = $contacts["ID"];
+                }
+            }
+
+            if ( !$contact_id ){
+                $contact_id = $contacts[0]->ID;
+            }
+        }
+        if ( sizeof( $contacts ) > 1 ) {
+            $contact_id = $contacts[0]->ID;
+        }
+
+        if ( $contact_id ){
+            Disciple_Tools_Contacts::add_comment( $contact_id, $updated_time, false );
+            $contact = Disciple_Tools_Contacts::get_contact( $contact_id, false );
             $facebook_data = maybe_unserialize( $contact["facebook_data"] ) ?? [];
             $facebook_data["last_message_at"] = $updated_time;
 
@@ -777,9 +804,8 @@ class Disciple_Tools_Facebook_Integration
             if ( !in_array( $participant["name"], $facebook_data["names"] )){
                 $facebook_data["names"][] = $participant["name"];
             }
-            Disciple_Tools_Contacts::update_contact( $post_id, ["facebook_data" => $facebook_data], false );
-        } elseif ( !$query->have_posts() ) {
-            //create new contact
+            Disciple_Tools_Contacts::update_contact( $contact_id, ["facebook_data" => $facebook_data], false );
+        } else if ( !$contact_id ){
             $fields = [
                 "title" => $participant["name"],
                 "source_details" => "Facebook Page: " . $page["name"],
@@ -792,9 +818,7 @@ class Disciple_Tools_Facebook_Integration
                 ]
             ];
 
-            Disciple_Tools_Contacts::create_contact( $fields, false );
-        } else {
-            // @todo deal with multiple contact with same ids
+            $contact_id = Disciple_Tools_Contacts::create_contact( $fields, false );
         }
 
     }
