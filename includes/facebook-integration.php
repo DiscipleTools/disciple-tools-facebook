@@ -130,7 +130,7 @@ class Disciple_Tools_Facebook_Integration
     }
 
 
-    function dt_facebook_add_section( $section ){
+    public static function dt_facebook_add_section( $section ){
         if ($section == "contact_facebook_data"){
             $contact_id = get_the_ID();
             $contact_fields = Disciple_Tools_Contact_Post_Type::instance()->get_custom_fields_settings();
@@ -804,7 +804,7 @@ class Disciple_Tools_Facebook_Integration
             if ( !in_array( $participant["name"], $facebook_data["names"] )){
                 $facebook_data["names"][] = $participant["name"];
             }
-            Disciple_Tools_Contacts::update_contact( $contact_id, ["facebook_data" => $facebook_data], false );
+            Disciple_Tools_Contacts::update_contact( $contact_id, [ "facebook_data" => $facebook_data ], false );
         } else if ( !$contact_id ){
             $fields = [
                 "title" => $participant["name"],
