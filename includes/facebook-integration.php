@@ -762,7 +762,7 @@ class Disciple_Tools_Facebook_Integration
         $contact_id = null;
         $contacts = $query->get_posts();
 
-        if ( sizeof( $contacts ) > 2 ){
+        if ( sizeof( $contacts ) > 1 ){
             foreach ( $contacts as $contact_post ){
                 $contact = Disciple_Tools_Contacts::get_contact( $contact_post->ID, false );
                 if ( $contact["overall_status"] != "closed" ){
@@ -774,7 +774,7 @@ class Disciple_Tools_Facebook_Integration
                 $contact_id = $contacts[0]->ID;
             }
         }
-        if ( sizeof( $contacts ) > 1 ) {
+        if ( sizeof( $contacts ) == 1 ) {
             $contact_id = $contacts[0]->ID;
         }
 
