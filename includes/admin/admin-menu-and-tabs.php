@@ -233,6 +233,23 @@ class DT_Facebook_Tab_Second
         </table>
         <br>
         <!-- End Box -->
+        <!-- Box -->
+        <table class="widefat striped">
+            <thead>
+                <tr>
+                    <th>Label Workflows</th>
+                </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <?php Disciple_Tools_Facebook_Integration::instance()->display_facebook_label_workflows() ?>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br>
+        <!-- End Box -->
         <?php
     }
 

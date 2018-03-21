@@ -57,6 +57,7 @@ class Disciple_Tools_Facebook_Integration
         add_action( 'build_disciple_tools_reports', [ $this, 'get_users_for_labels' ] );
         add_action( 'dt_async_dt_get_users_for_labels', [ $this, 'get_users_for_labels_async' ] );
 
+        add_filter( 'dt_facebook_label_workflows', [ $this, 'facebook_label_workflows' ] );
     } // End __construct()
 
     /**
@@ -927,8 +928,11 @@ class Disciple_Tools_Facebook_Integration
                                 if ( !isset( $facebook_data["labels"] ) ){
                                     $facebook_data["labels"] = [];
                                 }
-                                $facebook_data["labels"][$label["id"]] = $label["name"];
-                                Disciple_Tools_Contacts::update_contact( $contact["ID"], [ "facebook_data" => $facebook_data ], false );
+                                if ( !isset( $facebook_data["labels"][$label["id"]] )){
+                                    $facebook_data["labels"][$label["id"]] = $label["name"];
+                                    Disciple_Tools_Contacts::add_comment( $contact["ID"], "This label was applied on Facebook: " . $label['name'] );
+                                    Disciple_Tools_Contacts::update_contact( $contact["ID"], [ "facebook_data" => $facebook_data ], false );
+                                }
                             }
                         }
                     }
@@ -997,6 +1001,19 @@ class Disciple_Tools_Facebook_Integration
                             $this->get_facebook_page_labels();
                         }
 
+                        $facebook_labels = get_option( "dt_facebook_labels", [] );
+                        if ( isset( $_POST["save_labels"] ) && isset( $facebook_labels[$page_id] )){
+                            foreach ( $facebook_labels[ $page_id ] as $label_key => $label_value ){
+                                $facebook_labels[$page_id][$label_key]["sync"] = isset( $_POST[ $label_key ] );
+                                if ( !empty( $_POST[ $label_key . "-workflow"] ) ){
+                                    $facebook_labels[$page_id][$label_key]["workflow"] = esc_html( sanitize_text_field( wp_unslash( $_POST[ $label_key . "-workflow"] ) ) );
+                                } else {
+                                    $facebook_labels[$page_id][$label_key]["workflow"] = "";
+                                }
+                            }
+                            update_option( "dt_facebook_labels", $facebook_labels );
+                        }
+
                         if ( isset( $_POST["page-id"] ) ){
                             $facebook_labels = get_option( "dt_facebook_labels", [] );
                             if ( isset( $facebook_labels[$_POST["page-id"]] ) ){
@@ -1009,19 +1026,32 @@ class Disciple_Tools_Facebook_Integration
                                         <thead>
                                             <th>Labels</th>
                                             <th>Sync Label</th>
+                                            <th>Workflow</th>
                                         </thead>
                                         <tbody>
 
                                         <?php
+                                        $workflows = apply_filters( "dt_facebook_label_workflows", [] );
                                         foreach ( $facebook_labels[ $page_id ] as $label_key => $label_value ){
                                             ?>
                                             <tr>
                                                 <td><?php echo esc_html( $label_value["name"] . " (" . $label_key . ")" )?></td>
                                                 <td>
-                                                    <input name="<?php echo esc_attr( $label_key )  ?>"
+                                                    <input name="<?php echo esc_attr( $label_key ) ?>"
                                                         type="checkbox"
                                                         <?php echo checked( 1, !empty( $label_value["sync"] ), false ); ?>
                                                         value="<?php echo esc_attr( $label_key ); ?>" />
+                                                </td>
+                                                <td>
+                                                    <select name="<?php echo esc_attr( $label_key ) ?>-workflow">
+                                                        <option></option>
+                                                        <?php foreach ( $workflows as $workflow ){ ?>
+                                                            <option value="<?php echo esc_html( $workflow["key"] ) ?>"
+                                                                <?php echo ( isset( $label_value["workflow"] ) && $label_value["workflow"] === $workflow["key"] ) ? "selected" : "" ?>>
+                                                                <?php echo esc_html( $workflow["name"] ) ?>
+                                                            </option>
+                                                        <?php } ?>
+                                                    </select>
                                                 </td>
                                             </tr>
                                             <?php
@@ -1037,13 +1067,7 @@ class Disciple_Tools_Facebook_Integration
                             }
                         }
 
-                        $facebook_labels = get_option( "dt_facebook_labels", [] );
-                        if ( isset( $_POST["save_labels"] ) && isset( $facebook_labels[$page_id] )){
-                            foreach ( $facebook_labels[ $page_id ] as $label_key => $label_value ){
-                                $facebook_labels[$page_id][$label_key]["sync"] = isset( $_POST[ $label_key ] );
-                            }
-                            update_option( "dt_facebook_labels", $facebook_labels );
-                        }
+
                         ?>
 
                     </div><!-- end post-body-content -->
@@ -1051,6 +1075,47 @@ class Disciple_Tools_Facebook_Integration
             </div><!--poststuff end -->
         </div><!-- wrap end -->
 
+        <?php
+    }
+
+
+    public function facebook_label_workflows( $workflows ){
+        $workflows[] = [
+            "key" => "close",
+            "name" => "Automatic Closing",
+            "description" => "Closes the Disciple.Tools contact(s) linked to the conversation.",
+            "action" => "dt_facebook_label_workflows_close"
+        ];
+        return $workflows;
+
+    }
+
+    public function display_facebook_label_workflows(){
+        $workflows = apply_filters( "dt_facebook_label_workflows", [] );
+        ?>
+        <table class="widefat striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Key</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+            <?php
+            foreach ( $workflows as $workflow ){
+
+                ?>
+                <tr>
+                    <td><?php echo esc_html( $workflow["name"] ) ?></td>
+                    <td><?php echo esc_html( $workflow["key"] ) ?></td>
+                    <td><?php echo esc_html( $workflow["description"] ) ?></td>
+                </tr>
+                <?php
+            }
+            ?>
+            </tbody>
+        </table>
         <?php
     }
 }
