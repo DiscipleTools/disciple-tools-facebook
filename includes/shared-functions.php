@@ -21,7 +21,7 @@ function dt_facebook_get_object_with_paging( $url, $current_records = [] ) {
     if ( !isset( $more_records["paging"] ) || !isset( $more_records["paging"]["next"] ) ) {
         return $current_records;
     } else {
-        return $this->get_facebook_object_with_paging( $more_records["paging"]["next"], $current_records );
+        return dt_facebook_get_object_with_paging( $more_records["paging"]["next"], $current_records );
     }
 }
 
@@ -29,11 +29,11 @@ function dt_facebook_api( $endpoint, $main_id, $access_token ){
     switch ($endpoint) {
         case "page_labels":
             $uri_for_page_labels = "https://graph.facebook.com/v2.12/" . $main_id . "/labels?fields=name&access_token=" . $access_token;
-            return $this->get_facebook_object_with_paging( $uri_for_page_labels );
+            return dt_facebook_get_object_with_paging( $uri_for_page_labels );
             break;
         case "label_users":
             $uri_for_page_labels = "https://graph.facebook.com/v2.12/" . $main_id . "/users?&access_token=" . $access_token;
-            return $this->get_facebook_object_with_paging( $uri_for_page_labels );
+            return dt_facebook_get_object_with_paging( $uri_for_page_labels );
             break;
         default:
             return [];

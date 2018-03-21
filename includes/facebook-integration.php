@@ -54,7 +54,6 @@ class Disciple_Tools_Facebook_Integration
         add_filter( "dt_custom_fields_settings", [ $this, "dt_facebook_fields" ], 1, 2 );
         add_filter( "dt_details_additional_section_ids", [ $this, "dt_facebook_declare_section_id" ], 999, 2 );
         add_action( "dt_details_additional_section", [ $this, "dt_facebook_add_section" ] );
-        add_action( 'build_disciple_tools_reports', [ $this, 'get_users_for_labels' ] );
 
     } // End __construct()
 

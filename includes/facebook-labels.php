@@ -44,12 +44,30 @@ class Disciple_Tools_Facebook_Labels {
      */
     public function __construct() {
         $this->namespace = $this->context . "/v" . intval( $this->version );
-//        add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
+        add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
 
         add_action( 'dt_async_dt_get_users_for_labels', [ $this, 'get_users_for_labels_async' ] );
-
+        add_action( 'build_disciple_tools_reports', [ $this, 'get_users_for_labels' ] );
         add_filter( 'dt_facebook_label_workflows', [ $this, 'facebook_label_workflows' ] );
+        add_action( 'dt_facebook_label_workflows_close', [ $this, "dt_facebook_label_workflows_close" ] );
+
     } // End __construct()
+
+    /**
+     * Setup the api routs for the plugin
+     *
+     * @since  0.1.0
+     */
+    public function add_api_routes()
+    {
+//        @todo remove
+        register_rest_route(
+            $this->namespace, 'test', [
+                "methods"  => "GET",
+                'callback' => [ $this, 'get_users_for_labels' ],
+            ]
+        );
+    }
 
     public function get_facebook_page_labels(){
         $facebook_pages = get_option( "dt_facebook_pages", [] );
@@ -107,6 +125,7 @@ class Disciple_Tools_Facebook_Labels {
                                     $facebook_data["labels"][$label["id"]] = $label["name"];
                                     Disciple_Tools_Contacts::add_comment( $contact["ID"], "This label was applied on Facebook: " . $label['name'] );
                                     Disciple_Tools_Contacts::update_contact( $contact["ID"], [ "facebook_data" => $facebook_data ], false );
+                                    $this->trigger_label_workflow( $contact, $label["id"], $page["id"] );
                                 }
                             }
                         }
@@ -295,4 +314,27 @@ class Disciple_Tools_Facebook_Labels {
         </table>
         <?php
     }
+
+    public function trigger_label_workflow( $contact, $label_id, $page_id ){
+        $facebook_labels = get_option( "dt_facebook_labels", [] );
+        $workflows = apply_filters( "dt_facebook_label_workflows", [] );
+
+        if ( !empty( $facebook_labels[$page_id][$label_id]["workflow"] ) ){
+            $workflow_key = $facebook_labels[$page_id][$label_id]["workflow"];
+            foreach ( $workflows as $workflow ){
+                if ( $workflow["key"] == $workflow_key ){
+                    do_action( $workflow["action"], $contact );
+                }
+            }
+        }
+    }
+
+    public function dt_facebook_label_workflows_close( $contact ){
+//        @todo include reason closed
+        $fields = [
+            "overall_status" => "closed"
+        ];
+        Disciple_Tools_Contacts::update_contact( $contact["ID"], $fields, false );
+    }
+
 }
