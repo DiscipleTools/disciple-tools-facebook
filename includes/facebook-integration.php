@@ -55,9 +55,7 @@ class Disciple_Tools_Facebook_Integration
         add_filter( "dt_details_additional_section_ids", [ $this, "dt_facebook_declare_section_id" ], 999, 2 );
         add_action( "dt_details_additional_section", [ $this, "dt_facebook_add_section" ] );
         add_action( 'build_disciple_tools_reports', [ $this, 'get_users_for_labels' ] );
-        add_action( 'dt_async_dt_get_users_for_labels', [ $this, 'get_users_for_labels_async' ] );
 
-        add_filter( 'dt_facebook_label_workflows', [ $this, 'facebook_label_workflows' ] );
     } // End __construct()
 
     /**
@@ -98,6 +96,7 @@ class Disciple_Tools_Facebook_Integration
                 'callback' => [ $this, 'rebuild_all_data' ],
             ]
         );
+//        @todo remove
         register_rest_route(
             $this->namespace, 'test', [
                 "methods"  => "GET",
@@ -214,17 +213,18 @@ class Disciple_Tools_Facebook_Integration
      */
     public function rebuild_all_data()
     {
-        $this->immediate_response();
-        $facebook_pages = get_option( "dt_facebook_pages", [] );
-        foreach ( $facebook_pages as $page_id => $facebook_page ) {
-            if ( isset( $facebook_page["rebuild"] ) && $facebook_page["rebuild"] == true ) {
-                $long_time_ago = date( 'Y-m-d', strtotime( '-10 years' ) );
-                $reports = Disciple_Tools_Reports_Integrations::facebook_prepared_data( $long_time_ago, $facebook_page );
-                foreach ( $reports as $report ) {
-                    dt_report_insert( $report );
-                }
-            }
-        }
+//        @todo set this up again
+//        $this->immediate_response();
+//        $facebook_pages = get_option( "dt_facebook_pages", [] );
+//        foreach ( $facebook_pages as $page_id => $facebook_page ) {
+//            if ( isset( $facebook_page["rebuild"] ) && $facebook_page["rebuild"] == true ) {
+//                $long_time_ago = date( 'Y-m-d', strtotime( '-10 years' ) );
+//                $reports = Disciple_Tools_Reports_Integrations::facebook_prepared_data( $long_time_ago, $facebook_page );
+//                foreach ( $reports as $report ) {
+//                    dt_report_insert( $report );
+//                }
+//            }
+//        }
     }
 
     /**
@@ -264,8 +264,10 @@ class Disciple_Tools_Facebook_Integration
                             <table class="widefat striped">
 
                                 <thead>
-                                <th>Facebook App Settings</th>
-                                <th></th>
+                                    <tr>
+                                        <th>Facebook App Settings</th>
+                                        <th></th>
+                                    </tr>
                                 </thead>
 
                                 <tbody>
@@ -273,7 +275,7 @@ class Disciple_Tools_Facebook_Integration
                                 <tr>
                                     <td>Facebook App Id</td>
                                     <td>
-                                        <input type="text" class="regular-text" name="app_id"
+                                        <input title="App Id" type="text" class="regular-text" name="app_id"
                                                value="<?php echo esc_attr( get_option( "disciple_tools_facebook_app_id", "" ) ); ?>"/>
                                     </td>
                                 </tr>
@@ -286,7 +288,7 @@ class Disciple_Tools_Facebook_Integration
                                             $secret = "app_secret";
                                         }
                                         ?>
-                                        <input type="<?php echo $secret ? "password" : "text" ?>" class="regular-text" name="app_secret"
+                                        <input title="App Secret" type="<?php echo $secret ? "password" : "text" ?>" class="regular-text" name="app_secret"
                                                value="<?php echo esc_attr( $secret ); ?>"/>
                                     </td>
                                 </tr>
@@ -329,17 +331,17 @@ class Disciple_Tools_Facebook_Integration
                                 <tr>
                                     <td><?php echo esc_html( $facebook_page["name"] ); ?> (<?php echo esc_html( $facebook_page["id"] ); ?>)</td>
                                     <td>
-                                        <input name="<?php echo esc_attr( $facebook_page["id"] ) .  "-integrate"; ?>"
+                                        <input title="Integrate" name="<?php echo esc_attr( $facebook_page["id"] ) .  "-integrate"; ?>"
                                                type="checkbox"
                                                value="<?php echo esc_attr( $facebook_page["id"] ); ?>" <?php echo checked( 1, isset( $facebook_page["integrate"] ) ? $facebook_page["integrate"] : false, false ); ?> />
                                     </td>
                                     <td>
-                                        <input name="<?php echo esc_attr( $facebook_page["id"] ) . "-report"; ?>"
+                                        <input title="Report" name="<?php echo esc_attr( $facebook_page["id"] ) . "-report"; ?>"
                                                type="checkbox"
                                                value="<?php echo esc_attr( $facebook_page["id"] ); ?>" <?php echo checked( 1, isset( $facebook_page["report"] ) ? $facebook_page["report"] : false, false ); ?> />
                                     </td>
                                     <td>
-                                        <input disabled
+                                        <input title="In Business Manager" disabled
                                             type="checkbox"
                                             <?php echo checked( 1, isset( $facebook_page["business"] ), false ); ?> />
                                     </td>
@@ -494,46 +496,8 @@ class Disciple_Tools_Facebook_Integration
                 echo esc_html( sanitize_text_field( wp_unslash( $_GET['hub_challenge'] ) ) );
                 exit();
             }
-        } else {
-            return "Could not verify";
         }
-    }
-
-    /**
-     * Facebook waits for a response from our server to see if we received the webhook update
-     * If our server does not respond, Facebook will try the webhook again
-     * Because we go on to do more ajax and database calls which takes several seconds
-     * we need to respond to the return right away.
-     */
-    private function immediate_response()
-    {
-        // Buffer all upcoming output...
-        ob_start();
-        // Send your response.
-        new WP_REST_Response( "ok", 200 );
-        // Get the size of the output.
-        $size = ob_get_length();
-        // Disable compression (in case content length is compressed).
-        header( "Content-Encoding: none" );
-        // Set the content length of the response.
-        header( "Content-Length: {$size}" );
-        // Close the connection.
-        header( "Connection: close" );
-        // Flush all output.
-        ob_end_flush();
-        ob_flush();
-        flush();
-        // Close current session (if it exists).
-        // TODO: look into whether session_ functions should really be used
-        // here, as PHPCS does not like it
-        // @codingStandardsIgnoreStart
-        if( session_id() ) {
-            session_write_close();
-        }
-        //for nginx systems
-        session_write_close(); //close the session
-        // @codingStandardsIgnoreEnd
-        fastcgi_finish_request(); //this returns 200 to the user, and processing continues
+        return "Could not verify";
     }
 
     private function get_or_refresh_pages( $access_token ){
@@ -669,9 +633,10 @@ class Disciple_Tools_Facebook_Integration
                         //there is a new update in a conversation
                         $thread_id = $change['value']['thread_id'];
                         $this->get_conversation_update( $facebook_page_id, $thread_id );
-                    } elseif ( $change['field'] == "feed" ) {
-                        //the facebook page feed has an update
                     }
+//                    elseif ( $change['field'] == "feed" ) {
+//                        //the facebook page feed has an update
+//                    }
                 }
             }
         }
@@ -712,27 +677,7 @@ class Disciple_Tools_Facebook_Integration
         }
     }
 
-    public function find_contacts_with_facebook_ids( $ids ){
-        $meta_query = [
-            'relation' => "OR",
-        ];
-        foreach ( $ids as $id ){
-            $meta_query[] = [
-                'key' => 'facebook_data',
-                'value' => $id,
-                'compare' => 'LIKE'
-            ];
-        }
 
-        $query = new WP_Query(
-            [
-                'post_type'  => 'contacts',
-                'meta_query' => $meta_query
-            ]
-        );
-
-        return $query->get_posts();
-    }
 
     //The app secret proof is a sha256 hash of your access token, using the app secret as the key.
     public function get_app_secret_proof( $access_token ){
@@ -773,7 +718,7 @@ class Disciple_Tools_Facebook_Integration
 
 
         $ids = array_merge( $page_scoped_ids, [ $participant["id"] ] );
-        $contacts = $this->find_contacts_with_facebook_ids( $ids );
+        $contacts = dt_facebook_find_contacts_with_ids( $ids );
 
         $facebook_url = "https://www.facebook.com/" . $participant["id"];
         $contact_id = null;
@@ -834,288 +779,9 @@ class Disciple_Tools_Facebook_Integration
                 ]
             ];
 
-            $contact_id = Disciple_Tools_Contacts::create_contact( $fields, false );
+            Disciple_Tools_Contacts::create_contact( $fields, false );
         }
 
     }
 
-
-        /**
-     * Get all the records if we don't already have them.
-     *
-     * @param  $url             , the orginal url or the paging next
-     * @param  $current_records , the records (messages) gotten with the initial api call
-     *
-     * @return array, all the records
-     */
-    private function get_facebook_object_with_paging( $url, $current_records = [] ) {
-        $response = wp_remote_get( $url );
-        $more_records = json_decode( $response["body"], true );
-        if ( !isset( $more_records["data"] ) ){
-            //@todo return error
-        }
-        $current_records = array_map( "unserialize", array_unique( array_map( "serialize", array_merge( $current_records, $more_records["data"] ) ) ) );
-
-        if ( !isset( $more_records["paging"] ) || !isset( $more_records["paging"]["next"] ) ) {
-            return $current_records;
-        } else {
-            return $this->get_facebook_object_with_paging( $more_records["paging"]["next"], $current_records );
-        }
-    }
-
-    public function facebook_api( $endpoint, $main_id, $access_token ){
-        switch ($endpoint) {
-            case "page_labels":
-                $uri_for_page_labels = "https://graph.facebook.com/v2.12/" . $main_id . "/labels?fields=name&access_token=" . $access_token;
-                return $this->get_facebook_object_with_paging( $uri_for_page_labels );
-                break;
-            case "label_users":
-                $uri_for_page_labels = "https://graph.facebook.com/v2.12/" . $main_id . "/users?&access_token=" . $access_token;
-                return $this->get_facebook_object_with_paging( $uri_for_page_labels );
-                break;
-        }
-    }
-
-    public function get_facebook_page_labels(){
-        $facebook_pages = get_option( "dt_facebook_pages", [] );
-        $facebook_labels = get_option( "dt_facebook_labels", [] );
-        foreach ( $facebook_pages as $page ){
-            if ( isset( $page["integrate"] ) && $page["integrate"] == 1 ){
-                $labels = $this->facebook_api( "page_labels", $page["id"], $page["access_token"] );
-                if ( !isset( $facebook_labels[$page["id"]] ) ){
-                    $facebook_labels[$page["id"]] = [];
-                }
-                foreach ( $labels as $label ){
-                    if ( !isset( $facebook_labels[$page["id"]][$label["id"]] ) ){
-                        $facebook_labels[$page["id"]][$label["id"]] = [];
-                    }
-                    $facebook_labels[$page["id"]][$label["id"]]["name"] = $label["name"];
-                }
-                update_option( "dt_facebook_labels", $facebook_labels );
-            }
-        }
-    }
-
-    public static function apply_label_to_conversation( $page_label_id, $facebook_user_id, $page_id ){
-
-    }
-
-    public function get_users_for_labels(){
-        do_action( "dt_get_users_for_labels" );
-    }
-    public function get_users_for_labels_async(){
-        $facebook_pages = get_option( "dt_facebook_pages", [] );
-        $facebook_labels = get_option( "dt_facebook_labels", [] );
-        foreach ( $facebook_pages as $page ){
-            if ( isset( $page["integrate"] ) && $page["integrate"] == 1 ){
-                $labels = $this->facebook_api( "page_labels", $page["id"], $page["access_token"] );
-                if ( !isset( $facebook_labels[$page["id"]] ) ){
-                    $facebook_labels[$page["id"]] = [];
-                }
-                foreach ( $labels as $label ){
-                    if ( !isset( $facebook_labels[$page["id"]][$label["id"]] ) ){
-                        $facebook_labels[$page["id"]][$label["id"]] = [];
-                    }
-                    $facebook_labels[$page["id"]][$label["id"]]["name"] = $label["name"];
-                    if ( !empty( $facebook_labels[$page["id"]][$label["id"]]["sync"] )){
-                        $users = $this->facebook_api( "label_users", $label["id"], $page["access_token"] );
-                        $facebook_labels[$page["id"]][$label["id"]]["users"] = $users;
-                        foreach ( $users as $user ){
-                            $contacts = $this->find_contacts_with_facebook_ids( [ $user["id"] ] );
-                            foreach ( $contacts as $contact_post ){
-                                $contact = Disciple_Tools_Contacts::get_contact( $contact_post->ID, false );
-                                $facebook_data = maybe_unserialize( $contact["facebook_data"] ) ?? [];
-                                if ( !isset( $facebook_data["labels"] ) ){
-                                    $facebook_data["labels"] = [];
-                                }
-                                if ( !isset( $facebook_data["labels"][$label["id"]] )){
-                                    $facebook_data["labels"][$label["id"]] = $label["name"];
-                                    Disciple_Tools_Contacts::add_comment( $contact["ID"], "This label was applied on Facebook: " . $label['name'] );
-                                    Disciple_Tools_Contacts::update_contact( $contact["ID"], [ "facebook_data" => $facebook_data ], false );
-                                }
-                            }
-                        }
-                    }
-                }
-                update_option( "dt_facebook_labels", $facebook_labels );
-            }
-        }
-    }
-
-
-
-
-    public function facebook_labels_page()
-    {
-
-        ?>
-        <div class="wrap">
-            <div id="poststuff">
-                <div id="post-body" class="metabox-holder columns-2">
-                    <div id="post-body-content">
-                        <?php
-                        if ( isset( $_POST['_wpnonce'] ) && !wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'wp_rest' ) ) {
-                            return 'Are you cheating? Where did this form come from?';
-                        }
-                        $page_id = 0;
-                        if ( isset( $_POST["page-id"] ) ){
-                            $page_id = esc_html( sanitize_text_field( wp_unslash( $_POST["page-id"] ) ) );
-                        }
-//                        $current_page = "";
-//                        if ( isset( $_SERVER["REQUEST_URI"] ) ){
-//                            $current_page = esc_html( sanitize_text_field( wp_unslash( $_SERVER["REQUEST_URI"] ) ) );
-//                        }
-                        $facebook_pages = get_option( "dt_facebook_pages", [] );
-                        ?>
-
-
-                        <form method="post">
-                            <input type="hidden" name="_wpnonce" id="_wpnonce"
-                                   value="<?php echo esc_html( wp_create_nonce( 'wp_rest' ) )?>"/>
-
-                            <select name="page-id">
-                                <option value="0"></option>
-                            <?php
-
-
-                            foreach ( $facebook_pages as $page ){
-                                if ( !empty( $page["integrate"] ) ) {
-                                    ?>
-                                    <option value="<?php echo esc_html( $page["id"] ) ?>"
-                                    <?php echo $page_id === $page["id"] ? "selected" : "" ?>
-                                    ><?php echo esc_html( $page["name"] ) ?></option>
-                                    <?php
-                                }
-                            }
-                            ?>
-                            </select>
-
-                           <input type="submit" class="button" name="show_labels" value="Show Page Labels"/>
-                            <?php if ( $page_id ){ ?>
-                                <input type="submit" class="button" name="refresh_labels" value="Refresh Labels"/>
-                            <?php } ?>
-                        </form>
-                        <br>
-                        <?php
-                        if ( isset( $_POST["refresh_labels"] )){
-                            $this->get_facebook_page_labels();
-                        }
-
-                        $facebook_labels = get_option( "dt_facebook_labels", [] );
-                        if ( isset( $_POST["save_labels"] ) && isset( $facebook_labels[$page_id] )){
-                            foreach ( $facebook_labels[ $page_id ] as $label_key => $label_value ){
-                                $facebook_labels[$page_id][$label_key]["sync"] = isset( $_POST[ $label_key ] );
-                                if ( !empty( $_POST[ $label_key . "-workflow"] ) ){
-                                    $facebook_labels[$page_id][$label_key]["workflow"] = esc_html( sanitize_text_field( wp_unslash( $_POST[ $label_key . "-workflow"] ) ) );
-                                } else {
-                                    $facebook_labels[$page_id][$label_key]["workflow"] = "";
-                                }
-                            }
-                            update_option( "dt_facebook_labels", $facebook_labels );
-                        }
-
-                        if ( isset( $_POST["page-id"] ) ){
-                            $facebook_labels = get_option( "dt_facebook_labels", [] );
-                            if ( isset( $facebook_labels[$_POST["page-id"]] ) ){
-                                ?>
-                                <form method="post">
-                                    <input type="hidden" name="_wpnonce" id="_wpnonce"
-                                   value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
-                                    <?php $this->facebook_settings_functions(); ?>
-                                    <table id="facebook_labels" class="widefat striped">
-                                        <thead>
-                                            <th>Labels</th>
-                                            <th>Sync Label</th>
-                                            <th>Workflow</th>
-                                        </thead>
-                                        <tbody>
-
-                                        <?php
-                                        $workflows = apply_filters( "dt_facebook_label_workflows", [] );
-                                        foreach ( $facebook_labels[ $page_id ] as $label_key => $label_value ){
-                                            ?>
-                                            <tr>
-                                                <td><?php echo esc_html( $label_value["name"] . " (" . $label_key . ")" )?></td>
-                                                <td>
-                                                    <input name="<?php echo esc_attr( $label_key ) ?>"
-                                                        type="checkbox"
-                                                        <?php echo checked( 1, !empty( $label_value["sync"] ), false ); ?>
-                                                        value="<?php echo esc_attr( $label_key ); ?>" />
-                                                </td>
-                                                <td>
-                                                    <select name="<?php echo esc_attr( $label_key ) ?>-workflow">
-                                                        <option></option>
-                                                        <?php foreach ( $workflows as $workflow ){ ?>
-                                                            <option value="<?php echo esc_html( $workflow["key"] ) ?>"
-                                                                <?php echo ( isset( $label_value["workflow"] ) && $label_value["workflow"] === $workflow["key"] ) ? "selected" : "" ?>>
-                                                                <?php echo esc_html( $workflow["name"] ) ?>
-                                                            </option>
-                                                        <?php } ?>
-                                                    </select>
-                                                </td>
-                                            </tr>
-                                            <?php
-                                        }
-                                        ?>
-                                        </tbody>
-                                    </table>
-
-                                   <input name="page-id" value="<?php echo esc_html( $page_id ); ?>" type="hidden"/>
-                                   <input type="submit" class="button" name="save_labels" value="Save Labels to Sync"/>
-                                </form>
-                            <?php
-                            }
-                        }
-
-
-                        ?>
-
-                    </div><!-- end post-body-content -->
-                </div><!-- post-body meta box container -->
-            </div><!--poststuff end -->
-        </div><!-- wrap end -->
-
-        <?php
-    }
-
-
-    public function facebook_label_workflows( $workflows ){
-        $workflows[] = [
-            "key" => "close",
-            "name" => "Automatic Closing",
-            "description" => "Closes the Disciple.Tools contact(s) linked to the conversation.",
-            "action" => "dt_facebook_label_workflows_close"
-        ];
-        return $workflows;
-
-    }
-
-    public function display_facebook_label_workflows(){
-        $workflows = apply_filters( "dt_facebook_label_workflows", [] );
-        ?>
-        <table class="widefat striped">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Key</th>
-                    <th>Description</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php
-            foreach ( $workflows as $workflow ){
-
-                ?>
-                <tr>
-                    <td><?php echo esc_html( $workflow["name"] ) ?></td>
-                    <td><?php echo esc_html( $workflow["key"] ) ?></td>
-                    <td><?php echo esc_html( $workflow["description"] ) ?></td>
-                </tr>
-                <?php
-            }
-            ?>
-            </tbody>
-        </table>
-        <?php
-    }
 }

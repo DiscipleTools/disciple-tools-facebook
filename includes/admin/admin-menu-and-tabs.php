@@ -226,7 +226,7 @@ class DT_Facebook_Tab_Second
             <tbody>
             <tr>
                 <td>
-                    <?php Disciple_Tools_Facebook_Integration::instance()->facebook_labels_page() ?>
+                    <?php Disciple_Tools_Facebook_Labels::instance()->facebook_labels_page() ?>
                 </td>
             </tr>
             </tbody>
@@ -243,7 +243,7 @@ class DT_Facebook_Tab_Second
             <tbody>
             <tr>
                 <td>
-                    <?php Disciple_Tools_Facebook_Integration::instance()->display_facebook_label_workflows() ?>
+                    <?php Disciple_Tools_Facebook_Labels::instance()->display_facebook_label_workflows() ?>
                 </td>
             </tr>
             </tbody>
