@@ -279,8 +279,14 @@ class Disciple_Tools_Facebook_Integration
                                 <tr>
                                     <td>Facebook App Secret</td>
                                     <td>
-                                        <input type="text" class="regular-text" name="app_secret"
-                                               value="<?php echo esc_attr( get_option( "disciple_tools_facebook_app_secret" ) ); ?>"/>
+                                        <?php
+                                        $secret = get_option( "disciple_tools_facebook_app_secret", "" );
+                                        if ( $secret != ""){
+                                            $secret = "app_secret";
+                                        }
+                                        ?>
+                                        <input type="<?php echo $secret ? "password" : "text" ?>" class="regular-text" name="app_secret"
+                                               value="<?php echo esc_attr( $secret ); ?>"/>
                                     </td>
                                 </tr>
                                 <tr>
@@ -616,7 +622,10 @@ class Disciple_Tools_Facebook_Integration
         }
         if ( current_user_can( "manage_options" ) && check_admin_referer( 'wp_rest' ) && isset( $_POST["save_app"] ) && isset( $_POST["app_secret"] ) && isset( $_POST["app_id"] ) ) {
             update_option( 'disciple_tools_facebook_app_id', sanitize_key( $_POST["app_id"] ) );
-            update_option( 'disciple_tools_facebook_app_secret', sanitize_key( $_POST["app_secret"] ) );
+            $secret = sanitize_key( $_POST["app_secret"] );
+            if ( $secret !== "app_secret"){
+                update_option( 'disciple_tools_facebook_app_secret', $secret );
+            }
             delete_option( 'disciple_tools_facebook_access_token' );
 
             $url = "https://facebook.com/v2.8/dialog/oauth";
@@ -1022,7 +1031,7 @@ class Disciple_Tools_Facebook_Integration
                                     </table>
 
                                    <input name="page-id" value="<?php echo esc_html( $page_id ); ?>" type="hidden"/>
-                                   <input type="submit" class="button" name="save_labels" value="Save Labels"/>
+                                   <input type="submit" class="button" name="save_labels" value="Save Labels to Sync"/>
                                 </form>
                             <?php
                             }
