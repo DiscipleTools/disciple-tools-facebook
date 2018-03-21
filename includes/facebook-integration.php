@@ -867,14 +867,6 @@ class Disciple_Tools_Facebook_Integration
     }
 
     public function get_facebook_page_labels(){
-        do_action( "dt_get_labels" );
-    }
-
-    public static function apply_label_to_conversation( $page_label_id, $facebook_user_id, $page_id ){
-
-    }
-
-    public function get_facebook_page_labels_async(){
         $facebook_pages = get_option( "dt_facebook_pages", [] );
         $facebook_labels = get_option( "dt_facebook_labels", [] );
         foreach ( $facebook_pages as $page ){
@@ -893,6 +885,11 @@ class Disciple_Tools_Facebook_Integration
             }
         }
     }
+
+    public static function apply_label_to_conversation( $page_label_id, $facebook_user_id, $page_id ){
+
+    }
+
     public function get_users_for_labels(){
         do_action( "dt_get_users_for_labels" );
     }
@@ -981,13 +978,16 @@ class Disciple_Tools_Facebook_Integration
                             </select>
 
                            <input type="submit" class="button" name="show_labels" value="Show Page Labels"/>
-
-
+                            <?php if ( $page_id ){ ?>
+                                <input type="submit" class="button" name="refresh_labels" value="Refresh Labels"/>
+                            <?php } ?>
                         </form>
-
                         <br>
-
                         <?php
+                        if ( isset( $_POST["refresh_labels"] )){
+                            $this->get_facebook_page_labels();
+                        }
+
                         if ( isset( $_POST["page-id"] ) ){
                             $facebook_labels = get_option( "dt_facebook_labels", [] );
                             if ( isset( $facebook_labels[$_POST["page-id"]] ) ){
