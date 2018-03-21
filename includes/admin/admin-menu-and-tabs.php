@@ -85,7 +85,7 @@ class DT_Facebook_Menu {
             <h2><?php esc_attr_e( 'DISCIPLE TOOLS - FACEBOOK', 'dt_facebook' ) ?></h2>
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_attr( $link ) . 'general' ?>" class="nav-tab <?php ( $tab == 'general' || ! isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'General', 'dt_facebook' ) ?></a>
-                <a href="<?php echo esc_attr( $link ) . 'second' ?>" class="nav-tab <?php ( $tab == 'second' ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Second', 'dt_facebook' ) ?></a>
+                <a href="<?php echo esc_attr( $link ) . 'second' ?>" class="nav-tab <?php ( $tab == 'second' ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Labels', 'dt_facebook' ) ?></a>
             </h2>
 
             <?php
@@ -221,12 +221,12 @@ class DT_Facebook_Tab_Second
         <!-- Box -->
         <table class="widefat striped">
             <thead>
-            <th>Header</th>
+            <th>Labels</th>
             </thead>
             <tbody>
             <tr>
                 <td>
-                    Content
+                    <?php Disciple_Tools_Facebook_Integration::instance()->facebook_labels_page() ?>
                 </td>
             </tr>
             </tbody>

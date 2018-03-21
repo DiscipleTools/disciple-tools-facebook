@@ -38,6 +38,7 @@ function dt_facebook() {
     }
 
 }
+
 add_action( 'plugins_loaded', 'dt_facebook' );
 
 /**
@@ -100,9 +101,12 @@ class DT_Facebook {
      * @return void
      */
     private function includes() {
-        require_once( 'includes/admin/admin-menu-and-tabs.php' );
+        require_once( 'includes/wp-async-request.php' );
+        require_once 'includes/admin/admin-menu-and-tabs.php';
+        require_once( 'includes/get-labels.php' );
         require_once( 'includes/facebook-integration.php' );
         Disciple_Tools_Facebook_Integration::instance();
+        new DT_Facebook_Get_Users_For_Labels( 3 );
     }
 
     /**

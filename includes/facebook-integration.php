@@ -54,6 +54,8 @@ class Disciple_Tools_Facebook_Integration
         add_filter( "dt_custom_fields_settings", [ $this, "dt_facebook_fields" ], 1, 2 );
         add_filter( "dt_details_additional_section_ids", [ $this, "dt_facebook_declare_section_id" ], 999, 2 );
         add_action( "dt_details_additional_section", [ $this, "dt_facebook_add_section" ] );
+        add_action( 'dt_build_report', [ $this, 'get_users_for_labels' ] );
+        add_action( 'dt_async_dt_get_users_for_labels', [ $this, 'get_users_for_labels_async' ] );
 
     } // End __construct()
 
@@ -302,10 +304,12 @@ class Disciple_Tools_Facebook_Integration
                             <?php $this->facebook_settings_functions(); ?>
                             <table id="facebook_pages" class="widefat striped">
                                 <thead>
-                                <th>Facebook Pages</th>
-                                <th>Sync Contacts</th>
-                                <th>Include in Stats</th>
-                                <th>Part of Business Manager</th>
+                                    <tr>
+                                        <th>Facebook Pages</th>
+                                        <th>Sync Contacts</th>
+                                        <th>Include in Stats</th>
+                                        <th>Part of Business Manager</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                 <?php
@@ -314,7 +318,7 @@ class Disciple_Tools_Facebook_Integration
                                 foreach ( $facebook_pages as $id => $facebook_page ){
                                 ?>
                                 <tr>
-                                    <td><?php echo esc_html( $facebook_page["name"] ); ?></td>
+                                    <td><?php echo esc_html( $facebook_page["name"] ); ?> (<?php echo esc_html( $facebook_page["id"] ); ?>)</td>
                                     <td>
                                         <input name="<?php echo esc_attr( $facebook_page["id"] ) .  "-integrate"; ?>"
                                                type="checkbox"
@@ -696,7 +700,27 @@ class Disciple_Tools_Facebook_Integration
         }
     }
 
+    public function find_contacts_with_facebook_ids( $ids ){
+        $meta_query = [
+            'relation' => "OR",
+        ];
+        foreach ( $ids as $id ){
+            $meta_query[] = [
+                'key' => 'facebook_data',
+                'value' => $id,
+                'compare' => 'LIKE'
+            ];
+        }
 
+        $query = new WP_Query(
+            [
+                'post_type'  => 'contacts',
+                'meta_query' => $meta_query
+            ]
+        );
+
+        return $query->get_posts();
+    }
 
     //The app secret proof is a sha256 hash of your access token, using the app secret as the key.
     public function get_app_secret_proof( $access_token ){
@@ -735,32 +759,12 @@ class Disciple_Tools_Facebook_Integration
             $page_scoped_ids = $this->get_page_scoped_ids( $participant["id"], $page["access_token"] );
         }
 
+
+        $ids = array_merge( $page_scoped_ids, [ $participant["id"] ] );
+        $contacts = $this->find_contacts_with_facebook_ids( $ids );
+
         $facebook_url = "https://www.facebook.com/" . $participant["id"];
-        $meta_query = [
-            'relation' => "OR",
-            [
-                'key' => 'facebook_data',
-                'value' => $participant["id"],
-                'compare' => 'LIKE'
-            ]
-        ];
-        foreach ( $page_scoped_ids as $page_scoped_id ){
-            $meta_query[] = [
-                'key' => 'facebook_data',
-                'value' => $page_scoped_id,
-                'compare' => 'LIKE'
-            ];
-        }
-
-        $query = new WP_Query(
-            [
-                'post_type'  => 'contacts',
-                'meta_query' => $meta_query
-            ]
-        );
-
         $contact_id = null;
-        $contacts = $query->get_posts();
 
         if ( sizeof( $contacts ) > 1 ){
             foreach ( $contacts as $contact_post ){
@@ -823,4 +827,227 @@ class Disciple_Tools_Facebook_Integration
 
     }
 
+
+        /**
+     * Get all the records if we don't already have them.
+     *
+     * @param  $url             , the orginal url or the paging next
+     * @param  $current_records , the records (messages) gotten with the initial api call
+     *
+     * @return array, all the records
+     */
+    private function get_facebook_object_with_paging( $url, $current_records = [] ) {
+        $response = wp_remote_get( $url );
+        $more_records = json_decode( $response["body"], true );
+        if ( !isset( $more_records["data"] ) ){
+            //@todo return error
+        }
+        $current_records = array_map( "unserialize", array_unique( array_map( "serialize", array_merge( $current_records, $more_records["data"] ) ) ) );
+
+        if ( !isset( $more_records["paging"] ) || !isset( $more_records["paging"]["next"] ) ) {
+            return $current_records;
+        } else {
+            return $this->get_facebook_object_with_paging( $more_records["paging"]["next"], $current_records );
+        }
+    }
+
+    public function facebook_api( $endpoint, $main_id, $access_token ){
+        switch ($endpoint) {
+            case "page_labels":
+                $uri_for_page_labels = "https://graph.facebook.com/v2.12/" . $main_id . "/labels?fields=name&access_token=" . $access_token;
+                return $this->get_facebook_object_with_paging( $uri_for_page_labels );
+                break;
+            case "label_users":
+                $uri_for_page_labels = "https://graph.facebook.com/v2.12/" . $main_id . "/users?&access_token=" . $access_token;
+                return $this->get_facebook_object_with_paging( $uri_for_page_labels );
+                break;
+        }
+    }
+
+    public function get_facebook_page_labels(){
+        do_action( "dt_get_labels" );
+    }
+
+    public static function apply_label_to_conversation( $page_label_id, $facebook_user_id, $page_id ){
+
+    }
+
+    public function get_facebook_page_labels_async(){
+        $facebook_pages = get_option( "dt_facebook_pages", [] );
+        $facebook_labels = get_option( "dt_facebook_labels", [] );
+        foreach ( $facebook_pages as $page ){
+            if ( isset( $page["integrate"] ) && $page["integrate"] == 1 ){
+                $labels = $this->facebook_api( "page_labels", $page["id"], $page["access_token"] );
+                if ( !isset( $facebook_labels[$page["id"]] ) ){
+                    $facebook_labels[$page["id"]] = [];
+                }
+                foreach ( $labels as $label ){
+                    if ( !isset( $facebook_labels[$page["id"]][$label["id"]] ) ){
+                        $facebook_labels[$page["id"]][$label["id"]] = [];
+                    }
+                    $facebook_labels[$page["id"]][$label["id"]]["name"] = $label["name"];
+                }
+                update_option( "dt_facebook_labels", $facebook_labels );
+            }
+        }
+    }
+    public function get_users_for_labels(){
+        do_action( "dt_get_users_for_labels" );
+    }
+    public function get_users_for_labels_async(){
+        $facebook_pages = get_option( "dt_facebook_pages", [] );
+        $facebook_labels = get_option( "dt_facebook_labels", [] );
+        foreach ( $facebook_pages as $page ){
+            if ( isset( $page["integrate"] ) && $page["integrate"] == 1 ){
+                $labels = $this->facebook_api( "page_labels", $page["id"], $page["access_token"] );
+                if ( !isset( $facebook_labels[$page["id"]] ) ){
+                    $facebook_labels[$page["id"]] = [];
+                }
+                foreach ( $labels as $label ){
+                    if ( !isset( $facebook_labels[$page["id"]][$label["id"]] ) ){
+                        $facebook_labels[$page["id"]][$label["id"]] = [];
+                    }
+                    $facebook_labels[$page["id"]][$label["id"]]["name"] = $label["name"];
+                    if ( !empty( $facebook_labels[$page["id"]][$label["id"]]["sync"] )){
+                        $users = $this->facebook_api( "label_users", $label["id"], $page["access_token"] );
+                        $facebook_labels[$page["id"]][$label["id"]]["users"] = $users;
+                        foreach ( $users as $user ){
+                            $contacts = $this->find_contacts_with_facebook_ids( [ $user["id"] ] );
+                            foreach ( $contacts as $contact_post ){
+                                $contact = Disciple_Tools_Contacts::get_contact( $contact_post->ID, false );
+                                $facebook_data = maybe_unserialize( $contact["facebook_data"] ) ?? [];
+                                if ( !isset( $facebook_data["labels"] ) ){
+                                    $facebook_data["labels"] = [];
+                                }
+                                $facebook_data["labels"][$label["id"]] = $label["name"];
+                                Disciple_Tools_Contacts::update_contact( $contact["ID"], [ "facebook_data" => $facebook_data ] ,false );
+                            }
+                        }
+                    }
+                }
+                update_option( "dt_facebook_labels", $facebook_labels );
+            }
+        }
+    }
+
+
+
+
+    public function facebook_labels_page()
+    {
+
+        ?>
+        <div class="wrap">
+            <div id="poststuff">
+                <div id="post-body" class="metabox-holder columns-2">
+                    <div id="post-body-content">
+                        <?php
+                        if ( isset( $_POST['_wpnonce'] ) && !wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'wp_rest' ) ) {
+                            return 'Are you cheating? Where did this form come from?';
+                        }
+                        $page_id = 0;
+                        if ( isset( $_POST["page-id"] ) ){
+                            $page_id = esc_html( sanitize_text_field( wp_unslash( $_POST["page-id"] ) ) );
+                        }
+//                        $current_page = "";
+//                        if ( isset( $_SERVER["REQUEST_URI"] ) ){
+//                            $current_page = esc_html( sanitize_text_field( wp_unslash( $_SERVER["REQUEST_URI"] ) ) );
+//                        }
+                        $facebook_pages = get_option( "dt_facebook_pages", [] );
+                        ?>
+
+
+                        <form method="post">
+                            <input type="hidden" name="_wpnonce" id="_wpnonce"
+                                   value="<?php echo esc_html( wp_create_nonce( 'wp_rest' ) )?>"/>
+
+                            <select name="page-id">
+                                <option value="0"></option>
+                            <?php
+
+
+                            foreach ( $facebook_pages as $page ){
+                                if ( !empty( $page["integrate"] ) ) {
+                                    ?>
+                                    <option value="<?php echo esc_html( $page["id"] ) ?>"
+                                    <?php echo $page_id === $page["id"] ? "selected" : "" ?>
+                                    ><?php echo esc_html( $page["name"] ) ?></option>
+                                    <?php
+                                }
+                            }
+                            ?>
+                            </select>
+
+                           <input type="submit" class="button" name="show_labels" value="Show Page Labels"/>
+
+
+                        </form>
+
+                        <br>
+
+                        <?php
+                        // Check noonce
+
+
+                        if ( isset( $_POST["page-id"] ) ){
+                            $facebook_labels = get_option( "dt_facebook_labels", [] );
+                            if ( isset( $facebook_labels[$_POST["page-id"]] ) ){
+                                ?>
+                                <form method="post">
+                                    <input type="hidden" name="_wpnonce" id="_wpnonce"
+                                   value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
+                                    <?php $this->facebook_settings_functions(); ?>
+                                    <table id="facebook_labels" class="widefat striped">
+                                        <thead>
+                                            <th>Labels</th>
+                                            <th>Sync Label</th>
+                                        </thead>
+                                        <tbody>
+
+                                        <?php
+
+                                        foreach ( $facebook_labels[ $page_id ] as $label_key => $label_value ){
+                                            ?>
+                                            <tr>
+                                                <td><?php echo esc_html( $label_value["name"] . " (" . $label_key . ")" )?></td>
+                                                <td>
+                                                    <input name="<?php echo esc_attr( $label_key )  ?>"
+                                                        type="checkbox"
+                                                        <?php echo checked( 1, !empty( $label_value["sync"] ), false ); ?>
+                                                        value="<?php echo esc_attr( $label_key ); ?>" />
+                                                </td>
+                                            </tr>
+                                            <?php
+                                        }
+                                        ?>
+                                        </tbody>
+                                    </table>
+
+                                   <input name="page-id" value="<?php echo esc_html( $page_id ); ?>" type="hidden"/>
+                                   <input type="submit" class="button" name="save_labels" value="Save Labels"/>
+                                </form>
+                            <?php
+                            }
+                        }
+
+
+                        $facebook_labels = get_option( "dt_facebook_labels", [] );
+                        if ( isset( $_POST["save_labels"] ) && isset( $facebook_labels[$page_id] )){
+                            foreach ( $facebook_labels[ $page_id ] as $label_key => $label_value ){
+                                $facebook_labels[$page_id][$label_key]["sync"] = isset( $_POST[ $label_key ] );
+                            }
+                            update_option( "dt_facebook_labels", $facebook_labels );
+                        }
+
+
+                        ?>
+
+                    </div><!-- end post-body-content -->
+
+                </div><!-- post-body meta box container -->
+            </div><!--poststuff end -->
+        </div><!-- wrap end -->
+
+        <?php
+    }
 }
