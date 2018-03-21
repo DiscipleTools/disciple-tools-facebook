@@ -141,7 +141,6 @@ class Disciple_Tools_Facebook_Integration
     public static function dt_facebook_add_section( $section ){
         if ($section == "contact_facebook_data"){
             $contact_id = get_the_ID();
-            $contact_fields = Disciple_Tools_Contact_Post_Type::instance()->get_custom_fields_settings();
             $contact = Disciple_Tools_Contacts::get_contact( $contact_id, true );
             $facebook_data = [];
             if (isset( $contact["facebook_data"] )){
@@ -150,9 +149,6 @@ class Disciple_Tools_Facebook_Integration
         ?>
             <!-- need you own css? -->
             <style type="text/css">
-                .required-style-example {
-                    color: red
-                }
             </style>
 
             <label class="section-header">
@@ -480,7 +476,7 @@ class Disciple_Tools_Facebook_Integration
     }
 
     /**
-     * called by facebook when initialising the webook
+     * called by facebook when initialising the webhook
      *
      * @return mixed
      */
@@ -572,7 +568,7 @@ class Disciple_Tools_Facebook_Integration
      *
      * @param  $get
      *
-     * @return bool
+     * @return array
      */
     public function authenticate_app( $get )
     {
@@ -926,7 +922,7 @@ class Disciple_Tools_Facebook_Integration
                                     $facebook_data["labels"] = [];
                                 }
                                 $facebook_data["labels"][$label["id"]] = $label["name"];
-                                Disciple_Tools_Contacts::update_contact( $contact["ID"], [ "facebook_data" => $facebook_data ] ,false );
+                                Disciple_Tools_Contacts::update_contact( $contact["ID"], [ "facebook_data" => $facebook_data ], false );
                             }
                         }
                     }
@@ -992,9 +988,6 @@ class Disciple_Tools_Facebook_Integration
                         <br>
 
                         <?php
-                        // Check noonce
-
-
                         if ( isset( $_POST["page-id"] ) ){
                             $facebook_labels = get_option( "dt_facebook_labels", [] );
                             if ( isset( $facebook_labels[$_POST["page-id"]] ) ){
@@ -1011,7 +1004,6 @@ class Disciple_Tools_Facebook_Integration
                                         <tbody>
 
                                         <?php
-
                                         foreach ( $facebook_labels[ $page_id ] as $label_key => $label_value ){
                                             ?>
                                             <tr>
@@ -1036,7 +1028,6 @@ class Disciple_Tools_Facebook_Integration
                             }
                         }
 
-
                         $facebook_labels = get_option( "dt_facebook_labels", [] );
                         if ( isset( $_POST["save_labels"] ) && isset( $facebook_labels[$page_id] )){
                             foreach ( $facebook_labels[ $page_id ] as $label_key => $label_value ){
@@ -1044,12 +1035,9 @@ class Disciple_Tools_Facebook_Integration
                             }
                             update_option( "dt_facebook_labels", $facebook_labels );
                         }
-
-
                         ?>
 
                     </div><!-- end post-body-content -->
-
                 </div><!-- post-body meta box container -->
             </div><!--poststuff end -->
         </div><!-- wrap end -->
