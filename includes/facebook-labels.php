@@ -62,7 +62,7 @@ class Disciple_Tools_Facebook_Labels {
     {
 //        @todo remove
         register_rest_route(
-            $this->namespace, 'test', [
+            $this->namespace, 'dt-public/test', [
                 "methods"  => "GET",
                 'callback' => [ $this, 'get_users_for_labels' ],
             ]

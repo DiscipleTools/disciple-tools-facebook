@@ -54,6 +54,7 @@ class Disciple_Tools_Facebook_Integration
         add_filter( "dt_custom_fields_settings", [ $this, "dt_facebook_fields" ], 1, 2 );
         add_filter( "dt_details_additional_section_ids", [ $this, "dt_facebook_declare_section_id" ], 999, 2 );
         add_action( "dt_details_additional_section", [ $this, "dt_facebook_add_section" ] );
+        add_action( "dt_async_dt_conversation_update", [ $this, "get_conversation_update" ], 10, 2 );
 
     } // End __construct()
 
@@ -631,7 +632,7 @@ class Disciple_Tools_Facebook_Integration
                     if ( $change['field'] == "conversations" ) {
                         //there is a new update in a conversation
                         $thread_id = $change['value']['thread_id'];
-                        $this->get_conversation_update( $facebook_page_id, $thread_id );
+                        do_action( "dt_conversation_update", $facebook_page_id, $thread_id );
                     }
 //                    elseif ( $change['field'] == "feed" ) {
 //                        //the facebook page feed has an update
@@ -649,7 +650,7 @@ class Disciple_Tools_Facebook_Integration
      * @param $page_id
      * @param $thread_id , the id for the conversation containing the messages
      */
-    private function get_conversation_update( $page_id, $thread_id )
+    public function get_conversation_update( $page_id, $thread_id )
     {
         //check the settings array to see if we have settings saved for the page
         //get the access token and custom page name by looking for the page Id

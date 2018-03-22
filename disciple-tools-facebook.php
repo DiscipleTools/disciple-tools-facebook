@@ -103,13 +103,14 @@ class DT_Facebook {
     private function includes() {
         require_once( 'includes/wp-async-request.php' );
         require_once( 'includes/admin/admin-menu-and-tabs.php' );
-        require_once( 'includes/get-labels.php' );
+        require_once( 'includes/async_function.php' );
         require_once( 'includes/shared-functions.php' );
         require_once( 'includes/facebook-labels.php' );
         Disciple_Tools_Facebook_Labels::instance();
         require_once( 'includes/facebook-integration.php' );
         Disciple_Tools_Facebook_Integration::instance();
         new DT_Facebook_Get_Users_For_Labels( 3 );
+        new DT_Facebook_Conversation_Update( 3 );
     }
 
     /**
