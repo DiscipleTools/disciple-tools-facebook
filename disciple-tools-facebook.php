@@ -103,7 +103,7 @@ class DT_Facebook {
     private function includes() {
         require_once( 'includes/wp-async-request.php' );
         require_once( 'includes/admin/admin-menu-and-tabs.php' );
-        require_once( 'includes/async_function.php' );
+        require_once( 'includes/async-function.php' );
         require_once( 'includes/shared-functions.php' );
         require_once( 'includes/facebook-labels.php' );
         Disciple_Tools_Facebook_Labels::instance();
