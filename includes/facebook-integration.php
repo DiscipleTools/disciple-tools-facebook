@@ -751,6 +751,9 @@ class Disciple_Tools_Facebook_Integration
             if ( !isset( $facebook_data["app_scoped_ids"] ) ){
                 $facebook_data["app_scoped_ids"] = [];
             }
+            if ( !isset( $facebook_data["page_ids"] ) ){
+                $facebook_data["page_ids"] = [];
+            }
             if ( !isset( $facebook_data["names"] ) ){
                 $facebook_data["names"] = [];
             }
@@ -761,6 +764,9 @@ class Disciple_Tools_Facebook_Integration
             }
             if ( !in_array( $participant["id"], $facebook_data["app_scoped_ids"] )){
                 $facebook_data["app_scoped_ids"][] = $participant["id"];
+            }
+            if ( !in_array( $page["id"], $facebook_data["page_ids"] )){
+                $facebook_data["page_ids"][] = $page["id"];
             }
             if ( !in_array( $participant["name"], $facebook_data["names"] )){
                 $facebook_data["names"][] = $participant["name"];
@@ -774,6 +780,7 @@ class Disciple_Tools_Facebook_Integration
                 "facebook_data" => [
                     "page_scoped_ids" => $page_scoped_ids,
                     "app_scoped_ids" => [ $participant["id"] ],
+                    "page_ids" => [ $page["id"] ],
                     "names" => [ $participant["name"] ],
                     "last_message_at" => $updated_time
                 ]

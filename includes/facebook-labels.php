@@ -48,8 +48,14 @@ class Disciple_Tools_Facebook_Labels {
 
         add_action( 'dt_async_dt_get_users_for_labels', [ $this, 'get_users_for_labels_async' ] );
         add_action( 'build_disciple_tools_reports', [ $this, 'get_users_for_labels' ] );
+        add_action( 'dt_contact_updated', [ $this, 'dt_contact_updated' ], 10, 2 );
+
+        //workflows, from Facebook to Disciple.Tools
         add_filter( 'dt_facebook_label_workflows', [ $this, 'facebook_label_workflows' ] );
         add_action( 'dt_facebook_label_workflows_close', [ $this, "dt_facebook_label_workflows_close" ] );
+        //workflows, from Disciple.Tools to facebook
+        add_filter( 'dt_to_fb_workflows', [ $this, 'dt_to_fb_workflows' ] );
+        add_action( 'dt_facebook_workflow_add_close_label', [ $this, 'dt_facebook_workflow_add_close_label' ], 10, 2 );
 
     } // End __construct()
 
@@ -89,8 +95,31 @@ class Disciple_Tools_Facebook_Labels {
         }
     }
 
-    public static function apply_label_to_conversation( $page_label_id, $facebook_user_id, $page_id ){
+    public function apply_label_to_conversation( $page_label_id, $facebook_user_id, $page_id ){
+        if ( !$page_id || !$page_label_id || !$facebook_user_id){
+            return null;
+        }
+        $facebook_pages = get_option( "dt_facebook_pages", [] );
+        $facebook_labels = get_option( "dt_facebook_labels", [] );
+        if ( isset( $facebook_pages[$page_id]["access_token"] ) ){
+            $response = dt_facebook_api( "apply_label", $facebook_user_id, $facebook_pages[$page_id]["access_token"], $page_label_id );
+            if ( ! is_wp_error( $response ) ){
+                $contacts = dt_facebook_find_contacts_with_ids( [ $facebook_user_id ] );
 
+                $label_name = isset( $facebook_labels[$page_id][$page_label_id] ) ? $facebook_labels[$page_id][$page_label_id] : "";
+                foreach ( $contacts as $contact_post ){
+
+                    $facebook_data = maybe_unserialize( get_post_meta( $contact_post->ID,"facebook_data", true ) ) ?? [];
+                    if ( !isset( $facebook_data["labels"] ) ){
+                        $facebook_data["labels"] = [];
+                    }
+                    if ( !isset( $facebook_data["labels"][ $page_label_id ] ) ){
+                        $facebook_data["labels"][ $page_label_id ] = $label_name ;
+                        Disciple_Tools_Contacts::update_contact( $contact_post->ID, [ "facebook_data" => $facebook_data ], false );
+                    }
+                }
+            }
+        }
     }
 
     public function get_users_for_labels(){
@@ -121,6 +150,7 @@ class Disciple_Tools_Facebook_Labels {
                                 if ( !isset( $facebook_data["labels"] ) ){
                                     $facebook_data["labels"] = [];
                                 }
+                                //don't trigger the workflow if the label already exists on the contact
                                 if ( !isset( $facebook_data["labels"][$label["id"]] )){
                                     $facebook_data["labels"][$label["id"]] = $label["name"];
                                     Disciple_Tools_Contacts::add_comment( $contact["ID"], "This label was applied on Facebook: " . $label['name'] );
@@ -204,6 +234,11 @@ class Disciple_Tools_Facebook_Labels {
                                 } else {
                                     $facebook_labels[$page_id][$label_key]["workflow"] = "";
                                 }
+                                if ( !empty( $_POST[ $label_key . "-workflow_dt_to_fb"] ) ){
+                                    $facebook_labels[$page_id][$label_key]["workflow_dt_to_fb"] = esc_html( sanitize_text_field( wp_unslash( $_POST[ $label_key . "-workflow_dt_to_fb"] ) ) );
+                                } else {
+                                    $facebook_labels[$page_id][$label_key]["workflow_dt_to_fb"] = "";
+                                }
                             }
                             update_option( "dt_facebook_labels", $facebook_labels );
                         }
@@ -220,13 +255,15 @@ class Disciple_Tools_Facebook_Labels {
                                             <tr>
                                                 <th>Labels</th>
                                                 <th>Sync Label</th>
-                                                <th>Workflow</th>
+                                                <th>Workflow, FB -> DT</th>
+                                                <th>Workflow, DT -> FB</th>
                                             </tr>
                                         </thead>
                                         <tbody>
 
                                         <?php
                                         $workflows = apply_filters( "dt_facebook_label_workflows", [] );
+                                        $workflows_dt_to_fb = apply_filters( "dt_to_fb_workflows", [] );
                                         foreach ( $facebook_labels[ $page_id ] as $label_key => $label_value ){
                                             ?>
                                             <tr>
@@ -243,6 +280,17 @@ class Disciple_Tools_Facebook_Labels {
                                                         <?php foreach ( $workflows as $workflow ){ ?>
                                                             <option value="<?php echo esc_html( $workflow["key"] ) ?>"
                                                                 <?php echo ( isset( $label_value["workflow"] ) && $label_value["workflow"] === $workflow["key"] ) ? "selected" : "" ?>>
+                                                                <?php echo esc_html( $workflow["name"] ) ?>
+                                                            </option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <select title="workflow" name="<?php echo esc_attr( $label_key ) ?>-workflow_dt_to_fb">
+                                                        <option></option>
+                                                        <?php foreach ( $workflows_dt_to_fb as $workflow ){ ?>
+                                                            <option value="<?php echo esc_html( $workflow["action"] ) ?>"
+                                                                <?php echo ( isset( $label_value["workflow_dt_to_fb"] ) && $label_value["workflow_dt_to_fb"] === $workflow["action"] ) ? "selected" : "" ?>>
                                                                 <?php echo esc_html( $workflow["name"] ) ?>
                                                             </option>
                                                         <?php } ?>
@@ -300,7 +348,6 @@ class Disciple_Tools_Facebook_Labels {
             <tbody>
             <?php
             foreach ( $workflows as $workflow ){
-
                 ?>
                 <tr>
                     <td><?php echo esc_html( $workflow["name"] ) ?></td>
@@ -337,4 +384,47 @@ class Disciple_Tools_Facebook_Labels {
         Disciple_Tools_Contacts::update_contact( $contact["ID"], $fields, false );
     }
 
+
+    /**
+     * This is a hook for when the contact is updated.
+     * Here we check if we have a workflow linked to a field that was updated.
+     * @param $updated_keys
+     * @param $contact
+     */
+    public function dt_contact_updated( $updated_keys, $contact ){
+        //does the contact have a facebook user id?
+        if ( isset( $contact["facebook_data"] ) && isset( $contact["facebook_data"]["app_scoped_ids"][0] ) ){
+            $workflows = apply_filters( 'dt_to_fb_workflows', [] );
+            foreach ( $workflows as $workflow ){
+                //was a field triggering the workflow updated?
+                if ( in_array( $workflow["field"], $updated_keys ) && in_array( $workflow["page_id"], $contact["facebook_data"]["page_ids"] )){
+                    do_action( $workflow["action"], $contact, $workflow );
+                }
+            }
+        }
+    }
+
+
+    public function dt_to_fb_workflows( $workflows ){
+        $workflows[] = [
+            "name" => "Close Contact",
+            "field" => "overall_status",
+//            "value" => [ "closed" ],
+            "action" => "dt_facebook_workflow_add_close_label",
+        ];
+        return $workflows;
+    }
+
+    public function dt_facebook_workflow_add_close_label( $contact, $workflow){
+        if ( $contact["overall_status"]["key"] === "closed" ){
+            $facebook_labels = get_option( "dt_facebook_labels", [] );
+            foreach ( $facebook_labels as $page_id => $page_labels ){
+                foreach ( $page_labels as $label_key => $label_value ){
+                    if ( !empty( $label_value["workflow_dt_to_fb"] )){
+                        $this->apply_label_to_conversation( $label_key, $contact["facebook_data"]["app_scoped_ids"][0], $page_id );
+                    }
+                }
+            }
+        }
+    }
 }
