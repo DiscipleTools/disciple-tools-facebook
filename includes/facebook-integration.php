@@ -96,13 +96,6 @@ class Disciple_Tools_Facebook_Integration
                 'callback' => [ $this, 'rebuild_all_data' ],
             ]
         );
-//        @todo remove
-        register_rest_route(
-            $this->namespace, 'test', [
-                "methods"  => "GET",
-                'callback' => [ $this, 'get_users_for_labels' ],
-            ]
-        );
     }
 
 
@@ -117,6 +110,9 @@ class Disciple_Tools_Facebook_Integration
                     "type" => "array",
                     "default" => []
                 ];
+            }
+            if ( !isset( $fields["reason_closed"]["default"]["closed_from_facebook"] ) ){
+                $fields["reason_closed"]["default"]["closed_from_facebook"] = __( "Closed from Facebook", "dt_facebook" );
             }
         }
         //don't forget to return the update fields array

@@ -66,13 +66,7 @@ class Disciple_Tools_Facebook_Labels {
      */
     public function add_api_routes()
     {
-//        @todo remove
-        register_rest_route(
-            $this->namespace, 'dt-public/test', [
-                "methods"  => "GET",
-                'callback' => [ $this, 'get_users_for_labels' ],
-            ]
-        );
+
     }
 
     public function get_facebook_page_labels(){
@@ -377,9 +371,9 @@ class Disciple_Tools_Facebook_Labels {
     }
 
     public function dt_facebook_label_workflows_close( $contact ){
-//        @todo include reason closed
         $fields = [
-            "overall_status" => "closed"
+            "overall_status" => "closed",
+            "reason_closed" => "closed_from_facebook"
         ];
         Disciple_Tools_Contacts::update_contact( $contact["ID"], $fields, false );
     }
@@ -409,7 +403,6 @@ class Disciple_Tools_Facebook_Labels {
         $workflows[] = [
             "name" => "Close Contact",
             "field" => "overall_status",
-//            "value" => [ "closed" ],
             "action" => "dt_facebook_workflow_add_close_label",
         ];
         return $workflows;
