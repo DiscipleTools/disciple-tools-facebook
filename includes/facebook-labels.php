@@ -397,7 +397,7 @@ class Disciple_Tools_Facebook_Labels {
             $workflows = apply_filters( 'dt_to_fb_workflows', [] );
             foreach ( $workflows as $workflow ){
                 //was a field triggering the workflow updated?
-                if ( in_array( $workflow["field"], $updated_keys ) && in_array( $workflow["page_id"], $contact["facebook_data"]["page_ids"] )){
+                if ( in_array( $workflow["field"], $updated_keys ) ) {
                     do_action( $workflow["action"], $contact, $workflow );
                 }
             }
@@ -419,9 +419,11 @@ class Disciple_Tools_Facebook_Labels {
         if ( $contact["overall_status"]["key"] === "closed" ){
             $facebook_labels = get_option( "dt_facebook_labels", [] );
             foreach ( $facebook_labels as $page_id => $page_labels ){
-                foreach ( $page_labels as $label_key => $label_value ){
-                    if ( !empty( $label_value["workflow_dt_to_fb"] )){
-                        $this->apply_label_to_conversation( $label_key, $contact["facebook_data"]["app_scoped_ids"][0], $page_id );
+                if ( in_array( $page_id, $contact["facebook_data"]["page_ids"] )){
+                    foreach ( $page_labels as $label_key => $label_value ){
+                        if ( !empty( $label_value["workflow_dt_to_fb"] ) ){
+                            $this->apply_label_to_conversation( $label_key, $contact["facebook_data"]["app_scoped_ids"][0], $page_id );
+                        }
                     }
                 }
             }
