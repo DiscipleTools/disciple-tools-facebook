@@ -139,32 +139,73 @@ class Disciple_Tools_Facebook_Integration
         ?>
             <!-- need you own css? -->
             <style type="text/css">
+                .facebook-label {
+                    background: #ecf5fc;
+                    padding: 2px 4px;
+                    border-radius: 2px;
+                    border: 1px solid #c2e0ff;
+                }
             </style>
 
             <label class="section-header">
                 <?php esc_html_e( 'Facebook', 'dt_facebook' )?>
             </label>
-            <?php
-            foreach ( $facebook_data as $key => $value ){
-            ?>
-                <div class="section-subheader">
-                    <?php echo esc_html( $key )?>
-                </div>
-                <?php
-                if ( is_array( $value )){
-                    foreach ( $value as $id ){
-                        ?>
-                        <p><?php echo esc_html( $id )?></p>
-                        <?php
-                    }
-                } else {
-                    ?>
-                    <p><?php echo esc_html( $value )?></p>
-                    <?php
-                }
-            }
-            ?>
 
+
+            <?php
+            if ( isset( $facebook_data["names"] ) ){
+                ?>
+                <div class="section-subheader">
+                    <?php esc_html_e( "Names", "dt_facebook" )?>
+                </div>
+                <?php foreach ( $facebook_data["names"] as $id ){
+                ?>
+                    <p><?php echo esc_html( $id )?></p>
+                <?php }
+            }
+            if ( isset( $facebook_data["labels"] ) ){
+                ?>
+                <div class="section-subheader">
+                    <?php esc_html_e( "Labels", "dt_facebook" )?>
+                </div>
+                <p>
+                <?php foreach ( $facebook_data["labels"] as $id ){
+                ?>
+                    <span class="facebook-label"><?php echo esc_html( $id )?></span>
+                <?php }
+                ?></p><?php
+            }
+
+            if ( isset( $facebook_data["last_message_at"] ) ){
+                $date = strtotime( $facebook_data["last_message_at"] )
+                ?>
+                <div class="section-subheader">
+                    <?php esc_html_e( "Last massage at:", "dt_facebook" )?>
+                </div>
+                <p><?php echo esc_html( date( "Y-m-d H:m", $date ) )?></p>
+                <?php
+            }
+
+//            foreach ( $facebook_data as $key => $value ){
+//            ?>
+<!--                <div class="section-subheader">-->
+<!--                    --><?php //echo esc_html( $key )?>
+<!--                </div>-->
+<!--                --><?php
+//                if ( is_array( $value )){
+//                    foreach ( $value as $id ){
+//                        ?>
+<!--                        <p>--><?php //echo esc_html( $id )?><!--</p>-->
+<!--                        --><?php
+//                    }
+//                } else {
+//                    ?>
+<!--                    <p>--><?php //echo esc_html( $value )?><!--</p>-->
+<!--                    --><?php
+//                }
+//            }
+
+            ?>
 
             <script type="application/javascript">
                 //enter jquery here if you need it
