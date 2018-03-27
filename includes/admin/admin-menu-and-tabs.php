@@ -147,7 +147,9 @@ class DT_Facebook_Tab_General
         <!-- Box -->
         <table class="widefat striped">
             <thead>
-            <th>Facebook Integration Settings</th>
+                <tr>
+                    <th><?php esc_html_e( "Facebook Integration Settings", 'disciple_tools' ) ?></th>
+                </tr>
             </thead>
             <tbody>
             <tr>
@@ -167,12 +169,14 @@ class DT_Facebook_Tab_General
         <!-- Box -->
         <table class="widefat striped">
             <thead>
-            <th>Information</th>
+                <tr>
+                    <th><?php esc_html_e( "Information", 'disciple_tools' ) ?></th>
+                </tr>
             </thead>
             <tbody>
             <tr>
                 <td>
-                    Content
+                    <?php esc_html_e( "Content", 'disciple_tools' ) ?>
                 </td>
             </tr>
             </tbody>
@@ -221,7 +225,9 @@ class DT_Facebook_Tab_Second
         <!-- Box -->
         <table class="widefat striped">
             <thead>
-            <th>Labels</th>
+            <tr>
+                <th><?php esc_html_e( "Labels", 'disciple_tools' ) ?></th>
+            </tr>
             </thead>
             <tbody>
             <tr>
@@ -237,7 +243,7 @@ class DT_Facebook_Tab_Second
         <table class="widefat striped">
             <thead>
                 <tr>
-                    <th>Label Workflows</th>
+                    <th><?php esc_html_e( "Label Workflows", 'disciple_tools' ) ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -258,12 +264,14 @@ class DT_Facebook_Tab_Second
         <!-- Box -->
         <table class="widefat striped">
             <thead>
-            <th>Information</th>
+                <tr>
+                    <th><?php esc_html_e( "Information", 'disciple_tools' ) ?></th>
+                </tr>
             </thead>
             <tbody>
             <tr>
                 <td>
-                    Content
+                    <?php esc_html_e( "Content", 'disciple_tools' ) ?>
                 </td>
             </tr>
             </tbody>

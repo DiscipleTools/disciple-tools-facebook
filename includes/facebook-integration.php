@@ -90,12 +90,6 @@ class Disciple_Tools_Facebook_Integration
                 'callback' => [ $this, 'add_app' ],
             ]
         );
-        register_rest_route(
-            $this->namespace, 'rebuild', [
-                "methods"  => "GET",
-                'callback' => [ $this, 'rebuild_all_data' ],
-            ]
-        );
     }
 
 
@@ -204,26 +198,6 @@ class Disciple_Tools_Facebook_Integration
 
 
     /**
-     * Get reports for Facebook pages with stats enabled
-     * for the past 10 years (if available)
-     */
-    public function rebuild_all_data()
-    {
-//        @todo set this up again
-//        $this->immediate_response();
-//        $facebook_pages = get_option( "dt_facebook_pages", [] );
-//        foreach ( $facebook_pages as $page_id => $facebook_page ) {
-//            if ( isset( $facebook_page["rebuild"] ) && $facebook_page["rebuild"] == true ) {
-//                $long_time_ago = date( 'Y-m-d', strtotime( '-10 years' ) );
-//                $reports = Disciple_Tools_Reports_Integrations::facebook_prepared_data( $long_time_ago, $facebook_page );
-//                foreach ( $reports as $report ) {
-//                    dt_report_insert( $report );
-//                }
-//            }
-//        }
-    }
-
-    /**
      * Render the Facebook Settings Page
      */
     public function facebook_settings_page()
@@ -321,7 +295,7 @@ class Disciple_Tools_Facebook_Integration
                                 <thead>
                                     <tr>
                                         <th><?php esc_html_e( "Facebook Pages", 'dt_facebook' ) ?></th>
-                                        <th>-<?php esc_html_e( "Sync Contacts", 'dt_facebook' ) ?></th>
+                                        <th><?php esc_html_e( "Sync Contacts", 'dt_facebook' ) ?></th>
                                         <th><?php esc_html_e( "Include in Stats", 'dt_facebook' ) ?></th>
                                         <th><?php esc_html_e( "Part of Business Manager", 'dt_facebook' ) ?></th>
                                     </tr>
@@ -415,9 +389,11 @@ class Disciple_Tools_Facebook_Integration
                 //if the include in stats checkbox is selected
                 $report = str_replace( ' ', '_', $facebook_page["id"] . "-report" );
                 if ( isset( $_POST[ $report ] ) ) {
+                    if ( !isset( $facebook_pages[$id]["report"] ) || $facebook_pages[$id]["report"] == 0 ){
+                        $get_historical_data = true;
+                    }
                     $facebook_pages[$id]["report"] = 1;
                     $facebook_pages[$id]["rebuild"] = true;
-                    $get_historical_data = true;
                 } else {
                     $facebook_pages[$id]["report"] = 0;
                 }
@@ -467,7 +443,7 @@ class Disciple_Tools_Facebook_Integration
             update_option( "dt_facebook_pages", $facebook_pages );
             //if a new page is added, get the reports for that page.
             if ( $get_historical_data === true ) {
-                wp_remote_get( $this->get_rest_url() . "/rebuild" );
+                do_action( "dt_facebook_stats" );
             }
         }
     }
