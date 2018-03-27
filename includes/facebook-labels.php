@@ -109,12 +109,12 @@ class Disciple_Tools_Facebook_Labels {
                 $label_name = isset( $facebook_labels[$page_id][$page_label_id] ) ? $facebook_labels[$page_id][$page_label_id] : "";
                 foreach ( $contacts as $contact_post ){
 
-                    $facebook_data = maybe_unserialize( get_post_meta( $contact_post->ID,"facebook_data", true ) ) ?? [];
+                    $facebook_data = maybe_unserialize( get_post_meta( $contact_post->ID, "facebook_data", true ) ) ?? [];
                     if ( !isset( $facebook_data["labels"] ) ){
                         $facebook_data["labels"] = [];
                     }
                     if ( !isset( $facebook_data["labels"][ $page_label_id ] ) ){
-                        $facebook_data["labels"][ $page_label_id ] = $label_name ;
+                        $facebook_data["labels"][ $page_label_id ] = $label_name;
                         Disciple_Tools_Contacts::update_contact( $contact_post->ID, [ "facebook_data" => $facebook_data ], false );
                     }
                 }
@@ -214,9 +214,9 @@ class Disciple_Tools_Facebook_Labels {
                                 ?>
                             </select>
 
-                            <input type="submit" class="button" name="show_labels" value="Show Page Labels"/>
+                            <input type="submit" class="button" name="show_labels" value="<?php esc_html_e( "Show Page Labels", 'dt_facebook' ) ?>"/>
                             <?php if ( $page_id ){ ?>
-                                <input type="submit" class="button" name="refresh_labels" value="Refresh Labels"/>
+                                <input type="submit" class="button" name="refresh_labels" value="<?php esc_html_e( "Refresh Labels", 'dt_facebook' ) ?>"/>
                             <?php } ?>
                         </form>
                         <br>
@@ -253,10 +253,10 @@ class Disciple_Tools_Facebook_Labels {
                                     <table id="facebook_labels" class="widefat striped">
                                         <thead>
                                             <tr>
-                                                <th>Labels</th>
-                                                <th>Sync Label</th>
-                                                <th>Workflow, FB -> DT</th>
-                                                <th>Workflow, DT -> FB</th>
+                                                <th><?php esc_html_e( "Labels", 'dt_facebook' ) ?></th>
+                                                <th><?php esc_html_e( "Sync Label", 'dt_facebook' ) ?></th>
+                                                <th><?php esc_html_e( "Workflow, FB -> DT", 'dt_facebook' ) ?></th>
+                                                <th><?php esc_html_e( "Workflow, DT -> FB", 'dt_facebook' ) ?></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -304,7 +304,7 @@ class Disciple_Tools_Facebook_Labels {
                                     </table>
 
                                     <input name="page-id" value="<?php echo esc_html( $page_id ); ?>" type="hidden"/>
-                                    <input type="submit" class="button" name="save_labels" value="Save Labels to Sync"/>
+                                    <input type="submit" class="button" name="save_labels" value="<?php esc_html_e( "Save Labels to Sync", 'dt_facebook' ) ?>"/>
                                 </form>
                                 <?php
                             }

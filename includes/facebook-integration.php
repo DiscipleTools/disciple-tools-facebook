@@ -152,7 +152,7 @@ class Disciple_Tools_Facebook_Integration
             </style>
 
             <label class="section-header">
-                <?php esc_html_e( 'Facebook', 'disciple_tools' )?>
+                <?php esc_html_e( 'Facebook', 'dt_facebook' )?>
             </label>
             <?php
             foreach ( $facebook_data as $key => $value ){
@@ -234,38 +234,46 @@ class Disciple_Tools_Facebook_Integration
     {
 
         ?>
-        <h3>Hook up Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook
-            pages. </h3>
+        <h3><?php esc_html_e( "Link Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook
+            pages.", 'dt_facebook' ) ?></h3>
         <div class="wrap">
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
                     <div id="post-body-content">
+                        <strong><?php esc_html_e( "Instructions", 'dt_facebook' ) ?></strong>
+                        <ul style="list-style-type: disc; padding-left:40px">
+                            <li><?php esc_html_e( "Create a Facebook App are use an existing one here:", 'dt_facebook' ) ?> <a href="https://developers.facebook.com/apps">https://developers.facebook.com/apps</a></li>
+                            <li><?php esc_html_e( "In your app under Add Platform choose the website option. Put this as the site URL:", 'dt_facebook' ) ?>
+                                <strong><?php echo esc_url( get_site_url() ); ?></strong>
+                                <?php esc_html_e( "Save changes.", 'dt_facebook' ) ?>
+                            </li>
+                            <li>
+                                <?php esc_html_e( 'Open "Facebook Login" in the menu, under "Valid Oauth redirect URIs" add:', 'dt_facebook' ) ?>
+                                <strong><?php echo esc_url( get_site_url() ); ?></strong>
+                            </li>
+                            <li>
+                                <?php esc_html_e( 'In Settings > Basic: Get the APP ID and the APP SECRET, enter them in below and click "Save"', 'dt_facebook' ) ?>
+                            </li>
+                            <li>
+                                <?php esc_html_e( "Associate you app with a Facebook Business to help tracking users.", 'dt_facebook' ) ?>
+                            </li>
+                        </ul>
+
+                        <?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Save App Settings" button bellow) if:', 'dt_facebook' ) ?>
+                        <ul style="list-style-type: disc; padding-left:40px">
+                            <li><?php esc_html_e( "You change your Facebook account password", 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( "You delete or de­authorize your Facebook App", 'dt_facebook' ) ?></li>
+                        </ul>
 
                         <form action="<?php echo esc_url( $this->get_rest_url() ); ?>/add-app" method="post">
                             <input type="hidden" name="_wpnonce" id="_wpnonce"
                                    value="<?php echo esc_html( wp_create_nonce( 'wp_rest' ) )?>"/>
-                            <p>For this integration to work, go to your <a href="https://developers.facebook.com/apps">Facebook
-                                    app's settings page</a>.
-                                Under <strong>Add Platform</strong>, choose the website option, put:
-                                <strong><?php echo esc_url( get_site_url() ); ?></strong> as the site URL and click save
-                                changes.<br>
-                                Also add it to the "Valid Oauth redirect URIs
-                                <br>
-                                From your Facebook App's settings page get the App ID and the App Secret and paste them
-                                bellow and click the "Save App Settings" button.<br>
-                                If you have any Facebook pages, they should appear in the Facebook Pages Table
-                                bellow.<br>
-                                You will need to re-authenticate (by clicking the "Save App Settings" button bellow) if:<br>
-                                &nbsp;&nbsp; •You change your Facebook account password<br>
-                                &nbsp;&nbsp; •You delete or de­authorize your Facebook App
-                            </p>
-                            <p>Business Manager: Associate your app and page with a business.</p>
-                            <p></p>
+
                             <table class="widefat striped">
 
                                 <thead>
                                     <tr>
-                                        <th>Facebook App Settings</th>
+                                        <th><?php esc_html_e( "Facebook App Settings", 'dt_facebook' ) ?></th>
                                         <th></th>
                                     </tr>
                                 </thead>
@@ -273,14 +281,14 @@ class Disciple_Tools_Facebook_Integration
                                 <tbody>
 
                                 <tr>
-                                    <td>Facebook App Id</td>
+                                    <td><?php esc_html_e( "Facebook App Id", 'dt_facebook' ) ?></td>
                                     <td>
                                         <input title="App Id" type="text" class="regular-text" name="app_id"
                                                value="<?php echo esc_attr( get_option( "disciple_tools_facebook_app_id", "" ) ); ?>"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Facebook App Secret</td>
+                                    <td><?php esc_html_e( "Facebook App Secret", 'dt_facebook' ) ?></td>
                                     <td>
                                         <?php
                                         $secret = get_option( "disciple_tools_facebook_app_secret", "" );
@@ -293,15 +301,15 @@ class Disciple_Tools_Facebook_Integration
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>Access Token</td>
+                                    <td><?php esc_html_e( "Access Token", 'dt_facebook' ) ?></td>
                                     <td>
-                                        <?php echo( get_option( "disciple_tools_facebook_access_token" ) ? "Access token is saved" : "No Access Token" ) ?>
+                                        <?php echo ( get_option( "disciple_tools_facebook_access_token" ) ? esc_html__( 'Access token is saved', 'dt_facebook' ) : esc_html__( 'No Access Token', 'dt_facebook' ) ) ?>
                                     </td>
                                 </tr>
 
                                 <tr>
-                                    <td>Save app</td>
-                                    <td><input type="submit" class="button" name="save_app" value="Save app Settings"/>
+                                    <td><?php esc_html_e( "Save or Refresh", 'dt_facebook' ) ?></td>
+                                    <td><input type="submit" class="button" name="save_app" value="<?php esc_html_e( "Save", 'dt_facebook' ) ?>"/>
                                     </td>
                                 </tr>
                                 </tbody>
@@ -316,10 +324,10 @@ class Disciple_Tools_Facebook_Integration
                             <table id="facebook_pages" class="widefat striped">
                                 <thead>
                                     <tr>
-                                        <th>Facebook Pages</th>
-                                        <th>Sync Contacts</th>
-                                        <th>Include in Stats</th>
-                                        <th>Part of Business Manager</th>
+                                        <th><?php esc_html_e( "Facebook Pages", 'dt_facebook' ) ?></th>
+                                        <th>-<?php esc_html_e( "Sync Contacts", 'dt_facebook' ) ?></th>
+                                        <th><?php esc_html_e( "Include in Stats", 'dt_facebook' ) ?></th>
+                                        <th><?php esc_html_e( "Part of Business Manager", 'dt_facebook' ) ?></th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -350,8 +358,8 @@ class Disciple_Tools_Facebook_Integration
                                     ?>
                                 </tbody>
                             </table>
-                            <input type="submit" class="button" name="get_pages" value="Refresh Page List"/>
-                            <input type="submit" class="button" name="save_pages" value="Save Pages Settings"/>
+                            <input type="submit" class="button" name="get_pages" value="<?php esc_html_e( "Refresh Page List", 'dt_facebook' ) ?>"/>
+                            <input type="submit" class="button" name="save_pages" value="<?php esc_html_e( "Save Pages Settings", 'dt_facebook' ) ?>"/>
 
 
                         </form>
