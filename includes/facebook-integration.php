@@ -641,8 +641,6 @@ class Disciple_Tools_Facebook_Integration
      */
     public function update_from_facebook()
     {
-//        respond to facebook immediately. Disabled because it was not going past this point.
-//        $this->immediate_response();
         //decode the facebook post request from json
         $body = json_decode( file_get_contents( 'php://input' ), true );
 
@@ -652,8 +650,13 @@ class Disciple_Tools_Facebook_Integration
                 foreach ( $entry['changes'] as $change ) {
                     if ( $change['field'] == "conversations" ) {
                         //there is a new update in a conversation
+//                        @todo implement a better race condition check
                         $thread_id = $change['value']['thread_id'];
-                        do_action( "dt_conversation_update", $facebook_page_id, $thread_id );
+                        $last_thread = get_option( "dt_facebook_thread_in_progress", "" );
+                        if ($last_thread != $thread_id){
+                            update_option( "dt_facebook_thread_in_progress", $thread_id );
+                            do_action( "dt_conversation_update", $facebook_page_id, $thread_id );
+                        }
                     }
 //                    elseif ( $change['field'] == "feed" ) {
 //                        //the facebook page feed has an update
@@ -737,7 +740,6 @@ class Disciple_Tools_Facebook_Integration
             $page_scoped_ids = $this->get_page_scoped_ids( $participant["id"], $page["access_token"] );
         }
 
-
         $ids = array_merge( $page_scoped_ids, [ $participant["id"] ] );
         $contacts = dt_facebook_find_contacts_with_ids( $ids );
 
@@ -747,8 +749,8 @@ class Disciple_Tools_Facebook_Integration
         if ( sizeof( $contacts ) > 1 ){
             foreach ( $contacts as $contact_post ){
                 $contact = Disciple_Tools_Contacts::get_contact( $contact_post->ID, false );
-                if ( $contact["overall_status"] != "closed" ){
-                    $contact_id = $contacts["ID"];
+                if ( isset( $contact["overall_status"]["key"] ) && $contact["overall_status"]["key"] != "closed" ){
+                    $contact_id = $contact["ID"];
                 }
             }
 
@@ -809,6 +811,7 @@ class Disciple_Tools_Facebook_Integration
 
             Disciple_Tools_Contacts::create_contact( $fields, false );
         }
+        update_option( "dt_facebook_thread_in_progress", "" );
 
     }
 
