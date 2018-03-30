@@ -429,6 +429,7 @@ class Disciple_Tools_Facebook_Integration
                         $dt_custom_lists["sources"][$id] = [
                             'label'       => $facebook_page["name"],
                             'key'         => $id,
+                            'type'        => "facebook",
                             'description' => 'Contacts coming from Facebook page: ' . $facebook_page["name"],
                             'enabled'     => true,
                         ];
