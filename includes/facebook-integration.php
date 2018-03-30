@@ -419,11 +419,21 @@ class Disciple_Tools_Facebook_Integration
         if ( isset( $_POST["save_pages"] ) ) {
             $get_historical_data = false;
             $facebook_pages = get_option( "dt_facebook_pages", [] );
+            $dt_custom_lists = dt_get_option( 'dt_site_custom_lists' );
             foreach ( $facebook_pages as $id => $facebook_page ) {
                 //if sync contact checkbox is selected
                 $integrate = str_replace( ' ', '_', $facebook_page["id"] . "-integrate" );
                 if ( isset( $_POST[ $integrate ] ) ) {
                     $facebook_pages[$id]["integrate"] = 1;
+                    if ( !isset( $dt_custom_lists["sources"][$id] ) ){
+                        $dt_custom_lists["sources"][$id] = [
+                            'label'       => $facebook_page["name"],
+                            'key'         => $id,
+                            'description' => 'Contacts coming from Facebook page: ' . $facebook_page["name"],
+                            'enabled'     => true,
+                        ];
+                        update_option( "dt_site_custom_lists", $dt_custom_lists );
+                    }
                 } else {
                     $facebook_pages[$id]["integrate"] = 0;
                 }
@@ -800,6 +810,11 @@ class Disciple_Tools_Facebook_Integration
                 "title" => $participant["name"],
                 "source_details" => "Facebook Page: " . $page["name"],
                 "contact_facebook" => [ [ "value" => $facebook_url ] ],
+                "sources" => [
+                    "values" =>[
+                        [ "value" => $page["id"] ]
+                    ]
+                ],
                 "facebook_data" => [
                     "page_scoped_ids" => $page_scoped_ids,
                     "app_scoped_ids" => [ $participant["id"] ],
