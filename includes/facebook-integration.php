@@ -661,13 +661,8 @@ class Disciple_Tools_Facebook_Integration
                 foreach ( $entry['changes'] as $change ) {
                     if ( $change['field'] == "conversations" ) {
                         //there is a new update in a conversation
-//                        @todo implement a better race condition check
                         $thread_id = $change['value']['thread_id'];
-                        $last_thread = get_option( "dt_facebook_thread_in_progress", "" );
-                        if ($last_thread != $thread_id){
-                            update_option( "dt_facebook_thread_in_progress", $thread_id );
-                            do_action( "dt_conversation_update", $facebook_page_id, $thread_id );
-                        }
+                        do_action( "dt_conversation_update", $facebook_page_id, $thread_id );
                     }
 //                    elseif ( $change['field'] == "feed" ) {
 //                        //the facebook page feed has an update
@@ -824,11 +819,12 @@ class Disciple_Tools_Facebook_Integration
                     "last_message_at" => $updated_time
                 ]
             ];
-
-            Disciple_Tools_Contacts::create_contact( $fields, false );
+            //@todo implement a better race condition check
+            $last_thread = get_option( "dt_facebook_last_created", "" );
+            if ( $last_thread != $participant["id"] ){
+                update_option( "dt_facebook_last_created", $participant["id"] );
+                Disciple_Tools_Contacts::create_contact( $fields, false );
+            }
         }
-        update_option( "dt_facebook_thread_in_progress", "" );
-
     }
-
 }
