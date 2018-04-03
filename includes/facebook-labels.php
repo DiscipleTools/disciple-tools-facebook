@@ -48,7 +48,7 @@ class Disciple_Tools_Facebook_Labels {
 
         add_action( 'dt_async_dt_get_users_for_labels', [ $this, 'get_users_for_labels_async' ] );
         add_action( 'build_disciple_tools_reports', [ $this, 'get_users_for_labels' ] );
-        add_action( 'dt_contact_updated', [ $this, 'dt_contact_updated' ], 10, 2 );
+        add_action( 'dt_contact_updated', [ $this, 'dt_contact_updated' ], 10, 3 );
 
         //workflows, from Facebook to Disciple.Tools
         add_filter( 'dt_facebook_label_workflows', [ $this, 'facebook_label_workflows' ] );
@@ -382,11 +382,14 @@ class Disciple_Tools_Facebook_Labels {
     /**
      * This is a hook for when the contact is updated.
      * Here we check if we have a workflow linked to a field that was updated.
-     * @param $updated_keys
+     *
+     * @param $contact_id
+     * @param $fields
      * @param $contact
      */
-    public function dt_contact_updated( $updated_keys, $contact ){
+    public function dt_contact_updated( $contact_id, $fields, $contact ){
         //does the contact have a facebook user id?
+        $updated_keys = array_keys( $fields );
         if ( isset( $contact["facebook_data"] ) && isset( $contact["facebook_data"]["app_scoped_ids"][0] ) ){
             $workflows = apply_filters( 'dt_to_fb_workflows', [] );
             foreach ( $workflows as $workflow ){
