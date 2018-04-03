@@ -108,6 +108,9 @@ class Disciple_Tools_Facebook_Integration
             if ( !isset( $fields["reason_closed"]["default"]["closed_from_facebook"] ) ){
                 $fields["reason_closed"]["default"]["closed_from_facebook"] = __( "Closed from Facebook", "dt_facebook" );
             }
+            if ( !isset( $fields["overall_status"]["default"]["from_facebook"] )){
+                $fields["overall_status"]["default"]["from_facebook"] = __( "From Facebook", "disciple_tools" );
+            }
         }
         //don't forget to return the update fields array
         return $fields;
@@ -811,6 +814,7 @@ class Disciple_Tools_Facebook_Integration
                         [ "value" => $page["id"] ]
                     ]
                 ],
+                "overall_status" => "from_facebook",
                 "facebook_data" => [
                     "page_scoped_ids" => $page_scoped_ids,
                     "app_scoped_ids" => [ $participant["id"] ],
