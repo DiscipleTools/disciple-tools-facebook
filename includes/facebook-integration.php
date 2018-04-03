@@ -48,8 +48,6 @@ class Disciple_Tools_Facebook_Integration
     {
         $this->namespace = $this->context . "/v" . intval( $this->version );
         add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
-        add_action( 'dt_contact_meta_boxes_setup', [ $this, 'add_contact_meta_box' ] );
-//        add_action( 'admin_notices', [ $this, 'dt_admin_notice' ] );
         add_action( 'wp_ajax_dt-facebook-notice-dismiss', [ $this, 'dismiss_error' ] );
         add_filter( "dt_custom_fields_settings", [ $this, "dt_facebook_fields" ], 1, 2 );
         add_filter( "dt_details_additional_section_ids", [ $this, "dt_facebook_declare_section_id" ], 999, 2 );
@@ -172,7 +170,7 @@ class Disciple_Tools_Facebook_Integration
                     <?php esc_html_e( "Labels", "dt_facebook" )?>
                 </div>
                 <p>
-                <?php foreach ( $facebook_data["labels"] as $id ){
+                <?php foreach ( $facebook_data["labels"] as $id => $value ){
                 ?>
                     <span class="facebook-label"><?php echo esc_html( $id )?></span>
                 <?php }
