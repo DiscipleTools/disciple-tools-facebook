@@ -53,6 +53,7 @@ class Disciple_Tools_Facebook_Integration
         add_filter( "dt_details_additional_section_ids", [ $this, "dt_facebook_declare_section_id" ], 999, 2 );
         add_action( "dt_details_additional_section", [ $this, "dt_facebook_add_section" ] );
         add_action( "dt_async_dt_conversation_update", [ $this, "get_conversation_update" ], 10, 2 );
+        add_filter( "dt_contact_duplicate_fields_to_check", [ $this, "add_duplicate_check_field" ] );
 
     } // End __construct()
 
@@ -828,5 +829,10 @@ class Disciple_Tools_Facebook_Integration
                 Disciple_Tools_Contacts::create_contact( $fields, false );
             }
         }
+    }
+
+    public function add_duplicate_check_field( $fields ){
+        $fields[] = "facebook_data";
+        return $fields;
     }
 }
