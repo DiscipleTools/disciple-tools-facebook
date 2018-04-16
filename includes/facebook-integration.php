@@ -155,15 +155,18 @@ class Disciple_Tools_Facebook_Integration
 
 
             <?php
-            if ( isset( $facebook_data["names"] ) ){
+            if ( isset( $facebook_data["names"] ) ) {
                 ?>
                 <div class="section-subheader">
-                    <?php esc_html_e( "Names", "dt_facebook" )?>
+                    <?php esc_html_e( "Names", "dt_facebook" ) ?>
                 </div>
-                <?php foreach ( $facebook_data["names"] as $id ){
-                ?>
-                    <p><?php echo esc_html( $id )?></p>
+                <?php
+                if ( is_array( $facebook_data["names"] ) ) {
+                    foreach ( $facebook_data["names"] as $id ) {
+                    ?>
+                        <p><?php echo esc_html( $id ) ?></p>
                 <?php }
+                }
             }
             if ( isset( $facebook_data["labels"] ) ){
                 ?>
@@ -823,9 +826,24 @@ class Disciple_Tools_Facebook_Integration
                 ]
             ];
             //@todo implement a better race condition check
-            $last_thread = get_option( "dt_facebook_last_created", "" );
-            if ( $last_thread != $participant["id"] ){
-                update_option( "dt_facebook_last_created", $participant["id"] );
+//            $last_thread = get_option( "dt_facebook_last_created", "" );
+            global $wpdb;
+            $already_created = $wpdb->get_results( $wpdb->prepare(
+                "SELECT histid
+                FROM `$wpdb->dt_activity_log`
+                WHERE 
+                    `object_type` = 'facebook'
+                AND
+                    `object_note` = %s
+                ", $participant['id']
+            ), ARRAY_A);
+            if ( sizeof( $already_created ) === 0 ){
+//                update_option( "dt_facebook_last_created", $participant["id"] );
+                dt_activity_insert( [
+                    'action'            => 'fb_create',
+                    'object_type'       => "facebook",
+                    'object_note'         => $participant['id'],
+                ] );
                 Disciple_Tools_Contacts::create_contact( $fields, false );
             }
         }
