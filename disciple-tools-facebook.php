@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function dt_facebook() {
     $current_theme = get_option( 'current_theme' );
-    if ( 'Disciple Tools' == $current_theme ) {
+    if ( 'Disciple Tools' == $current_theme || 'Disciple Tools Child theme of disciple-tools-theme' == $current_theme ) {
         return DT_FAcebook::get_instance();
     }
     else {
