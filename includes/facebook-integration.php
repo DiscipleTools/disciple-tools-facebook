@@ -826,8 +826,8 @@ class Disciple_Tools_Facebook_Integration
                 ]
             ];
             global $wpdb;
-            $file = fopen( "fb_lock.txt","w+" );
-            if ( flock( $file,LOCK_EX )) {
+            $file = fopen( "fb_lock.txt", "w+" );
+            if ( flock( $file, LOCK_EX )) {
                 $already_created = $wpdb->get_results( $wpdb->prepare(
                     "SELECT histid
                     FROM `$wpdb->dt_activity_log`
@@ -848,10 +848,10 @@ class Disciple_Tools_Facebook_Integration
                     flock( $file, LOCK_UN );
                     Disciple_Tools_Contacts::create_contact( $fields, false );
                 } else {
-                    flock( $file,LOCK_UN );
+                    flock( $file, LOCK_UN );
                 }
             } else {
-                flock( $file,LOCK_UN );
+                flock( $file, LOCK_UN );
                 if ( $times_tried === 0 ){
                     self::update_or_create_contact( $participant, $updated_time, $page, 1 );
                 }
