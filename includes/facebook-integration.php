@@ -743,7 +743,7 @@ class Disciple_Tools_Facebook_Integration
      * @param $updated_time  , the time of the last message
      * @param $page       , the facebook page where the conversation is happening
      */
-    private function update_or_create_contact( $participant, $updated_time, $page )
+    private function update_or_create_contact( $participant, $updated_time, $page, $times_tried = 0 )
     {
         //get page scoped ids available by using a Facebook business manager
         $page_scoped_ids = [];
@@ -825,26 +825,36 @@ class Disciple_Tools_Facebook_Integration
                     "last_message_at" => $updated_time
                 ]
             ];
-            //@todo implement a better race condition check
-//            $last_thread = get_option( "dt_facebook_last_created", "" );
             global $wpdb;
-            $already_created = $wpdb->get_results( $wpdb->prepare(
-                "SELECT histid
-                FROM `$wpdb->dt_activity_log`
-                WHERE 
-                    `object_type` = 'facebook'
-                AND
-                    `object_note` = %s
-                ", $participant['id']
-            ), ARRAY_A);
-            if ( sizeof( $already_created ) === 0 ){
-//                update_option( "dt_facebook_last_created", $participant["id"] );
-                dt_activity_insert( [
-                    'action'            => 'fb_create',
-                    'object_type'       => "facebook",
-                    'object_note'         => $participant['id'],
-                ] );
-                Disciple_Tools_Contacts::create_contact( $fields, false );
+            $file = fopen( "fb_lock.txt","w+" );
+            if ( flock( $file,LOCK_EX )) {
+                $already_created = $wpdb->get_results( $wpdb->prepare(
+                    "SELECT histid
+                    FROM `$wpdb->dt_activity_log`
+                    WHERE 
+                        `object_type` = 'facebook'
+                    AND
+                        `object_note` = %s
+                    ", $participant['id']
+                ), ARRAY_A );
+
+                if ( sizeof( $already_created ) === 0 ) {
+                    //                update_option( "dt_facebook_last_created", $participant["id"] );
+                    dt_activity_insert( [
+                        'action'      => 'fb_create',
+                        'object_type' => "facebook",
+                        'object_note' => $participant['id'],
+                    ] );
+                    flock( $file, LOCK_UN );
+                    Disciple_Tools_Contacts::create_contact( $fields, false );
+                } else {
+                    flock( $file,LOCK_UN );
+                }
+            } else {
+                flock( $file,LOCK_UN );
+                if ( $times_tried === 0 ){
+                    self::update_or_create_contact( $participant, $updated_time, $page, 1 );
+                }
             }
         }
     }
