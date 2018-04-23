@@ -29,8 +29,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 function dt_facebook() {
     $current_theme = get_option( 'current_theme' );
-    if ( 'Disciple Tools' == $current_theme || 'Disciple Tools Child theme of disciple-tools-theme' == $current_theme ) {
-        return DT_FAcebook::get_instance();
+    if ( 'Disciple Tools' == $current_theme || dt_is_child_theme_of_disciple_tools() ) {
+        return DT_Facebook::get_instance();
     }
     else {
         add_action( 'admin_notices', 'dt_facebook_no_disciple_tools_theme_found' );
@@ -301,5 +301,22 @@ if ( !function_exists( 'dt_write_log' ) ) {
                 error_log( $log );
             }
         }
+    }
+}
+
+if ( ! function_exists( 'dt_is_child_theme_of_disciple_tools' ) ) {
+    /**
+     * Returns true if this is a child theme of Disciple Tools, and false if it is not.
+     *
+     * @return bool
+     */
+    function dt_is_child_theme_of_disciple_tools() : bool {
+        if ( get_template_directory() !== get_stylesheet_directory() ) {
+            $current_theme = wp_get_theme();
+            if ( 'disciple-tools-theme' == $current_theme->get( 'Template' ) ) {
+                return true;
+            }
+        }
+        return false;
     }
 }
