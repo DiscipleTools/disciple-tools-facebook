@@ -31,14 +31,12 @@ function dt_facebook() {
     $current_theme = get_option( 'current_theme' );
     if ( 'Disciple Tools' == $current_theme || dt_is_child_theme_of_disciple_tools() ) {
         return DT_Facebook::get_instance();
-    }
-    else {
-        add_action( 'admin_notices', 'dt_facebook_no_disciple_tools_theme_found' );
+    } else {
+        add_action( 'admin_notices', 'dt_facebook_hook_admin_notice' );
+        add_action( 'wp_ajax_dismissed_notice_handler', 'dt_facebook_ajax_notice_handler' );
         return new WP_Error( 'current_theme_not_dt', 'Disciple Tools Theme not active.' );
     }
-
 }
-
 add_action( 'plugins_loaded', 'dt_facebook' );
 
 /**
@@ -111,9 +109,15 @@ class DT_Facebook {
         new Disciple_Tools_Facebook_Reports();
         require_once( 'includes/facebook-integration.php' );
         Disciple_Tools_Facebook_Integration::instance();
-        new DT_Facebook_Get_Users_For_Labels( 3 );
-        new DT_Facebook_Conversation_Update( 3 );
-        new DT_Facebook_Stats( 3 );
+        try {
+            new DT_Facebook_Get_Users_For_Labels( 3 );
+            new DT_Facebook_Conversation_Update( 3 );
+            new DT_Facebook_Stats( 3 );
+        } catch ( Exception $e ) {
+            dt_write_log( __CLASS__ . __METHOD__ );
+            dt_write_log( $e );
+        }
+
     }
 
     /**
@@ -171,6 +175,7 @@ class DT_Facebook {
      * @return void
      */
     public static function activation() {
+        delete_option( 'dismissed-dt-facebook' ); // delete from previous install
     }
 
     /**
@@ -181,6 +186,7 @@ class DT_Facebook {
      * @return void
      */
     public static function deactivation() {
+        delete_option( 'dismissed-dt-facebook' );
     }
 
     /**
@@ -247,17 +253,6 @@ class DT_Facebook {
 register_activation_hook( __FILE__, [ 'DT_Facebook', 'activation' ] );
 register_deactivation_hook( __FILE__, [ 'DT_Facebook', 'deactivation' ] );
 
-/**
- * Admin alert for when Disciple Tools Theme is not available
- */
-function dt_facebook_no_disciple_tools_theme_found()
-{
-    ?>
-    <div class="notice notice-error">
-        <p><?php esc_html_e( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or deactivate 'Disciple Tools - Facebook' plugin.", "dt_facebook" ); ?></p>
-    </div>
-    <?php
-}
 
 /**
  * A simple function to assist with development and non-disruptive debugging.
@@ -319,4 +314,33 @@ if ( ! function_exists( 'dt_is_child_theme_of_disciple_tools' ) ) {
         }
         return false;
     }
+}
+
+function dt_facebook_hook_admin_notice() {
+    if ( ! get_option( 'dismissed-dt-facebook', false ) ) { ?>
+        <div class="notice notice-error notice-dt-facebook is-dismissible" data-notice="dt-facebook">
+            <p><?php esc_html_e( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or deactivate 'Disciple Tools - Facebook' plugin.", "dt_facebook" ); ?></p>
+        </div>
+        <script>
+            jQuery(function($) {
+                $( document ).on( 'click', '.notice-dt-facebook .notice-dismiss', function () {
+                    let type = $( this ).closest( '.notice-dt-facebook' ).data( 'notice' );
+                    $.ajax( ajaxurl,
+                        {
+                            type: 'POST',
+                            data: {
+                                action: 'dismissed_notice_handler',
+                                type: type,
+                            }
+                        } );
+                } );
+            });
+        </script>
+
+    <?php }
+}
+
+function dt_facebook_ajax_notice_handler() {
+    $type = 'dt-facebook';
+    update_option( 'dismissed-' . $type, true );
 }

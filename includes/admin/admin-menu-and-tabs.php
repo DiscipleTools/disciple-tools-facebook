@@ -60,7 +60,8 @@ class DT_Facebook_Menu {
     /**
      * Menu stub. Replaced when Disciple Tools Theme fully loads.
      */
-    public function extensions_menu() {}
+    public function extensions_menu() {
+    }
 
     /**
      * Builds page contents
@@ -107,6 +108,20 @@ class DT_Facebook_Menu {
 
         <?php
     }
+
+    /**
+     * Admin alert for when Disciple Tools Theme is not available
+     */
+    public function dt_facebook_no_disciple_tools_theme_found()
+    {
+        ?>
+        <div class="updated notice notice-error is-dismissible notice-facebook" data-notice="prefix_deprecated">
+            <p><?php esc_html_e( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or deactivate 'Disciple Tools - Facebook' plugin.", "dt_facebook" ); ?></p>
+        </div>
+
+        <?php
+    }
+
 }
 DT_Facebook_Menu::instance();
 
@@ -130,7 +145,7 @@ class DT_Facebook_Tab_General
                     <div id="postbox-container-1" class="postbox-container">
                         <!-- Right Column -->
 
-                        <?php $this->right_column() ?>
+                    <?php //$this->right_column() ?>
 
                         <!-- End Right Column -->
                     </div><!-- postbox-container 1 -->
@@ -208,7 +223,7 @@ class DT_Facebook_Tab_Second
                     <div id="postbox-container-1" class="postbox-container">
                         <!-- Right Column -->
 
-                        <?php $this->right_column() ?>
+                        <?php //$this->right_column() ?>
 
                         <!-- End Right Column -->
                     </div><!-- postbox-container 1 -->
@@ -281,3 +296,5 @@ class DT_Facebook_Tab_Second
         <?php
     }
 }
+
+
