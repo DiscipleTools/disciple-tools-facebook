@@ -265,7 +265,7 @@ class Disciple_Tools_Facebook_Integration
                             </li>
                             <li>
                                 <?php esc_html_e( 'Open "Facebook Login" in the menu, under "Valid Oauth redirect URIs" add:', 'dt_facebook' ) ?>
-                                <strong><?php echo esc_url( get_site_url() ); ?></strong>
+                                <strong><?php echo esc_url( $this->get_rest_url() . "/auth" ); ?></strong>
                             </li>
                             <li>
                                 <?php esc_html_e( 'In Settings > Basic: Get the APP ID and the APP SECRET, enter them in below and click "Save"', 'dt_facebook' ) ?>
