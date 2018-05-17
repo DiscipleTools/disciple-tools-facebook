@@ -775,7 +775,7 @@ class Disciple_Tools_Facebook_Integration
         }
 
         if ( $contact_id ){
-            $comment = __( "New Facebook message" , "dt_facebook" );
+            $comment = __( "New Facebook message", "dt_facebook" );
             Disciple_Tools_Contacts::add_comment( $contact_id, $comment, false, "facebook" );
             $contact = Disciple_Tools_Contacts::get_contact( $contact_id, false );
             $facebook_data = maybe_unserialize( $contact["facebook_data"] ) ?? [];
