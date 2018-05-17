@@ -740,8 +740,9 @@ class Disciple_Tools_Facebook_Integration
      * from the conversation.
      *
      * @param $participant
-     * @param $updated_time  , the time of the last message
-     * @param $page       , the facebook page where the conversation is happening
+     * @param $updated_time , the time of the last message
+     * @param $page , the facebook page where the conversation is happening
+     * @param int $times_tried
      */
     private function update_or_create_contact( $participant, $updated_time, $page, $times_tried = 0 )
     {
@@ -751,8 +752,7 @@ class Disciple_Tools_Facebook_Integration
             $page_scoped_ids = $this->get_page_scoped_ids( $participant["id"], $page["access_token"] );
         }
 
-        $ids = array_merge( $page_scoped_ids, [ $participant["id"] ] );
-        $contacts = dt_facebook_find_contacts_with_ids( $ids );
+        $contacts = dt_facebook_find_contacts_with_ids( $page_scoped_ids );
 
         $facebook_url = "https://www.facebook.com/" . $participant["id"];
         $contact_id = null;
