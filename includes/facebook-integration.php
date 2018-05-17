@@ -749,113 +749,115 @@ class Disciple_Tools_Facebook_Integration
     {
         //get page scoped ids available by using a Facebook business manager
         $page_scoped_ids = [];
-        if ( isset( $page["business"] ) ){
+        if ( !isset( $page["business"] ) ){
+            //right now the plugin only works with business manager
+        } else {
             $page_scoped_ids = $this->get_page_scoped_ids( $participant["id"], $page["access_token"] );
-        }
 
-        $contacts = dt_facebook_find_contacts_with_ids( $page_scoped_ids );
+            $contacts = dt_facebook_find_contacts_with_ids( $page_scoped_ids );
 
-        $facebook_url = "https://www.facebook.com/" . $participant["id"];
-        $contact_id = null;
+            $facebook_url = "https://www.facebook.com/" . $participant["id"];
+            $contact_id   = null;
 
-        if ( sizeof( $contacts ) > 1 ){
-            foreach ( $contacts as $contact_post ){
-                $contact = Disciple_Tools_Contacts::get_contact( $contact_post->ID, false );
-                if ( isset( $contact["overall_status"]["key"] ) && $contact["overall_status"]["key"] != "closed" ){
-                    $contact_id = $contact["ID"];
+            if ( sizeof( $contacts ) > 1 ) {
+                foreach ( $contacts as $contact_post ) {
+                    $contact = Disciple_Tools_Contacts::get_contact( $contact_post->ID, false );
+                    if ( isset( $contact["overall_status"]["key"] ) && $contact["overall_status"]["key"] != "closed" ) {
+                        $contact_id = $contact["ID"];
+                    }
+                }
+
+                if ( ! $contact_id ) {
+                    $contact_id = $contacts[0]->ID;
                 }
             }
-
-            if ( !$contact_id ){
+            if ( sizeof( $contacts ) == 1 ) {
                 $contact_id = $contacts[0]->ID;
             }
-        }
-        if ( sizeof( $contacts ) == 1 ) {
-            $contact_id = $contacts[0]->ID;
-        }
 
-        if ( $contact_id ){
-            $comment = __( "New Facebook message", "dt_facebook" );
-            Disciple_Tools_Contacts::add_comment( $contact_id, $comment, false, "facebook" );
-            $contact = Disciple_Tools_Contacts::get_contact( $contact_id, false );
-            $facebook_data = maybe_unserialize( $contact["facebook_data"] ) ?? [];
-            $facebook_data["last_message_at"] = $updated_time;
+            if ( $contact_id ) {
+                $comment = __( "New Facebook message", "dt_facebook" );
+                Disciple_Tools_Contacts::add_comment( $contact_id, $comment, false, "facebook" );
+                $contact                          = Disciple_Tools_Contacts::get_contact( $contact_id, false );
+                $facebook_data                    = maybe_unserialize( $contact["facebook_data"] ) ?? [];
+                $facebook_data["last_message_at"] = $updated_time;
 
-            if ( !isset( $facebook_data["page_scoped_ids"] ) ){
-                $facebook_data["page_scoped_ids"] = [];
-            }
-            if ( !isset( $facebook_data["app_scoped_ids"] ) ){
-                $facebook_data["app_scoped_ids"] = [];
-            }
-            if ( !isset( $facebook_data["page_ids"] ) ){
-                $facebook_data["page_ids"] = [];
-            }
-            if ( !isset( $facebook_data["names"] ) ){
-                $facebook_data["names"] = [];
-            }
-            foreach ( $page_scoped_ids as $id ){
-                if ( !in_array( $id, $facebook_data["page_scoped_ids"] )){
-                    $facebook_data["page_scoped_ids"][] = $id;
+                if ( ! isset( $facebook_data["page_scoped_ids"] ) ) {
+                    $facebook_data["page_scoped_ids"] = [];
                 }
-            }
-            if ( !in_array( $participant["id"], $facebook_data["app_scoped_ids"] )){
-                $facebook_data["app_scoped_ids"][] = $participant["id"];
-            }
-            if ( !in_array( $page["id"], $facebook_data["page_ids"] )){
-                $facebook_data["page_ids"][] = $page["id"];
-            }
-            if ( !in_array( $participant["name"], $facebook_data["names"] )){
-                $facebook_data["names"][] = $participant["name"];
-            }
-            Disciple_Tools_Contacts::update_contact( $contact_id, [ "facebook_data" => $facebook_data ], false );
-        } else if ( !$contact_id ){
-            $fields = [
-                "title" => $participant["name"],
-                "source_details" => "Facebook Page: " . $page["name"],
-                "contact_facebook" => [ [ "value" => $facebook_url ] ],
-                "sources" => [
-                    "values" =>[
-                        [ "value" => $page["id"] ]
+                if ( ! isset( $facebook_data["app_scoped_ids"] ) ) {
+                    $facebook_data["app_scoped_ids"] = [];
+                }
+                if ( ! isset( $facebook_data["page_ids"] ) ) {
+                    $facebook_data["page_ids"] = [];
+                }
+                if ( ! isset( $facebook_data["names"] ) ) {
+                    $facebook_data["names"] = [];
+                }
+                foreach ( $page_scoped_ids as $id ) {
+                    if ( ! in_array( $id, $facebook_data["page_scoped_ids"] ) ) {
+                        $facebook_data["page_scoped_ids"][] = $id;
+                    }
+                }
+                if ( ! in_array( $participant["id"], $facebook_data["app_scoped_ids"] ) ) {
+                    $facebook_data["app_scoped_ids"][] = $participant["id"];
+                }
+                if ( ! in_array( $page["id"], $facebook_data["page_ids"] ) ) {
+                    $facebook_data["page_ids"][] = $page["id"];
+                }
+                if ( ! in_array( $participant["name"], $facebook_data["names"] ) ) {
+                    $facebook_data["names"][] = $participant["name"];
+                }
+                Disciple_Tools_Contacts::update_contact( $contact_id, [ "facebook_data" => $facebook_data ], false );
+            } else if ( ! $contact_id ) {
+                $fields = [
+                    "title"            => $participant["name"],
+                    "source_details"   => "Facebook Page: " . $page["name"],
+                    "contact_facebook" => [ [ "value" => $facebook_url ] ],
+                    "sources"          => [
+                        "values" => [
+                            [ "value" => $page["id"] ]
+                        ]
+                    ],
+                    "overall_status"   => "from_facebook",
+                    "facebook_data"    => [
+                        "page_scoped_ids" => $page_scoped_ids,
+                        "app_scoped_ids"  => [ $participant["id"] ],
+                        "page_ids"        => [ $page["id"] ],
+                        "names"           => [ $participant["name"] ],
+                        "last_message_at" => $updated_time
                     ]
-                ],
-                "overall_status" => "from_facebook",
-                "facebook_data" => [
-                    "page_scoped_ids" => $page_scoped_ids,
-                    "app_scoped_ids" => [ $participant["id"] ],
-                    "page_ids" => [ $page["id"] ],
-                    "names" => [ $participant["name"] ],
-                    "last_message_at" => $updated_time
-                ]
-            ];
-            global $wpdb;
-            $file = fopen( "fb_lock.txt", "w+" );
-            if ( flock( $file, LOCK_EX )) {
-                $already_created = $wpdb->get_results( $wpdb->prepare(
-                    "SELECT histid
-                    FROM `$wpdb->dt_activity_log`
-                    WHERE 
-                        `object_type` = 'facebook'
-                    AND
-                        `object_note` = %s
-                    ", $participant['id']
-                ), ARRAY_A );
+                ];
+                global $wpdb;
+                $file = fopen( "fb_lock.txt", "w+" );
+                if ( flock( $file, LOCK_EX ) ) {
+                    $already_created = $wpdb->get_results( $wpdb->prepare(
+                        "SELECT histid
+                        FROM `$wpdb->dt_activity_log`
+                        WHERE 
+                            `object_type` = 'facebook'
+                        AND
+                            `object_note` = %s
+                        ", $participant['id']
+                    ), ARRAY_A );
 
-                if ( sizeof( $already_created ) === 0 ) {
-                    //                update_option( "dt_facebook_last_created", $participant["id"] );
-                    dt_activity_insert( [
-                        'action'      => 'fb_create',
-                        'object_type' => "facebook",
-                        'object_note' => $participant['id'],
-                    ] );
-                    flock( $file, LOCK_UN );
-                    Disciple_Tools_Contacts::create_contact( $fields, false );
+                    if ( sizeof( $already_created ) === 0 ) {
+                        //                update_option( "dt_facebook_last_created", $participant["id"] );
+                        dt_activity_insert( [
+                            'action'      => 'fb_create',
+                            'object_type' => "facebook",
+                            'object_note' => $participant['id'],
+                        ] );
+                        flock( $file, LOCK_UN );
+                        Disciple_Tools_Contacts::create_contact( $fields, false );
+                    } else {
+                        flock( $file, LOCK_UN );
+                    }
                 } else {
                     flock( $file, LOCK_UN );
-                }
-            } else {
-                flock( $file, LOCK_UN );
-                if ( $times_tried === 0 ){
-                    self::update_or_create_contact( $participant, $updated_time, $page, 1 );
+                    if ( $times_tried === 0 ) {
+                        self::update_or_create_contact( $participant, $updated_time, $page, 1 );
+                    }
                 }
             }
         }
