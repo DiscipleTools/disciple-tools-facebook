@@ -141,7 +141,7 @@ class DT_Facebook {
 
         // Admin and settings variables
         $this->token             = 'dt_facebook';
-        $this->version             = '0.1';
+        $this->version             = '0.1.0';
     }
 
     /**
