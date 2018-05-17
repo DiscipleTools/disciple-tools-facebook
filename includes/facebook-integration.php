@@ -99,7 +99,7 @@ class Disciple_Tools_Facebook_Integration
             if ( !isset( $fields["facebook_data"] )){
                 //define the language field
                 $fields["facebook_data"] = [
-                    "name" => __( "Facebook Ids", "disciple_tools_facebook" ),
+                    "name" => __( "Facebook Ids", "dt_facebook" ),
                     "type" => "array",
                     "default" => []
                 ];
@@ -108,7 +108,7 @@ class Disciple_Tools_Facebook_Integration
                 $fields["reason_closed"]["default"]["closed_from_facebook"] = __( "Closed from Facebook", "dt_facebook" );
             }
             if ( !isset( $fields["overall_status"]["default"]["from_facebook"] )){
-                $fields["overall_status"]["default"]["from_facebook"] = __( "From Facebook", "disciple_tools" );
+                $fields["overall_status"]["default"]["from_facebook"] = __( "From Facebook", "dt_facebook" );
             }
         }
         //don't forget to return the update fields array
@@ -187,7 +187,7 @@ class Disciple_Tools_Facebook_Integration
                 <div class="section-subheader">
                     <?php esc_html_e( "Last massage at:", "dt_facebook" )?>
                 </div>
-                <p><?php echo esc_html( date( "Y-m-d H:m", $date ) )?></p>
+                <p class="last_message_at"><?php echo esc_html( date( "Y-m-d H:m", $date ) )?></p>
                 <?php
             }
 
@@ -215,6 +215,7 @@ class Disciple_Tools_Facebook_Integration
             <script type="application/javascript">
                 //enter jquery here if you need it
                 jQuery(($)=>{
+                    $('.last_message_at').html( moment( "<?php echo esc_html( $facebook_data["last_message_at"] ) ?>").format("MMMM Do YYYY, h:mm:ss a") )
                 })
             </script>
         <?php
@@ -774,7 +775,8 @@ class Disciple_Tools_Facebook_Integration
         }
 
         if ( $contact_id ){
-            Disciple_Tools_Contacts::add_comment( $contact_id, $updated_time, false );
+            $comment = __( "New Facebook message" , "dt_facebook" );
+            Disciple_Tools_Contacts::add_comment( $contact_id, $comment, false, "facebook" );
             $contact = Disciple_Tools_Contacts::get_contact( $contact_id, false );
             $facebook_data = maybe_unserialize( $contact["facebook_data"] ) ?? [];
             $facebook_data["last_message_at"] = $updated_time;
