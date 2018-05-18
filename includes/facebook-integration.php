@@ -215,7 +215,9 @@ class Disciple_Tools_Facebook_Integration
             <script type="application/javascript">
                 //enter jquery here if you need it
                 jQuery(($)=>{
+                    <?php if ( isset( $facebook_data["last_message_at"] ) ) : ?>
                     $('.last_message_at').html( moment( "<?php echo esc_html( $facebook_data["last_message_at"] ) ?>").format("MMMM Do YYYY, h:mm:ss a") )
+                    <?php endif; ?>
                 })
             </script>
         <?php
