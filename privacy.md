@@ -9,13 +9,14 @@ This privacy policy has been compiled to better serve those who are concerned wi
 - manage_pages. This is to provide access to your pages for stats and integrations.
 - read_insights. This is to provide timely and useful information about your page performance.
 - read_page_mailboxes. This is to provide stats on your facebook conversations
+- business_management. To help link contacts across apps and messenger bots.
 
 #### What personal information do we collect from the people through our app?
 - Information in the basic_profile.
 - Which pages the users has access to.
 
 #### When do we collect information?
-We collect information from you use the Login with facebook button.
+We collect information from you when you use the Login with facebook button.
 
 #### How do we use your information?
 We use the information we collect and the access to the facebook pages to provide the user useful and timely stats on the pages and conversations.
@@ -30,10 +31,10 @@ We implement a variety of security measures when a user places an order enters, 
 #### Do we use 'cookies'?
 Any use of Cookies - or of other tracking tools - by this Application or by the owners of third party services used by this Application, unless stated otherwise, serves to identify Users and remember their preferences, for the sole purpose of providing the service required by the User.
 
-Personal Data collected: name.
+Personal Data collected: name, email.
 
 #### Your Access to and Control Over Information
-You may opt out of any future contact from us at any time. You can do the following at any time by contacting us via our contact email address or by live chat:
+You may opt out of any future contact from us at any time. You can do the following at any time by contacting us via our contact email address:
 
 See what data we have about you, if any.
 - Change/correct any data we have about you.
