@@ -333,7 +333,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <tr>
                                     <td><?php esc_html_e( "Save or Refresh", 'dt_facebook' ) ?></td>
                                     <td><button type="submit" class="button" name="save_app" style="padding:3px">
-                                            <img style="height: 100%;" src="<?php echo esc_html( plugin_dir_url( __FILE__ ) . '/assets/flogo_RGB_HEX-72.svg' ) ?>"/>
+                                            <img style="height: 100%;" src="<?php echo esc_html( plugin_dir_url( __FILE__ ) . 'assets/flogo_RGB_HEX-72.svg' ) ?>"/>
                                             <span style="vertical-align: top"><?php esc_html_e( "Login with Facebook", 'dt_facebook' ) ?></span></button>
                                     </td>
                                 </tr>
