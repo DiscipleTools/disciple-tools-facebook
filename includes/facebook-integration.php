@@ -314,7 +314,7 @@ class Disciple_Tools_Facebook_Integration {
                             <li><?php esc_html_e( "Once logged in. Click Add New Monitor", 'dt_facebook' ) ?></li>
                             <li><?php esc_html_e( "Monitor type: HTTP(s)", 'dt_facebook' ) ?></li>
                             <li><?php esc_html_e( "Friendly Name: Facebook Cron", 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( "Url:", 'dt_facebook' ) ?> <strong><?php echo esc_url( $this->get_rest_url() . "dt-public/cron" ); ?></strong></li>
+                            <li><?php esc_html_e( "Url:", 'dt_facebook' ) ?> <strong><?php echo esc_url( $this->get_rest_url() . "/dt-public/cron" ); ?></strong></li>
                             <li><?php esc_html_e( "Monitoring Interval: 5 mins", 'dt_facebook' ) ?></li>
                             <li><?php esc_html_e( "Click Create Monitor", 'dt_facebook' ) ?></li>
                         </ul>
@@ -931,7 +931,6 @@ class Disciple_Tools_Facebook_Integration {
                     return $conversations_page["data"];
                 } else {
                     $oldest_conversation = end($conversations_page["data"]);
-                    $test = strtotime( $oldest_conversation["updated_time"]);
                     if ( strtotime( $oldest_conversation["updated_time"]) >= $latest_conversation ){
                         sleep(10); // don't spam facebook
                         $next_page = $this->get_conversations_with_pagination( $conversations_page["paging"]["next"], $latest_conversation );
@@ -973,5 +972,6 @@ class Disciple_Tools_Facebook_Integration {
 
     public function cron_hook(){
         do_action( "dt_facebook_all_conversations" );
+        return "ok";
     }
 }
