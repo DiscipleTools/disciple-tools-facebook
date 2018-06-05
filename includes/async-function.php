@@ -75,3 +75,16 @@ class DT_Facebook_Stats extends Disciple_Tools_Async_Task {
         do_action( "dt_async_dt_facebook_stats" );
     }
 }
+
+class DT_Facebook_All_Conversations extends Disciple_Tools_Async_Task {
+
+    protected $action = 'dt_facebook_all_conversations';
+
+    protected function prepare_data( $data ) {
+        return $data;
+    }
+
+    protected function run_action() {
+        do_action( "dt_async_dt_facebook_all_conversations" );
+    }
+}

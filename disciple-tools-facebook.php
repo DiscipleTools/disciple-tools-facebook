@@ -113,6 +113,7 @@ class DT_Facebook {
             new DT_Facebook_Get_Users_For_Labels( 3 );
             new DT_Facebook_Conversation_Update( 3 );
             new DT_Facebook_Stats( 3 );
+            new DT_Facebook_All_Conversations( 3 );
         } catch ( Exception $e ) {
             dt_write_log( __CLASS__ . __METHOD__ );
             dt_write_log( $e );

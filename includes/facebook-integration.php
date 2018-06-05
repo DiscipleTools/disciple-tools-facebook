@@ -50,6 +50,7 @@ class Disciple_Tools_Facebook_Integration {
         add_filter( "dt_details_additional_section_ids", [ $this, "dt_facebook_declare_section_id" ], 999, 2 );
         add_action( "dt_details_additional_section", [ $this, "dt_facebook_add_section" ] );
         add_action( "dt_async_dt_conversation_update", [ $this, "get_conversation_update" ], 10, 2 );
+        add_action( "dt_async_dt_facebook_all_conversations", [ $this, "get_recent_conversations" ], 10, 2 );
         add_filter( "dt_contact_duplicate_fields_to_check", [ $this, "add_duplicate_check_field" ] );
 
     } // End __construct()
@@ -83,6 +84,12 @@ class Disciple_Tools_Facebook_Integration {
             $this->namespace, "add-app", [
                 'methods'  => "POST",
                 'callback' => [ $this, 'add_app' ],
+            ]
+        );
+        register_rest_route(
+            $this->namespace ."/dt-public/", "cron", [
+                'methods'  => "GET",
+                'callback' => [ $this, 'cron_hook' ],
             ]
         );
     }
@@ -260,31 +267,56 @@ class Disciple_Tools_Facebook_Integration {
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
                     <div id="post-body-content">
-                        <strong><?php esc_html_e( "Instructions", 'dt_facebook' ) ?></strong>
+                        <strong><?php esc_html_e( "Create Facebook App", 'dt_facebook' ) ?></strong>
                         <ul style="list-style-type: disc; padding-left:40px">
-                            <li><?php esc_html_e( "Create a Facebook App are use an existing one here:", 'dt_facebook' ) ?>
+                            <li><?php esc_html_e( "Go to:", 'dt_facebook' ) ?>
                                 <a href="https://developers.facebook.com/apps">https://developers.facebook.com/apps</a>
                             </li>
-                            <li><?php esc_html_e( "In your app under Add Platform choose the website option. Put this as the site URL:", 'dt_facebook' ) ?>
-                                <strong><?php echo esc_url( get_site_url() ); ?></strong>
-                                <?php esc_html_e( "Save changes.", 'dt_facebook' ) ?>
-                            </li>
+                            <li><?php esc_html_e( 'Click the "Add new app" button', 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( 'You can name the app "D.T integration"', 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( 'You should be on the "Add a Product screen." Click "Set Up" on the "Facebook Login" box', 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( 'Choose the "Other" option', 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( 'On the left click settings under Facebook Login', 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( 'In the "Valid OAuth Redirect URIs" field add:', 'dt_facebook' ) ?> <strong><?php echo esc_url( $this->get_rest_url() . "/auth" ); ?></strong></li>
+                            <li><?php esc_html_e( 'Click Settings on the left (right under Dashboard) and the "Basic". ', 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( 'In the "App Domains box put":', 'dt_facebook' ) ?> <strong><?php echo esc_url( get_site_url() ); ?></strong></li>
+                            <li><?php esc_html_e( 'Scroll down. Click Add Platform. Choose Website. In "Site URL" put:', 'dt_facebook' ) ?> <strong><?php echo esc_url( get_site_url() ); ?></strong></li>
+                            <li><?php esc_html_e( 'Save Changes', 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( 'Keep your app in development mode. Don\'t make it public', 'dt_facebook' ) ?></li>
                             <li>
-                                <?php esc_html_e( 'Open "Facebook Login" in the menu, under "Valid Oauth redirect URIs" add:', 'dt_facebook' ) ?>
-                                <strong><?php echo esc_url( $this->get_rest_url() . "/auth" ); ?></strong>
+                                <?php esc_html_e( 'In Settings > Basic: Get the APP ID and the APP SECRET, enter them in below and click "Login with Facebook"', 'dt_facebook' ) ?>
                             </li>
-                            <li>
-                                <?php esc_html_e( 'In Settings > Basic: Get the APP ID and the APP SECRET, enter them in below and click "Save"', 'dt_facebook' ) ?>
-                            </li>
-                            <li>
-                                <?php esc_html_e( "Associate you app with a Facebook Business to help tracking users.", 'dt_facebook' ) ?>
-                            </li>
+                            <!-- For making pubic
+                            <li><?php esc_html_e( 'In Privacy Policy Url put:', 'dt_facebook' ) ?> https://github.com/DiscipleTools/disciple-tools-facebook/blob/master/privacy.md</li>
+                            <li><?php esc_html_e( 'Under Category choose "Business and Pages"', 'dt_facebook' ) ?></li>
+                            -->
                         </ul>
+                        <strong><?php esc_html_e( "Associate your app with Business Manager to help track contacts", 'dt_facebook' ) ?></strong>
+                        <p>We strongly recommend you set up facebook business manager if you have not already.  <a href="https://www.facebook.com/business/help/1710077379203657">More Info</a> </p>
+                        To associate you new app with your business manager account:
+                        <ul style="list-style-type: disc; padding-left:40px">
+                            <li>Open <a href="https://beta.mailbutler.io/tracking/hit/92221EF4-CA16-45D2-B2BC-25BAE8DB97E9/4DE418B3-6A4F-47A1-947F-64E5B46028A7/?notrack=true">Business Settings</a></li>
+                            <li>Under Data Sources click Apps.</li>
+                            <li>Click Add New App and select Add an App</li>
+                            <li>Enter the Facebook App ID from the app you just created.</li>
+                        </ul>
+
 
                         <?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Save App Settings" button bellow) if:', 'dt_facebook' ) ?>
                         <ul style="list-style-type: disc; padding-left:40px">
                             <li><?php esc_html_e( "You change your Facebook account password", 'dt_facebook' ) ?></li>
                             <li><?php esc_html_e( "You delete or de­authorize your Facebook App", 'dt_facebook' ) ?></li>
+                        </ul>
+
+                        <strong><?php esc_html_e( "Set up cron to get contacts every 5 minutes", 'dt_facebook' ) ?></strong>
+                        <ul style="list-style-type: disc; padding-left:40px">
+                            <li><a href="https://uptimerobot.com/"><?php esc_html_e( "Sign up for a Uptime Robot Account", 'dt_facebook' ) ?></a></li>
+                            <li><?php esc_html_e( "Once logged in. Click Add New Monitor", 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( "Monitor type: HTTP(s)", 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( "Friendly Name: Facebook Cron", 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( "Url:", 'dt_facebook' ) ?> <strong><?php echo esc_url( $this->get_rest_url() . "dt-public/cron" ); ?></strong></li>
+                            <li><?php esc_html_e( "Monitoring Interval: 5 mins", 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( "Click Create Monitor", 'dt_facebook' ) ?></li>
                         </ul>
 
                         <form action="<?php echo esc_url( $this->get_rest_url() ); ?>/add-app" method="post">
@@ -391,6 +423,10 @@ class Disciple_Tools_Facebook_Integration {
                                    value="<?php esc_html_e( "Refresh Page List", 'dt_facebook' ) ?>"/>
                             <input type="submit" class="button" name="save_pages"
                                    value="<?php esc_html_e( "Save Pages Settings", 'dt_facebook' ) ?>"/>
+                            <br>
+                            <button type="submit" class="button" name="get_recent_conversations">
+                                <?php esc_html_e( "Get recent conversations (launches in the background. This might take a while)", 'dt_facebook' ) ?>
+                            </button>
 
 
                         </form>
@@ -515,6 +551,11 @@ class Disciple_Tools_Facebook_Integration {
             if ( $get_historical_data === true ) {
                 do_action( "dt_facebook_stats" );
             }
+        }
+
+
+        if ( isset($_POST["get_recent_conversations"]) ){
+            do_action("dt_facebook_all_conversations");
         }
     }
 
@@ -782,40 +823,42 @@ class Disciple_Tools_Facebook_Integration {
         }
 
         if ( $contact_id ) {
-            $comment = __( "New Facebook message", "dt_facebook" );
-            Disciple_Tools_Contacts::add_comment( $contact_id, $comment, false, "facebook" );
             $contact                          = Disciple_Tools_Contacts::get_contact( $contact_id, false );
             $facebook_data                    = maybe_unserialize( $contact["facebook_data"] ) ?? [];
-            $facebook_data["last_message_at"] = $updated_time;
+            if ( isset( $facebook_data["last_message_at"] ) && $facebook_data["last_message_at"] != $updated_time ) {
+                $comment = __( "New Facebook message", "dt_facebook" );
+                Disciple_Tools_Contacts::add_comment( $contact_id, $comment, false, "facebook" );
+                $facebook_data["last_message_at"] = $updated_time;
 
-            if ( !isset( $facebook_data["page_scoped_ids"] ) ) {
-                $facebook_data["page_scoped_ids"] = [];
-            }
-            if ( !isset( $facebook_data["app_scoped_ids"] ) ) {
-                $facebook_data["app_scoped_ids"] = [];
-            }
-            if ( !isset( $facebook_data["page_ids"] ) ) {
-                $facebook_data["page_ids"] = [];
-            }
-            if ( !isset( $facebook_data["names"] ) ) {
-                $facebook_data["names"] = [];
-            }
-            foreach ( $page_scoped_ids as $id ) {
-                if ( !in_array( $id, $facebook_data["page_scoped_ids"] ) ) {
-                    $facebook_data["page_scoped_ids"][] = $id;
+                if ( !isset( $facebook_data["page_scoped_ids"] ) ) {
+                    $facebook_data["page_scoped_ids"] = [];
                 }
-            }
-            if ( !isset( $facebook_data["app_scoped_ids"][ $app_id ] ) ) {
-                $facebook_data["app_scoped_ids"][ $app_id ] = $participant["id"];
-            }
+                if ( !isset( $facebook_data["app_scoped_ids"] ) ) {
+                    $facebook_data["app_scoped_ids"] = [];
+                }
+                if ( !isset( $facebook_data["page_ids"] ) ) {
+                    $facebook_data["page_ids"] = [];
+                }
+                if ( !isset( $facebook_data["names"] ) ) {
+                    $facebook_data["names"] = [];
+                }
+                foreach ( $page_scoped_ids as $id ) {
+                    if ( !in_array( $id, $facebook_data["page_scoped_ids"] ) ) {
+                        $facebook_data["page_scoped_ids"][] = $id;
+                    }
+                }
+                if ( !isset( $facebook_data["app_scoped_ids"][ $app_id ] ) ) {
+                    $facebook_data["app_scoped_ids"][ $app_id ] = $participant["id"];
+                }
 
-            if ( !in_array( $page["id"], $facebook_data["page_ids"] ) ) {
-                $facebook_data["page_ids"][] = $page["id"];
+                if ( !in_array( $page["id"], $facebook_data["page_ids"] ) ) {
+                    $facebook_data["page_ids"][] = $page["id"];
+                }
+                if ( !in_array( $participant["name"], $facebook_data["names"] ) ) {
+                    $facebook_data["names"][] = $participant["name"];
+                }
+                Disciple_Tools_Contacts::update_contact( $contact_id, [ "facebook_data" => $facebook_data ], false );
             }
-            if ( !in_array( $participant["name"], $facebook_data["names"] ) ) {
-                $facebook_data["names"][] = $participant["name"];
-            }
-            Disciple_Tools_Contacts::update_contact( $contact_id, [ "facebook_data" => $facebook_data ], false );
         } else if ( !$contact_id ) {
             $fields = [
                 "title"            => $participant["name"],
@@ -872,5 +915,63 @@ class Disciple_Tools_Facebook_Integration {
         $fields[] = "facebook_data";
 
         return $fields;
+    }
+
+
+    public function get_conversations_with_pagination($url, $latest_conversation) {
+        $conversations_request = wp_remote_get( $url );
+
+        if ( is_wp_error( $conversations_request ) ) {
+            return [];
+        } else {
+            $conversations_body = wp_remote_retrieve_body( $conversations_request );
+            $conversations_page= json_decode( $conversations_body, true );
+            if ( !empty( $conversations_page ) ) {
+                if ( !isset( $conversations_page["paging"]["next"] ) ){
+                    return $conversations_page["data"];
+                } else {
+                    $oldest_conversation = end($conversations_page["data"]);
+                    $test = strtotime( $oldest_conversation["updated_time"]);
+                    if ( strtotime( $oldest_conversation["updated_time"]) >= $latest_conversation ){
+                        sleep(10); // don't spam facebook
+                        $next_page = $this->get_conversations_with_pagination( $conversations_page["paging"]["next"], $latest_conversation );
+                        return array_merge( $conversations_page["data"], $next_page );
+                    } else {
+                        return $conversations_page["data"];
+                    }
+                }
+            } else {
+                return [];
+            }
+        }
+
+    }
+
+    public function get_recent_conversations(){
+        $facebook_pages      = get_option( "dt_facebook_pages", [] );
+        foreach ( $facebook_pages as $id => $facebook_page ) {
+            if ( isset($facebook_page["integrate"]) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] )){
+                //get conversations
+                $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
+                $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=participants,updated_time&access_token=" . $facebook_page["access_token"];
+                $conversations = self::get_conversations_with_pagination( $facebook_conversations_url, $latest_conversation );
+                $facebook_pages      = get_option( "dt_facebook_pages", [] );
+                $facebook_pages[$id]["latest_conversation"] = isset( $conversations[0]["updated_time"] ) ? strtotime( $conversations[0]["updated_time"] ) : 0;
+                update_option( "dt_facebook_pages", $facebook_pages );
+                foreach ( $conversations as $conversation ){
+                    if ( strtotime( $conversation["updated_time"] ) >= $latest_conversation ){
+                        foreach ( $conversation["participants"]["data"] as $participant ) {
+                            if ( (string) $participant["id"] != $id ) {
+                                $this->update_or_create_contact( $participant, $conversation["updated_time"], $facebook_pages[ $id ] );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public function cron_hook(){
+        do_action( "dt_facebook_all_conversations" );
     }
 }
