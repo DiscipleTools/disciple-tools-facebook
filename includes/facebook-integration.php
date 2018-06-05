@@ -554,8 +554,8 @@ class Disciple_Tools_Facebook_Integration {
         }
 
 
-        if ( isset($_POST["get_recent_conversations"]) ){
-            do_action("dt_facebook_all_conversations");
+        if ( isset( $_POST["get_recent_conversations"] ) ){
+            do_action( "dt_facebook_all_conversations" );
         }
     }
 
@@ -918,21 +918,21 @@ class Disciple_Tools_Facebook_Integration {
     }
 
 
-    public function get_conversations_with_pagination($url, $latest_conversation) {
+    public function get_conversations_with_pagination( $url, $latest_conversation ) {
         $conversations_request = wp_remote_get( $url );
 
         if ( is_wp_error( $conversations_request ) ) {
             return [];
         } else {
             $conversations_body = wp_remote_retrieve_body( $conversations_request );
-            $conversations_page= json_decode( $conversations_body, true );
+            $conversations_page = json_decode( $conversations_body, true );
             if ( !empty( $conversations_page ) ) {
                 if ( !isset( $conversations_page["paging"]["next"] ) ){
                     return $conversations_page["data"];
                 } else {
-                    $oldest_conversation = end($conversations_page["data"]);
-                    if ( strtotime( $oldest_conversation["updated_time"]) >= $latest_conversation ){
-                        sleep(10); // don't spam facebook
+                    $oldest_conversation = end( $conversations_page["data"] );
+                    if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation ){
+                        sleep( 30 ); // don't spam facebook
                         $next_page = $this->get_conversations_with_pagination( $conversations_page["paging"]["next"], $latest_conversation );
                         return array_merge( $conversations_page["data"], $next_page );
                     } else {
@@ -949,7 +949,7 @@ class Disciple_Tools_Facebook_Integration {
     public function get_recent_conversations(){
         $facebook_pages      = get_option( "dt_facebook_pages", [] );
         foreach ( $facebook_pages as $id => $facebook_page ) {
-            if ( isset($facebook_page["integrate"]) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] )){
+            if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] )){
                 //get conversations
                 $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
                 $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=participants,updated_time&access_token=" . $facebook_page["access_token"];
