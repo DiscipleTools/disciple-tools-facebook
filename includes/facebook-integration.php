@@ -52,6 +52,7 @@ class Disciple_Tools_Facebook_Integration {
         add_action( "dt_async_dt_conversation_update", [ $this, "get_conversation_update" ], 10, 2 );
         add_action( "dt_async_dt_facebook_all_conversations", [ $this, "get_recent_conversations" ], 10, 2 );
         add_filter( "dt_contact_duplicate_fields_to_check", [ $this, "add_duplicate_check_field" ] );
+        add_filter( "dt_comments_additional_sections", [ $this, "add_comment_section" ], 10, 2 );
 
     } // End __construct()
 
@@ -973,5 +974,12 @@ class Disciple_Tools_Facebook_Integration {
     public function cron_hook(){
         do_action( "dt_facebook_all_conversations" );
         return "ok";
+    }
+
+    public function add_comment_section( $sections, $post_type ){
+        if ( $post_type === "contacts" ){
+            $sections[] = [ "key" => "facebook", "label" => __( "Facebook", "dt_facebook" ) ];
+        }
+        return $sections;
     }
 }
