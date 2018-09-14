@@ -937,6 +937,9 @@ class Disciple_Tools_Facebook_Integration {
                     update_option( "dt_facebook_pages", $facebook_pages );
                 }
                 $this->save_conversation_page( $conversations_page["data"], $id, $page, $latest_conversation );
+                if ( isset( $conversations_page["data"][0] ) ){
+                    return strtotime( $conversations_page["data"][0]["updated_time"] );
+                }
                 if ( isset( $conversations_page["paging"]["next"] ) ){
                     $oldest_conversation = end( $conversations_page["data"] );
                     if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation ){
@@ -978,7 +981,12 @@ class Disciple_Tools_Facebook_Integration {
                 //get conversations
                 $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
                 $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=link,message_count,messages.limit(100){from,created_time,message},participants,updated_time&access_token=" . $facebook_page["access_token"];
-                self::get_conversations_with_pagination( $facebook_conversations_url, $id, $facebook_pages[$id], $latest_conversation );
+                $latest_conversation = self::get_conversations_with_pagination( $facebook_conversations_url, $id, $facebook_pages[$id], $latest_conversation );
+                $facebook_pages      = get_option( "dt_facebook_pages", [] );
+                if ( $latest_conversation > $facebook_pages[$id]["latest_conversation"] ){
+                    $facebook_pages[$id]["latest_conversation"] = $latest_conversation;
+                    update_option( "dt_facebook_pages", $facebook_pages );
+                }
             }
         }
     }
