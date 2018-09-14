@@ -726,21 +726,21 @@ class Disciple_Tools_Facebook_Integration {
         //decode the facebook post request from json
         $body = json_decode( file_get_contents( 'php://input' ), true );
 
-//        foreach ( $body['entry'] as $entry ) {
-//            $facebook_page_id = $entry['id'];
-//            if ( $entry['changes'] ) {
-//                foreach ( $entry['changes'] as $change ) {
-//                    if ( $change['field'] == "conversations" ) {
-//                        //there is a new update in a conversation
-//                        $thread_id = $change['value']['thread_id'];
-//                        do_action( "dt_conversation_update", $facebook_page_id, $thread_id );
+        foreach ( $body['entry'] as $entry ) {
+            $facebook_page_id = $entry['id'];
+            if ( $entry['changes'] ) {
+                foreach ( $entry['changes'] as $change ) {
+                    if ( $change['field'] == "conversations" ) {
+                        //there is a new update in a conversation
+                        $thread_id = $change['value']['thread_id'];
+                        do_action( "dt_conversation_update", $facebook_page_id, $thread_id );
+                    }
+//                    elseif ( $change['field'] == "feed" ) {
+//                        //the facebook page feed has an update
 //                    }
-////                    elseif ( $change['field'] == "feed" ) {
-////                        //the facebook page feed has an update
-////                    }
-//                }
-//            }
-//        }
+                }
+            }
+        }
 
         do_action( "dt_update_from_facebook", $body );
     }
@@ -757,24 +757,24 @@ class Disciple_Tools_Facebook_Integration {
         $facebook_pages = get_option( "dt_facebook_pages", [] );
         //if we have the access token, get and save the conversation
         //make sure the "sync contacts" setting is set.
-//        if ( isset( $facebook_pages[ $page_id ] ) && isset( $facebook_pages[ $page_id ]["integrate"] ) && $facebook_pages[ $page_id ]["integrate"] == 1 ) {
-//
-//            $access_token = $facebook_pages[ $page_id ]["access_token"];
-//            $uri_for_conversations = "https://graph.facebook.com/v2.7/" . $thread_id . "?fields=message_count,messages{from,created_time,message},updated_time,participants&access_token=" . $access_token;
-////            $uri_for_conversations = "https://graph.facebook.com/v2.7/" . $thread_id . "?fields=updated_time,participants,messages{from,created_time,message}&access_token=" . $access_token;
-//            $response              = wp_remote_get( $uri_for_conversations );
-//
-//            $body = json_decode( $response["body"], true );
-//            if ( $body ) {
-//                $participants = $body["participants"]["data"];
-//                //go through each participant to save their conversations on their contact record
-//                foreach ( $participants as $participant ) {
-//                    if ( (string) $participant["id"] != $page_id ) {
-//                        $this->update_or_create_contact( $participant, $body["updated_time"], $facebook_pages[ $page_id ] );
-//                    }
-//                }
-//            }
-//        }
+        if ( isset( $facebook_pages[ $page_id ] ) && isset( $facebook_pages[ $page_id ]["integrate"] ) && $facebook_pages[ $page_id ]["integrate"] == 1 ) {
+
+            $access_token = $facebook_pages[ $page_id ]["access_token"];
+            $uri_for_conversations = "https://graph.facebook.com/v2.7/" . $thread_id . "?fields=link,message_count,messages{from,created_time,message},updated_time,participants&access_token=" . $access_token;
+//            $uri_for_conversations = "https://graph.facebook.com/v2.7/" . $thread_id . "?fields=updated_time,participants,messages{from,created_time,message}&access_token=" . $access_token;
+            $response              = wp_remote_get( $uri_for_conversations );
+
+            $body = json_decode( $response["body"], true );
+            if ( $body ) {
+                $participants = $body["participants"]["data"];
+                //go through each participant to save their conversations on their contact record
+                foreach ( $participants as $participant ) {
+                    if ( (string) $participant["id"] != $page_id ) {
+                        $this->update_or_create_contact( $participant, $body["updated_time"], $facebook_pages[ $page_id ], $body );
+                    }
+                }
+            }
+        }
     }
 
 
@@ -808,6 +808,8 @@ class Disciple_Tools_Facebook_Integration {
      * @param $participant
      * @param $updated_time , the time of the last message
      * @param $page , the facebook page where the conversation is happening
+     *
+     * @param $conversation
      *
      * @return int|null|WP_Error contact_id
      */
@@ -944,6 +946,7 @@ class Disciple_Tools_Facebook_Integration {
                 }
             }
         }
+        return 0;
     }
 
     public function get_all_with_pagination( $url ) {
