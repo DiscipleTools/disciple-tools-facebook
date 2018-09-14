@@ -81,10 +81,22 @@ class DT_Facebook_All_Conversations extends Disciple_Tools_Async_Task {
     protected $action = 'dt_facebook_all_conversations';
 
     protected function prepare_data( $data ) {
-        return $data;
+        return [
+            "url" => urldecode( $data[0] ),
+            "id" => $data[1],
+            "latest_conversation" => $data[2]
+        ];
     }
 
     protected function run_action() {
-        do_action( "dt_async_dt_facebook_all_conversations" );
+        // The nonce is checked by the Disciple_Tools_Async_Task library
+        // @codingStandardsIgnoreStart
+        if ( isset( $_POST["url"], $_POST["id"], $_POST["latest_conversation"] ) ){
+            $url = sanitize_text_field( wp_unslash( $_POST["url"] ) );
+            $id = esc_html( sanitize_text_field( wp_unslash( $_POST["id"] ) ) );
+            $latest_conversation = esc_html( sanitize_text_field( wp_unslash( $_POST["latest_conversation"] ) ) );
+            do_action( "dt_async_dt_facebook_all_conversations", $url, $id, $latest_conversation );
+        }
+        // @codingStandardsIgnoreEnd
     }
 }
