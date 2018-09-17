@@ -65,7 +65,9 @@ class Disciple_Tools_Facebook_Integration {
     public function add_api_routes() {
 
         register_rest_route(
-            $this->namespace . "/dt-public/", 'webhook', [
+            $this->namespace . "/dt-public/",
+            'webhook',
+            [
                 'methods'  => 'POST',
                 'callback' => [ $this, 'update_from_facebook' ],
             ]
@@ -182,15 +184,16 @@ class Disciple_Tools_Facebook_Integration {
                 <?php foreach ( $facebook_data["labels"] as $id => $value ) {
                     ?>
                     <span class="facebook-label"><?php echo esc_html( $id ) ?></span>
-                <?php }
-                ?></p><?php
+                <?php } ?>
+                </p>
+                <?php
             }
 
             if ( isset( $facebook_data["last_message_at"] ) ) {
                 $date = strtotime( $facebook_data["last_message_at"] )
                 ?>
                 <div class="section-subheader">
-                    <?php esc_html_e( "Last massage at:", "dt_facebook" ) ?>
+                    <?php esc_html_e( "Last message at:", "dt_facebook" ) ?>
                 </div>
                 <p class="last_message_at"><?php echo esc_html( date( "Y-m-d H:m", $date ) ) ?></p>
                 <?php
@@ -278,8 +281,7 @@ class Disciple_Tools_Facebook_Integration {
     public function facebook_settings_page() {
 
         ?>
-        <h3><?php esc_html_e( "Link Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook
-            pages.", 'dt_facebook' ) ?></h3>
+        <h3><?php esc_html_e( "Link Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook pages.", 'dt_facebook' ) ?></h3>
         <div class="wrap">
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
@@ -408,10 +410,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <?php
                                 $facebook_pages = get_option( "dt_facebook_pages", [] );
 
-                                foreach ( $facebook_pages
-
-                                as $id => $facebook_page ){
-                                ?>
+                                foreach ( $facebook_pages as $id => $facebook_page ){ ?>
                                 <tr>
                                     <td><?php echo esc_html( $facebook_page["name"] ); ?>
                                         (<?php echo esc_html( $facebook_page["id"] ); ?>)
@@ -433,6 +432,17 @@ class Disciple_Tools_Facebook_Integration {
                                                type="checkbox"
                                             <?php echo checked( 1, isset( $facebook_page["business"] ), false ); ?> />
                                     </td>
+                                    <td>
+                                        <?php if ( !isset( $facebook_page["reached_the_end"] ) && isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] ) ) : ?>
+                                        <form action="" method="post">
+                                            <input type="hidden" name="_wpnonce" id="_wpnonce"
+                                                   value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
+
+                                            <input type="hidden" class="button" name="page_id" value="<?php echo esc_attr( $facebook_page["id"] ); ?>" />
+                                            <button type="submit" name="get_recent_conversations"><?php esc_html_e( "Get all conversations (launches in the background. This might take a while)", 'dt_facebook' ) ?></button>
+                                        </form>
+                                        <?php endif; ?>
+                                    </td>
                                     <?php } ?>
                                 </tbody>
                             </table>
@@ -441,9 +451,7 @@ class Disciple_Tools_Facebook_Integration {
                             <input type="submit" class="button" name="save_pages"
                                    value="<?php esc_html_e( "Save Pages Settings", 'dt_facebook' ) ?>"/>
                             <br>
-                            <button type="submit" class="button" name="get_recent_conversations">
-                                <?php esc_html_e( "Get recent conversations (launches in the background. This might take a while)", 'dt_facebook' ) ?>
-                            </button>
+
 
 
                         </form>
@@ -571,8 +579,16 @@ class Disciple_Tools_Facebook_Integration {
         }
 
 
-        if ( isset( $_POST["get_recent_conversations"] ) ){
-            $this->get_recent_conversations();
+        if ( isset( $_POST["get_recent_conversations"], $_POST["page_id"] ) ){
+            $id = sanitize_text_field( wp_unslash( $_POST["page_id"] ) );
+            $facebook_pages = get_option( "dt_facebook_pages", [] );
+            $facebook_pages[$id]["last_contact_id"] = null;
+            $facebook_pages[$id]["last_paging_cursor"] = null;
+            $facebook_pages[$id]["latest_conversation"] = null;
+            $facebook_pages[$id]["reached_the_end"] = null;
+            update_option( "dt_facebook_pages", $facebook_pages );
+
+            $this->get_recent_conversations( $id );
         }
     }
 
@@ -824,7 +840,6 @@ class Disciple_Tools_Facebook_Integration {
         //if no contact saved make sure they did not visit us from a different page first
         if ( sizeof( $contacts ) == 0 && isset( $page["business"] ) ) {
             $page_scoped_ids = $this->get_page_scoped_ids( $participant["id"], $page["access_token"] );
-            sleep( 5 );
             $contacts = dt_facebook_find_contacts_with_ids( $page_scoped_ids, $participant["id"], $app_id );
         }
         $contact_id   = null;
@@ -924,7 +939,7 @@ class Disciple_Tools_Facebook_Integration {
     }
 
 
-    public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0 ) {
+    public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0, $limit_to_one = false ) {
         $conversations_request = wp_remote_get( $url );
 
         if ( !is_wp_error( $conversations_request ) ) {
@@ -934,17 +949,19 @@ class Disciple_Tools_Facebook_Integration {
                 $this->save_conversation_page( $conversations_page["data"], $id, $latest_conversation );
                 if ( isset( $conversations_page["paging"]["next"] ) ){
                     $oldest_conversation = end( $conversations_page["data"] );
-                    if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation ){
-                        global $timestart;
-                        $time_end = microtime( true );
-                        $elapsed = $time_end - $timestart;
-                        sleep( ( 30 - $elapsed > 0 ) ? 30 - $elapsed : 0 ); // don't spam facebook
+                    if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation && !$limit_to_one){
+//                        global $timestart;
+//                        $time_end = microtime( true );
+//                        $elapsed = $time_end - $timestart;
+//                        sleep( ( 30 - $elapsed > 0 ) ? 30 - $elapsed : 0 ); // don't spam facebook
                         do_action( "dt_facebook_all_conversations", $conversations_page["paging"]["next"], $id, $latest_conversation );
                     }
                 } else {
                     $facebook_pages = get_option( "dt_facebook_pages", [] );
                     $facebook_pages[$id]["reached_the_end"] = time();
                     update_option( "dt_facebook_pages", $facebook_pages );
+                    $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_pages[$id]["access_token"];
+                    $this->get_conversations_with_pagination( $facebook_conversations_url, $id, $latest_conversation, true );
                 }
             }
         }
@@ -962,7 +979,6 @@ class Disciple_Tools_Facebook_Integration {
                 if ( !isset( $page["paging"]["next"] ) ){
                     return $page["data"];
                 } else {
-                    sleep( 20 ); // don't spam facebook
                     $next_page = $this->get_all_with_pagination( $page["paging"]["next"] );
                     return array_merge( $page["data"], $next_page );
                 }
@@ -972,14 +988,16 @@ class Disciple_Tools_Facebook_Integration {
         }
     }
 
-    public function get_recent_conversations(){
+    public function get_recent_conversations( $page_id = null ){
         $facebook_pages      = get_option( "dt_facebook_pages", [] );
         foreach ( $facebook_pages as $id => $facebook_page ) {
             if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] )){
-                //get conversations
-                $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
-                $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_page["access_token"];
-                do_action( "dt_facebook_all_conversations", $facebook_conversations_url, $id, $latest_conversation );
+                if ( !$page_id || $id == $page_id ){
+                    //get conversations
+                    $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
+                    $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_page["access_token"];
+                    do_action( "dt_facebook_all_conversations", $facebook_conversations_url, $id, $latest_conversation );
+                }
             }
         }
     }
@@ -993,6 +1011,9 @@ class Disciple_Tools_Facebook_Integration {
                     if ( (string) $participant["id"] != $id ) {
                         $contact_id = $this->update_or_create_contact( $participant, $conversation["updated_time"], $page, $conversation );
                         if ( $contact_id ){
+                            $facebook_pages = get_option( "dt_facebook_pages", [] );
+                            $facebook_pages[$id]["last_contact_id"] = $contact_id;
+                            update_option( "dt_facebook_pages", $facebook_pages );
                             $this->update_facebook_messages_on_contact( $contact_id, $conversation );
                             $this->set_notes_on_conversation( $contact_id, $page, $participant["id"] );
                         }
@@ -1002,7 +1023,7 @@ class Disciple_Tools_Facebook_Integration {
         }
         $facebook_pages = get_option( "dt_facebook_pages", [] );
         $new_latest_conversation = isset( $conversations[0]["updated_time"] ) ? strtotime( $conversations[0]["updated_time"] ) : 0;
-        if ( isset( $facebook_pages[$id]["reached_the_end"] ) && $latest_conversation < $new_latest_conversation && $facebook_pages[$id]["latest_conversation"] < $new_latest_conversation ){
+        if ( isset( $facebook_pages[$id]["reached_the_end"] ) && $facebook_pages[$id]["reached_the_end"] != null && $latest_conversation < $new_latest_conversation && $facebook_pages[$id]["latest_conversation"] < $new_latest_conversation ){
             $facebook_pages[$id]["latest_conversation"] = $new_latest_conversation;
             update_option( "dt_facebook_pages", $facebook_pages );
         }
@@ -1041,7 +1062,6 @@ class Disciple_Tools_Facebook_Integration {
         $saved_ids = $facebook_data["message_ids"] ?? [];
         if ( $message_count != $saved_number && $message_count > $number_of_messages && isset( $conversation["messages"]["paging"]["next"] )){
             $all_convs = $this->get_all_with_pagination( $conversation["messages"]["paging"]["next"] );
-            sleep( 20 );
             $messages = array_merge( $all_convs, $messages );
         }
         if ( $message_count != $saved_number ){
