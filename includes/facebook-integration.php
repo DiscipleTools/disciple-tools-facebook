@@ -949,11 +949,7 @@ class Disciple_Tools_Facebook_Integration {
                 $this->save_conversation_page( $conversations_page["data"], $id, $latest_conversation );
                 if ( isset( $conversations_page["paging"]["next"] ) ){
                     $oldest_conversation = end( $conversations_page["data"] );
-                    if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation && !$limit_to_one){
-//                        global $timestart;
-//                        $time_end = microtime( true );
-//                        $elapsed = $time_end - $timestart;
-//                        sleep( ( 30 - $elapsed > 0 ) ? 30 - $elapsed : 0 ); // don't spam facebook
+                    if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation && !$limit_to_one ){
                         do_action( "dt_facebook_all_conversations", $conversations_page["paging"]["next"], $id, $latest_conversation );
                     }
                 } else {
@@ -992,8 +988,10 @@ class Disciple_Tools_Facebook_Integration {
         $facebook_pages      = get_option( "dt_facebook_pages", [] );
         foreach ( $facebook_pages as $id => $facebook_page ) {
             if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] )){
-                if ( !$page_id || $id == $page_id ){
+                if ( !$page_id ){
                     //get conversations
+                    wp_remote_get( $this->get_rest_url() . "/dt-public/cron?page=" . $id );
+                } else if ( $id == $page_id ) {
                     $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
                     $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_page["access_token"];
                     do_action( "dt_facebook_all_conversations", $facebook_conversations_url, $id, $latest_conversation );
@@ -1031,9 +1029,11 @@ class Disciple_Tools_Facebook_Integration {
 
 
 
-    public function cron_hook(){
+    public function cron_hook( WP_REST_Request $request ){
         // calls get_recent_conversations
-        $this->get_recent_conversations();
+        $params = $request->get_params();
+        $id = $params["page"] ?? null;
+        $this->get_recent_conversations( $id );
         return "ok";
     }
 
