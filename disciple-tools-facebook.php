@@ -107,6 +107,8 @@ class DT_Facebook {
         Disciple_Tools_Facebook_Labels::instance();
         require_once( 'includes/facebook-stats.php' );
         new Disciple_Tools_Facebook_Reports();
+        require_once( 'includes/facebook-tile.php' );
+        Disciple_Tools_Facebook_Tile::instance();
         require_once( 'includes/facebook-integration.php' );
         Disciple_Tools_Facebook_Integration::instance();
         try {
