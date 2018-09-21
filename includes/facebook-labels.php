@@ -390,7 +390,7 @@ class Disciple_Tools_Facebook_Labels {
     public function dt_contact_updated( $contact_id, $fields, $contact ){
         //does the contact have a facebook user id?
         $updated_keys = array_keys( $fields );
-        if ( isset( $contact["facebook_data"] ) && isset( $contact["facebook_data"]["app_scoped_ids"][0] ) ){
+        if ( isset( $contact["facebook_data"] ) && isset( $contact["facebook_data"]["app_scoped_ids"] ) && sizeof( $contact["facebook_data"]["app_scoped_ids"] ) > 0){
             $workflows = apply_filters( 'dt_to_fb_workflows', [] );
             foreach ( $workflows as $workflow ){
                 //was a field triggering the workflow updated?

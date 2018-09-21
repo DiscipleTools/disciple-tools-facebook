@@ -46,14 +46,8 @@ class Disciple_Tools_Facebook_Integration {
         $this->namespace = $this->context . "/v" . intval( $this->version );
         add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
         add_action( 'wp_ajax_dt-facebook-notice-dismiss', [ $this, 'dismiss_error' ] );
-        add_filter( "dt_custom_fields_settings", [ $this, "dt_facebook_fields" ], 1, 2 );
-        add_filter( "dt_details_additional_section_ids", [ $this, "dt_facebook_declare_section_id" ], 999, 2 );
-        add_action( "dt_details_additional_section", [ $this, "dt_facebook_add_section" ] );
         add_action( "dt_async_dt_conversation_update", [ $this, "get_conversation_update" ], 10, 2 );
-        add_action( "dt_async_dt_facebook_all_conversations", [ $this, "get_recent_conversations" ], 10, 2 );
-        add_filter( "dt_contact_duplicate_fields_to_check", [ $this, "add_duplicate_check_field" ] );
-        add_filter( "dt_comments_additional_sections", [ $this, "add_comment_section" ], 10, 2 );
-
+        add_action( "dt_async_dt_facebook_all_conversations", [ $this, "get_conversations_with_pagination" ], 10, 4 );
     } // End __construct()
 
     /**
@@ -62,17 +56,12 @@ class Disciple_Tools_Facebook_Integration {
      * @since  0.1.0
      */
     public function add_api_routes() {
-
         register_rest_route(
-            $this->namespace . "/dt-public/", 'webhook', [
+            $this->namespace . "/dt-public/",
+            'webhook',
+            [
                 'methods'  => 'POST',
                 'callback' => [ $this, 'update_from_facebook' ],
-            ]
-        );
-        register_rest_route(
-            $this->namespace . "/dt-public/", 'webhook', [
-                'methods'  => 'GET',
-                'callback' => [ $this, 'verify_facebook_webhooks' ],
             ]
         );
         register_rest_route(
@@ -94,150 +83,6 @@ class Disciple_Tools_Facebook_Integration {
             ]
         );
     }
-
-
-    public static function dt_facebook_fields( array $fields, string $post_type = "" ) {
-        //check if we are dealing with a contact
-        if ( $post_type === "contacts" ) {
-            //check if the language field is already set
-            if ( !isset( $fields["facebook_data"] ) ) {
-                //define the language field
-                $fields["facebook_data"] = [
-                    "name"    => __( "Facebook Ids", "dt_facebook" ),
-                    "type"    => "array",
-                    "default" => []
-                ];
-            }
-            if ( !isset( $fields["reason_closed"]["default"]["closed_from_facebook"] ) ) {
-                $fields["reason_closed"]["default"]["closed_from_facebook"] = __( "Closed from Facebook", "dt_facebook" );
-            }
-            if ( !isset( $fields["overall_status"]["default"]["from_facebook"] ) ) {
-                $fields["overall_status"]["default"]["from_facebook"] = __( "From Facebook", "dt_facebook" );
-            }
-        }
-        //don't forget to return the update fields array
-        return $fields;
-    }
-
-
-    public static function dt_facebook_declare_section_id( $sections, $post_type = "" ) {
-        //check if we are on a contact
-        if ( $post_type === "contacts" ) {
-            $contact_fields = Disciple_Tools_Contact_Post_Type::instance()->get_custom_fields_settings();
-            //check if the language field is set
-            if ( isset( $contact_fields["facebook_data"] ) ) {
-                $sections[] = "contact_facebook_data";
-            }
-            //add more section ids here if you want...
-        }
-        return $sections;
-    }
-
-
-    public static function dt_facebook_add_section( $section ) {
-        if ( $section == "contact_facebook_data" ) {
-            $contact_id    = get_the_ID();
-            $contact       = Disciple_Tools_Contacts::get_contact( $contact_id, true );
-            $facebook_data = [];
-            if ( isset( $contact["facebook_data"] ) ) {
-                $facebook_data = maybe_unserialize( $contact["facebook_data"] );
-            }
-            ?>
-            <!-- need you own css? -->
-            <style type="text/css">
-                .facebook-label {
-                    background: #ecf5fc;
-                    padding: 2px 4px;
-                    border-radius: 2px;
-                    border: 1px solid #c2e0ff;
-                }
-            </style>
-
-            <label class="section-header">
-                <?php esc_html_e( 'Facebook', 'dt_facebook' ) ?>
-            </label>
-
-
-            <?php
-            if ( isset( $facebook_data["names"] ) ) {
-                ?>
-                <div class="section-subheader">
-                    <?php esc_html_e( "Names", "dt_facebook" ) ?>
-                </div>
-                <?php
-                if ( is_array( $facebook_data["names"] ) ) {
-                    foreach ( $facebook_data["names"] as $id ) {
-                        ?>
-                        <p><?php echo esc_html( $id ) ?></p>
-                    <?php }
-                }
-            }
-            if ( isset( $facebook_data["labels"] ) ) {
-                ?>
-                <div class="section-subheader">
-                    <?php esc_html_e( "Labels", "dt_facebook" ) ?>
-                </div>
-                <p>
-                <?php foreach ( $facebook_data["labels"] as $id => $value ) {
-                    ?>
-                    <span class="facebook-label"><?php echo esc_html( $id ) ?></span>
-                <?php }
-                ?></p><?php
-            }
-
-            if ( isset( $facebook_data["last_message_at"] ) ) {
-                $date = strtotime( $facebook_data["last_message_at"] )
-                ?>
-                <div class="section-subheader">
-                    <?php esc_html_e( "Last massage at:", "dt_facebook" ) ?>
-                </div>
-                <p class="last_message_at"><?php echo esc_html( date( "Y-m-d H:m", $date ) ) ?></p>
-                <?php
-            }
-
-//            foreach ( $facebook_data as $key => $value ){
-//
-            ?>
-            <!--                <div class="section-subheader">-->
-            <!--                    --><?php //echo esc_html( $key )
-            ?>
-            <!--                </div>-->
-            <!--                --><?php
-//                if ( is_array( $value )){
-//                    foreach ( $value as $id ){
-//
-            ?>
-            <!--                        <p>--><?php //echo esc_html( $id )
-            ?><!--</p>-->
-            <!--                        --><?php
-//                    }
-//                } else {
-//
-            ?>
-            <!--                    <p>--><?php //echo esc_html( $value )
-            ?><!--</p>-->
-            <!--                    --><?php
-//                }
-//            }
-
-            ?>
-
-            <script type="application/javascript">
-                //enter jquery here if you need it
-                jQuery(($) => {
-                    <?php if ( isset( $facebook_data["last_message_at"] ) ) : ?>
-                    $('.last_message_at').html(
-                        moment("<?php echo esc_html( $facebook_data["last_message_at"] ) ?>").format(
-                            "MMMM Do YYYY, h:mm:ss a"))
-                    <?php endif; ?>
-                })
-            </script>
-            <?php
-        }
-
-        //add more sections here if you want...
-    }
-
 
     /**
      * Admin notice
@@ -262,8 +107,7 @@ class Disciple_Tools_Facebook_Integration {
     public function facebook_settings_page() {
 
         ?>
-        <h3><?php esc_html_e( "Link Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook
-            pages.", 'dt_facebook' ) ?></h3>
+        <h3><?php esc_html_e( "Link Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook pages.", 'dt_facebook' ) ?></h3>
         <div class="wrap">
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
@@ -293,13 +137,13 @@ class Disciple_Tools_Facebook_Integration {
                             -->
                         </ul>
                         <strong><?php esc_html_e( "Associate your app with Business Manager to help track contacts", 'dt_facebook' ) ?></strong>
-                        <p>We strongly recommend you set up facebook business manager if you have not already.  <a href="https://www.facebook.com/business/help/1710077379203657">More Info</a> </p>
-                        To associate you new app with your business manager account:
+                        <p><?php esc_html_e( "We strongly recommend you set up facebook business manager if you have not already.", 'dt_facebook' ) ?>  <a href="https://www.facebook.com/business/help/1710077379203657"><?php esc_html_e( "More Info", 'dt_facebook' ) ?></a> </p>
+                        <?php esc_html_e( "To associate you new app with your business manager account:", 'dt_facebook' ) ?>
                         <ul style="list-style-type: disc; padding-left:40px">
-                            <li>Open <a href="https://beta.mailbutler.io/tracking/hit/92221EF4-CA16-45D2-B2BC-25BAE8DB97E9/4DE418B3-6A4F-47A1-947F-64E5B46028A7/?notrack=true">Business Settings</a></li>
-                            <li>Under Data Sources click Apps.</li>
-                            <li>Click Add New App and select Add an App</li>
-                            <li>Enter the Facebook App ID from the app you just created.</li>
+                            <li><?php esc_html_e( "Open", 'dt_facebook' ) ?> <a href="https://beta.mailbutler.io/tracking/hit/92221EF4-CA16-45D2-B2BC-25BAE8DB97E9/4DE418B3-6A4F-47A1-947F-64E5B46028A7/?notrack=true"><?php esc_html_e( "Business Settings", 'dt_facebook' ) ?></a></li>
+                            <li><?php esc_html_e( "Under Data Sources click Apps.", 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( "Click Add New App and select Add an App", 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( "Enter the Facebook App ID from the app you just created.", 'dt_facebook' ) ?></li>
                         </ul>
 
 
@@ -386,16 +230,22 @@ class Disciple_Tools_Facebook_Integration {
                                     <th><?php esc_html_e( "Sync Contacts", 'dt_facebook' ) ?></th>
                                     <th><?php esc_html_e( "Include in Stats", 'dt_facebook' ) ?></th>
                                     <th><?php esc_html_e( "Part of Business Manager", 'dt_facebook' ) ?></th>
+                                    <th><?php esc_html_e( "Digital Responder", 'dt_facebook' ) ?></th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <?php
+                                $user_for_page = dt_get_base_user();
+                                $potential_user_list = get_users(
+                                    [
+                                        'role__in' => [ 'dispatcher', 'marketer', 'dt_admin' ],
+                                        'order'    => 'ASC',
+                                        'orderby'  => 'display_name',
+                                    ]
+                                );
                                 $facebook_pages = get_option( "dt_facebook_pages", [] );
 
-                                foreach ( $facebook_pages
-
-                                as $id => $facebook_page ){
-                                ?>
+                                foreach ( $facebook_pages as $id => $facebook_page ){ ?>
                                 <tr>
                                     <td><?php echo esc_html( $facebook_page["name"] ); ?>
                                         (<?php echo esc_html( $facebook_page["id"] ); ?>)
@@ -417,6 +267,31 @@ class Disciple_Tools_Facebook_Integration {
                                                type="checkbox"
                                             <?php echo checked( 1, isset( $facebook_page["business"] ), false ); ?> />
                                     </td>
+                                    <td>
+                                        <?php
+                                        if ( isset( $facebook_page["assign_to"] )){
+                                            $user_for_page = get_user_by( "ID", $facebook_page["assign_to"] );
+                                        }
+                                        ?>
+                                        <select name="<?php echo esc_attr( $facebook_page["id"] ); ?>-assign_new_contacts_to">
+                                            <option value="<?php echo esc_attr( $user_for_page->ID ) ?>"><?php echo esc_attr( $user_for_page->display_name ) ?></option>
+                                            <option disabled>---</option>
+                                            <?php foreach ( $potential_user_list as $potential_user ) : ?>
+                                                <option value="<?php echo esc_attr( $potential_user->ID ) ?>"><?php echo esc_attr( $potential_user->display_name ) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <?php if ( !isset( $facebook_page["reached_the_end"] ) && isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] ) ) : ?>
+                                        <form action="" method="post">
+                                            <input type="hidden" name="_wpnonce" id="_wpnonce"
+                                                   value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
+
+                                            <input type="hidden" class="button" name="page_id" value="<?php echo esc_attr( $facebook_page["id"] ); ?>" />
+                                            <button type="submit" name="get_recent_conversations"><?php esc_html_e( "Get all conversations (launches in the background. This might take a while)", 'dt_facebook' ) ?></button>
+                                        </form>
+                                        <?php endif; ?>
+                                    </td>
                                     <?php } ?>
                                 </tbody>
                             </table>
@@ -425,9 +300,7 @@ class Disciple_Tools_Facebook_Integration {
                             <input type="submit" class="button" name="save_pages"
                                    value="<?php esc_html_e( "Save Pages Settings", 'dt_facebook' ) ?>"/>
                             <br>
-                            <button type="submit" class="button" name="get_recent_conversations">
-                                <?php esc_html_e( "Get recent conversations (launches in the background. This might take a while)", 'dt_facebook' ) ?>
-                            </button>
+
 
 
                         </form>
@@ -504,47 +377,10 @@ class Disciple_Tools_Facebook_Integration {
                 } else {
                     $facebook_pages[ $id ]["report"] = 0;
                 }
-                //Add the page to the apps subscriptions (to allow webhooks)
-                if ( $facebook_pages[ $id ]["integrate"] == 1 && ( !isset( $facebook_pages[ $id ]["subscribed"] ) || ( isset( $facebook_pages[ $id ]["subscribed"] ) && $facebook_pages[ $id ]["subscribed"] != 1 ) ) ) {
-                    $url     = "https://graph.facebook.com/v2.8/" . $id . "/subscribed_apps?access_token=" . $facebook_page["access_token"];
-                    $request = wp_remote_post( $url );
-                    if ( is_wp_error( $request ) ) {
-                        $this->display_error( $request );
-                    } else {
-                        $body = wp_remote_retrieve_body( $request );
-                        $data = json_decode( $body, true );
-                        if ( !empty( $data ) && isset( $data["error"] ) ) {
-                            $this->display_error( $data["error"]["message"] );
-                        }
-                        $facebook_pages[ $id ]["subscribed"] = 1;
-                    }
-                }
-                //enable and set up webhooks for getting page feed and conversations
-                if ( isset( $facebook_pages[ $id ]["subscribed"] ) && $facebook_pages[ $id ]["subscribed"] == 1 && !isset( $facebook_pages[ $id ]["webhooks"] ) && $facebook_pages[ $id ]["integrate"] === 1 ) {
-                    $url     = "https://graph.facebook.com/v2.12/" . $id . "/subscriptions?access_token=" . get_option( "disciple_tools_facebook_app_id", "" ) . "|" . get_option( "disciple_tools_facebook_app_secret", "" );
-                    $request = wp_remote_post(
-                        $url, [
-                            'body' => [
-                                'object'       => 'page',
-                                'callback_url' => $this->get_rest_url() . "/dt-public/webhook",
-                                'verify_token' => $this->authorize_secret(),
-                                'fields'       => [ 'conversations', 'feed' ],
-                            ],
-                        ]
-                    );
-                    if ( is_wp_error( $request ) ) {
-                        $this->display_error( $request );
-                    } else {
-
-                        $body = wp_remote_retrieve_body( $request );
-                        $data = json_decode( $body, true );
-                        if ( !empty( $data ) && isset( $data["error"] ) ) {
-                            $this->display_error( $data["error"]["message"] );
-                        }
-                        if ( !empty( $data ) && isset( $data["success"] ) ) {
-                            $facebook_pages[ $id ]["webhooks_set"] = 1;
-                        }
-                    }
+                //set the user new facebook contacts should be assigned to.
+                $assign_to = str_replace( ' ', '_', $facebook_page["id"] . "-assign_new_contacts_to" );
+                if ( isset( $_POST[$assign_to] ) ){
+                    $facebook_pages[$id]["assign_to"] = sanitize_text_field( wp_unslash( $_POST[ $assign_to ] ) );
                 }
             }
             update_option( "dt_facebook_pages", $facebook_pages );
@@ -555,8 +391,16 @@ class Disciple_Tools_Facebook_Integration {
         }
 
 
-        if ( isset( $_POST["get_recent_conversations"] ) ){
-            do_action( "dt_facebook_all_conversations" );
+        if ( isset( $_POST["get_recent_conversations"], $_POST["page_id"] ) ){
+            $id = sanitize_text_field( wp_unslash( $_POST["page_id"] ) );
+            $facebook_pages = get_option( "dt_facebook_pages", [] );
+            $facebook_pages[$id]["last_contact_id"] = null;
+            $facebook_pages[$id]["last_paging_cursor"] = null;
+            $facebook_pages[$id]["latest_conversation"] = null;
+            $facebook_pages[$id]["reached_the_end"] = null;
+            update_option( "dt_facebook_pages", $facebook_pages );
+
+            $this->get_recent_conversations( $id );
         }
     }
 
@@ -566,7 +410,7 @@ class Disciple_Tools_Facebook_Integration {
 
 
     /**
-     * Facebook Authentication and webhooks
+     * Facebook Authentication
      */
 
     // Generate authorization secret
@@ -575,20 +419,12 @@ class Disciple_Tools_Facebook_Integration {
     }
 
     /**
-     * called by facebook when initialising the webhook
+     * Refresh list of saved pages
+     *
+     * @param $access_token
      *
      * @return mixed
      */
-    public function verify_facebook_webhooks() {
-        if ( isset( $_GET["hub_verify_token"] ) && $_GET["hub_verify_token"] === $this->authorize_secret() ) {
-            if ( isset( $_GET['hub_challenge'] ) ) {
-                echo esc_html( sanitize_text_field( wp_unslash( $_GET['hub_challenge'] ) ) );
-                exit();
-            }
-        }
-
-        return "Could not verify";
-    }
 
     private function get_or_refresh_pages( $access_token ) {
 
@@ -694,73 +530,10 @@ class Disciple_Tools_Facebook_Integration {
         return "ok";
     }
 
-
-
-
-
-    /**
-     * Handle updates from facebook via webhooks
-     * - conversations
-     */
-
-    /**
-     * This is the route called by the Facebook webhook.
-     */
+    //legacy
     public function update_from_facebook() {
-        //decode the facebook post request from json
-        $body = json_decode( file_get_contents( 'php://input' ), true );
-
-        foreach ( $body['entry'] as $entry ) {
-            $facebook_page_id = $entry['id'];
-            if ( $entry['changes'] ) {
-                foreach ( $entry['changes'] as $change ) {
-                    if ( $change['field'] == "conversations" ) {
-                        //there is a new update in a conversation
-                        $thread_id = $change['value']['thread_id'];
-                        do_action( "dt_conversation_update", $facebook_page_id, $thread_id );
-                    }
-//                    elseif ( $change['field'] == "feed" ) {
-//                        //the facebook page feed has an update
-//                    }
-                }
-            }
-        }
-
-        do_action( "dt_update_from_facebook", $body );
+        return;
     }
-
-    /**
-     * get the conversation details from facebook
-     *
-     * @param $page_id
-     * @param $thread_id , the id for the conversation containing the messages
-     */
-    public function get_conversation_update( $page_id, $thread_id ) {
-        //check the settings array to see if we have settings saved for the page
-        //get the access token and custom page name by looking for the page Id
-        $facebook_pages = get_option( "dt_facebook_pages", [] );
-        //if we have the access token, get and save the conversation
-        //make sure the "sync contacts" setting is set.
-        if ( isset( $facebook_pages[ $page_id ] ) && isset( $facebook_pages[ $page_id ]["integrate"] ) && $facebook_pages[ $page_id ]["integrate"] == 1 ) {
-
-            $access_token = $facebook_pages[ $page_id ]["access_token"];
-//            $uri_for_conversations = "https://graph.facebook.com/v2.7/" . $thread_id . "?fields=message_count,messages{from,created_time,message},updated_time,participants&access_token=" . $access_token;
-            $uri_for_conversations = "https://graph.facebook.com/v2.7/" . $thread_id . "?fields=updated_time,participants&access_token=" . $access_token;
-            $response              = wp_remote_get( $uri_for_conversations );
-
-            $body = json_decode( $response["body"], true );
-            if ( $body ) {
-                $participants = $body["participants"]["data"];
-                //go through each participant to save their conversations on their contact record
-                foreach ( $participants as $participant ) {
-                    if ( (string) $participant["id"] != $page_id ) {
-                        $this->update_or_create_contact( $participant, $body["updated_time"], $facebook_pages[ $page_id ] );
-                    }
-                }
-            }
-        }
-    }
-
 
     //The app secret proof is a sha256 hash of your access token, using the app secret as the key.
     public function get_app_secret_proof( $access_token ) {
@@ -792,19 +565,24 @@ class Disciple_Tools_Facebook_Integration {
      * @param $participant
      * @param $updated_time , the time of the last message
      * @param $page , the facebook page where the conversation is happening
-     * @param int $times_tried
+     *
+     * @param $conversation
+     *
+     * @return int|null|WP_Error contact_id
      */
-    private function update_or_create_contact( $participant, $updated_time, $page, $times_tried = 0 ) {
+    private function update_or_create_contact( $participant, $updated_time, $page, $conversation ) {
         //get page scoped ids available by using a Facebook business manager
         $page_scoped_ids = [];
-        if ( isset( $page["business"] ) ) {
-            $page_scoped_ids = $this->get_page_scoped_ids( $participant["id"], $page["access_token"] );
-        }
+
         $app_id = get_option( "disciple_tools_facebook_app_id", null );
 
         $contacts = dt_facebook_find_contacts_with_ids( $page_scoped_ids, $participant["id"], $app_id );
 
-        $facebook_url = "https://www.facebook.com/" . $participant["id"];
+        //if no contact saved make sure they did not visit us from a different page first
+        if ( sizeof( $contacts ) == 0 && isset( $page["business"] ) ) {
+            $page_scoped_ids = $this->get_page_scoped_ids( $participant["id"], $page["access_token"] );
+            $contacts = dt_facebook_find_contacts_with_ids( $page_scoped_ids, $participant["id"], $app_id );
+        }
         $contact_id   = null;
 
         if ( sizeof( $contacts ) > 1 ) {
@@ -823,43 +601,50 @@ class Disciple_Tools_Facebook_Integration {
             $contact_id = $contacts[0]->ID;
         }
 
+        $facebook_url = "https://www.facebook.com/" . $participant["id"];
         if ( $contact_id ) {
             $contact                          = Disciple_Tools_Contacts::get_contact( $contact_id, false );
             $facebook_data                    = maybe_unserialize( $contact["facebook_data"] ) ?? [];
-            if ( isset( $facebook_data["last_message_at"] ) && $facebook_data["last_message_at"] != $updated_time ) {
-                $comment = __( "New Facebook message", "dt_facebook" );
-                Disciple_Tools_Contacts::add_comment( $contact_id, $comment, false, "facebook" );
-                $facebook_data["last_message_at"] = $updated_time;
+            $initial_facebook_data = $facebook_data;
+            $facebook_data["last_message_at"] = $updated_time;
 
-                if ( !isset( $facebook_data["page_scoped_ids"] ) ) {
-                    $facebook_data["page_scoped_ids"] = [];
+            if ( !isset( $facebook_data["page_scoped_ids"] ) ) {
+                $facebook_data["page_scoped_ids"] = [];
+            }
+            if ( !isset( $facebook_data["app_scoped_ids"] ) ) {
+                $facebook_data["app_scoped_ids"] = [];
+            }
+            if ( !isset( $facebook_data["page_ids"] ) ) {
+                $facebook_data["page_ids"] = [];
+            }
+            if ( !isset( $facebook_data["links"] ) ) {
+                $facebook_data["links"] = [];
+            }
+            if ( !isset( $facebook_data["names"] ) ) {
+                $facebook_data["names"] = [];
+            }
+            foreach ( $page_scoped_ids as $id ) {
+                if ( !in_array( $id, $facebook_data["page_scoped_ids"] ) ) {
+                    $facebook_data["page_scoped_ids"][] = $id;
                 }
-                if ( !isset( $facebook_data["app_scoped_ids"] ) ) {
-                    $facebook_data["app_scoped_ids"] = [];
-                }
-                if ( !isset( $facebook_data["page_ids"] ) ) {
-                    $facebook_data["page_ids"] = [];
-                }
-                if ( !isset( $facebook_data["names"] ) ) {
-                    $facebook_data["names"] = [];
-                }
-                foreach ( $page_scoped_ids as $id ) {
-                    if ( !in_array( $id, $facebook_data["page_scoped_ids"] ) ) {
-                        $facebook_data["page_scoped_ids"][] = $id;
-                    }
-                }
-                if ( !isset( $facebook_data["app_scoped_ids"][ $app_id ] ) ) {
-                    $facebook_data["app_scoped_ids"][ $app_id ] = $participant["id"];
-                }
+            }
+            if ( !isset( $facebook_data["app_scoped_ids"][ $app_id ] ) ) {
+                $facebook_data["app_scoped_ids"][ $app_id ] = $participant["id"];
+            }
 
-                if ( !in_array( $page["id"], $facebook_data["page_ids"] ) ) {
-                    $facebook_data["page_ids"][] = $page["id"];
-                }
-                if ( !in_array( $participant["name"], $facebook_data["names"] ) ) {
-                    $facebook_data["names"][] = $participant["name"];
-                }
+            if ( !in_array( $page["id"], $facebook_data["page_ids"] ) ) {
+                $facebook_data["page_ids"][] = $page["id"];
+            }
+            if ( !in_array( $participant["name"], $facebook_data["names"] ) ) {
+                $facebook_data["names"][] = $participant["name"];
+            }
+            if ( !in_array( $conversation["link"], $facebook_data["links"] ) ) {
+                $facebook_data["links"][] = $conversation["link"];
+            }
+            if ( $facebook_data != $initial_facebook_data ) {
                 Disciple_Tools_Contacts::update_contact( $contact_id, [ "facebook_data" => $facebook_data ], false );
             }
+            return $contact_id;
         } else if ( !$contact_id ) {
             $fields = [
                 "title"            => $participant["name"],
@@ -876,110 +661,165 @@ class Disciple_Tools_Facebook_Integration {
                     "app_scoped_ids"  => [ $app_id => $participant["id"] ],
                     "page_ids"        => [ $page["id"] ],
                     "names"           => [ $participant["name"] ],
-                    "last_message_at" => $updated_time
-                ]
+                    "last_message_at" => $updated_time,
+                    "links" => [ $conversation["link"] ]
+                ],
             ];
-            global $wpdb;
-            $file = fopen( "fb_lock.txt", "w+" );
-            if ( flock( $file, LOCK_EX ) ) {
-                $already_created = $wpdb->get_results( $wpdb->prepare(
-                    "SELECT histid
-                    FROM `$wpdb->dt_activity_log`
-                    WHERE 
-                        `object_type` = 'facebook'
-                    AND
-                        `object_note` = %s
-                    ", $participant['id']
-                ), ARRAY_A );
+            if ( isset( $page["assign_to"] )){
+                $fields["assigned_to"] = $page["assign_to"];
+            }
+            $new_contact_id = Disciple_Tools_Contacts::create_contact( $fields, false );
+            if ( is_wp_error( $new_contact_id ) ){
+                dt_send_email( "corsacca@gmail.com", "fb create failed", serialize( $fields ) );
+            }
+            return $new_contact_id;
+        }
+    }
 
-                if ( sizeof( $already_created ) === 0 ) {
-                    dt_activity_insert( [
-                        'action'      => 'fb_create',
-                        'object_type' => "facebook",
-                        'object_note' => $participant['id'],
-                    ] );
-                    flock( $file, LOCK_UN );
-                    Disciple_Tools_Contacts::create_contact( $fields, false );
+
+    public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0, $limit_to_one = false ) {
+        $conversations_request = wp_remote_get( $url );
+
+        if ( !is_wp_error( $conversations_request ) ) {
+            $conversations_body = wp_remote_retrieve_body( $conversations_request );
+            $conversations_page = json_decode( $conversations_body, true );
+            if ( !empty( $conversations_page ) && isset( $conversations_page["data"] ) ) {
+                $this->save_conversation_page( $conversations_page["data"], $id, $latest_conversation );
+                if ( isset( $conversations_page["paging"]["next"] ) ){
+                    $oldest_conversation = end( $conversations_page["data"] );
+                    if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation && !$limit_to_one ){
+                        do_action( "dt_facebook_all_conversations", $conversations_page["paging"]["next"], $id, $latest_conversation );
+                    }
                 } else {
-                    flock( $file, LOCK_UN );
-                }
-            } else {
-                flock( $file, LOCK_UN );
-                if ( $times_tried === 0 ) {
-                    self::update_or_create_contact( $participant, $updated_time, $page, 1 );
+                    $facebook_pages = get_option( "dt_facebook_pages", [] );
+                    $facebook_pages[$id]["reached_the_end"] = time();
+                    update_option( "dt_facebook_pages", $facebook_pages );
+                    $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_pages[$id]["access_token"];
+                    $this->get_conversations_with_pagination( $facebook_conversations_url, $id, $latest_conversation, true );
                 }
             }
         }
     }
 
-    public function add_duplicate_check_field( $fields ) {
-        $fields[] = "facebook_data";
+    public function get_all_with_pagination( $url ) {
+        $request = wp_remote_get( $url );
 
-        return $fields;
-    }
-
-
-    public function get_conversations_with_pagination( $url, $latest_conversation ) {
-        $conversations_request = wp_remote_get( $url );
-
-        if ( is_wp_error( $conversations_request ) ) {
+        if ( is_wp_error( $request ) ) {
             return [];
         } else {
-            $conversations_body = wp_remote_retrieve_body( $conversations_request );
-            $conversations_page = json_decode( $conversations_body, true );
-            if ( !empty( $conversations_page ) ) {
-                if ( !isset( $conversations_page["paging"]["next"] ) ){
-                    return $conversations_page["data"];
+            $body = wp_remote_retrieve_body( $request );
+            $page = json_decode( $body, true );
+            if ( !empty( $page ) ) {
+                if ( !isset( $page["paging"]["next"] ) ){
+                    return $page["data"];
                 } else {
-                    $oldest_conversation = end( $conversations_page["data"] );
-                    if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation ){
-                        sleep( 30 ); // don't spam facebook
-                        $next_page = $this->get_conversations_with_pagination( $conversations_page["paging"]["next"], $latest_conversation );
-                        return array_merge( $conversations_page["data"], $next_page );
-                    } else {
-                        return $conversations_page["data"];
-                    }
+                    $next_page = $this->get_all_with_pagination( $page["paging"]["next"] );
+                    return array_merge( $page["data"], $next_page );
                 }
             } else {
                 return [];
             }
         }
-
     }
 
-    public function get_recent_conversations(){
+    public function get_recent_conversations( $page_id = null ){
         $facebook_pages      = get_option( "dt_facebook_pages", [] );
         foreach ( $facebook_pages as $id => $facebook_page ) {
             if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] )){
-                //get conversations
-                $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
-                $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=participants,updated_time&access_token=" . $facebook_page["access_token"];
-                $conversations = self::get_conversations_with_pagination( $facebook_conversations_url, $latest_conversation );
-                $facebook_pages      = get_option( "dt_facebook_pages", [] );
-                $facebook_pages[$id]["latest_conversation"] = isset( $conversations[0]["updated_time"] ) ? strtotime( $conversations[0]["updated_time"] ) : 0;
-                update_option( "dt_facebook_pages", $facebook_pages );
-                foreach ( $conversations as $conversation ){
-                    if ( strtotime( $conversation["updated_time"] ) >= $latest_conversation ){
-                        foreach ( $conversation["participants"]["data"] as $participant ) {
-                            if ( (string) $participant["id"] != $id ) {
-                                $this->update_or_create_contact( $participant, $conversation["updated_time"], $facebook_pages[ $id ] );
-                            }
-                        }
-                    }
+                if ( !$page_id ){
+                    //get conversations
+                    wp_remote_get( $this->get_rest_url() . "/dt-public/cron?page=" . $id );
+                } else if ( $id == $page_id ) {
+                    $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
+                    $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_page["access_token"];
+                    do_action( "dt_facebook_all_conversations", $facebook_conversations_url, $id, $latest_conversation );
                 }
             }
         }
     }
 
-    public function cron_hook(){
-        do_action( "dt_facebook_all_conversations" );
+    public function save_conversation_page( $conversations, $id, $latest_conversation = 0 ){
+        $facebook_pages = get_option( "dt_facebook_pages", [] );
+        $page = $facebook_pages[$id];
+        foreach ( $conversations as $conversation ){
+            if ( strtotime( $conversation["updated_time"] ) >= $latest_conversation ){
+                foreach ( $conversation["participants"]["data"] as $participant ) {
+                    if ( (string) $participant["id"] != $id ) {
+                        $contact_id = $this->update_or_create_contact( $participant, $conversation["updated_time"], $page, $conversation );
+                        if ( $contact_id ){
+                            $facebook_pages = get_option( "dt_facebook_pages", [] );
+                            $facebook_pages[$id]["last_contact_id"] = $contact_id;
+                            update_option( "dt_facebook_pages", $facebook_pages );
+                            $this->update_facebook_messages_on_contact( $contact_id, $conversation );
+                            $this->set_notes_on_conversation( $contact_id, $page, $participant["id"] );
+                        }
+                    }
+                }
+            }
+        }
+        $facebook_pages = get_option( "dt_facebook_pages", [] );
+        $new_latest_conversation = isset( $conversations[0]["updated_time"] ) ? strtotime( $conversations[0]["updated_time"] ) : 0;
+        if ( isset( $facebook_pages[$id]["reached_the_end"] ) && $facebook_pages[$id]["reached_the_end"] != null && $latest_conversation < $new_latest_conversation && $facebook_pages[$id]["latest_conversation"] < $new_latest_conversation ){
+            $facebook_pages[$id]["latest_conversation"] = $new_latest_conversation;
+            update_option( "dt_facebook_pages", $facebook_pages );
+        }
+    }
+
+
+
+    public function cron_hook( WP_REST_Request $request ){
+        // calls get_recent_conversations
+        $params = $request->get_params();
+        $id = $params["page"] ?? null;
+        $this->get_recent_conversations( $id );
         return "ok";
     }
 
-    public function add_comment_section( $sections, $post_type ){
-        if ( $post_type === "contacts" ){
-            $sections[] = [ "key" => "facebook", "label" => __( "Facebook", "dt_facebook" ) ];
+
+    public function update_facebook_messages_on_contact( $contact_id, $conversation ){
+        $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
+        $message_count = $conversation["message_count"];
+        $number_of_messages = sizeof( $conversation["messages"]["data"] );
+        $saved_number = $facebook_data["message_count"] ?? 0;
+        $messages = $conversation["messages"]["data"];
+        $saved_ids = $facebook_data["message_ids"] ?? [];
+        if ( $message_count != $saved_number && $message_count > $number_of_messages && isset( $conversation["messages"]["paging"]["next"] )){
+            $all_convs = $this->get_all_with_pagination( $conversation["messages"]["paging"]["next"] );
+            $messages = array_merge( $all_convs, $messages );
         }
-        return $sections;
+        if ( $message_count != $saved_number ){
+            foreach ( $messages as  $message ){
+                if ( !in_array( $message["id"], $saved_ids )){
+                    $comment = $message["message"];
+                    $image = "https://graph.facebook.com/" . $message['from']['id'] . "/picture?type=square";
+                    Disciple_Tools_Contacts::add_comment( $contact_id, $comment, false, "facebook", 0, $message["from"]["name"], $message["created_time"], true, $image );
+                    $saved_ids[] = $message["id"];
+                }
+            }
+            $facebook_data["message_count"] = $message_count;
+            $facebook_data["message_ids"] = $saved_ids;
+            update_post_meta( $contact_id, "facebook_data", $facebook_data );
+        }
+    }
+
+    public function set_notes_on_conversation( $contact_id, $page, $participant_id ){
+        $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
+
+        if ( !isset( $facebook_data["set_dt_link"] ) ){
+            $dt_link = "DT link: " . esc_url( get_site_url() ) . '/contacts/' . $contact_id;
+            $this->set_note_on_conversation( $page["id"], $participant_id, $dt_link, $page["access_token"] );
+            $facebook_data["set_dt_link"] = true;
+            update_post_meta( $contact_id, "facebook_data", $facebook_data );
+        }
+    }
+
+    public function set_note_on_conversation( $page_id, $user_id, $note, $access_token ){
+        $url = 'https://graph.facebook.com/v3.0/ ' . $page_id . "/admin_notes?access_token=" . $access_token;
+        return wp_remote_post( $url, [
+            "body" => [
+                "body" => $note,
+                "user_id" => $user_id
+            ]
+        ]);
     }
 }
