@@ -137,13 +137,13 @@ class Disciple_Tools_Facebook_Integration {
                             -->
                         </ul>
                         <strong><?php esc_html_e( "Associate your app with Business Manager to help track contacts", 'dt_facebook' ) ?></strong>
-                        <p>We strongly recommend you set up facebook business manager if you have not already.  <a href="https://www.facebook.com/business/help/1710077379203657">More Info</a> </p>
-                        To associate you new app with your business manager account:
+                        <p><?php esc_html_e( "We strongly recommend you set up facebook business manager if you have not already.", 'dt_facebook' ) ?>  <a href="https://www.facebook.com/business/help/1710077379203657"><?php esc_html_e( "More Info", 'dt_facebook' ) ?></a> </p>
+                        <?php esc_html_e( "To associate you new app with your business manager account:", 'dt_facebook' ) ?>
                         <ul style="list-style-type: disc; padding-left:40px">
-                            <li>Open <a href="https://beta.mailbutler.io/tracking/hit/92221EF4-CA16-45D2-B2BC-25BAE8DB97E9/4DE418B3-6A4F-47A1-947F-64E5B46028A7/?notrack=true">Business Settings</a></li>
-                            <li>Under Data Sources click Apps.</li>
-                            <li>Click Add New App and select Add an App</li>
-                            <li>Enter the Facebook App ID from the app you just created.</li>
+                            <li><?php esc_html_e( "Open", 'dt_facebook' ) ?> <a href="https://beta.mailbutler.io/tracking/hit/92221EF4-CA16-45D2-B2BC-25BAE8DB97E9/4DE418B3-6A4F-47A1-947F-64E5B46028A7/?notrack=true"><?php esc_html_e( "Business Settings", 'dt_facebook' ) ?></a></li>
+                            <li><?php esc_html_e( "Under Data Sources click Apps.", 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( "Click Add New App and select Add an App", 'dt_facebook' ) ?></li>
+                            <li><?php esc_html_e( "Enter the Facebook App ID from the app you just created.", 'dt_facebook' ) ?></li>
                         </ul>
 
 
@@ -230,6 +230,7 @@ class Disciple_Tools_Facebook_Integration {
                                     <th><?php esc_html_e( "Sync Contacts", 'dt_facebook' ) ?></th>
                                     <th><?php esc_html_e( "Include in Stats", 'dt_facebook' ) ?></th>
                                     <th><?php esc_html_e( "Part of Business Manager", 'dt_facebook' ) ?></th>
+                                    <th><?php esc_html_e( "Digital Responder", 'dt_facebook' ) ?></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -267,17 +268,6 @@ class Disciple_Tools_Facebook_Integration {
                                             <?php echo checked( 1, isset( $facebook_page["business"] ), false ); ?> />
                                     </td>
                                     <td>
-                                        <?php if ( !isset( $facebook_page["reached_the_end"] ) && isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] ) ) : ?>
-                                        <form action="" method="post">
-                                            <input type="hidden" name="_wpnonce" id="_wpnonce"
-                                                   value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
-
-                                            <input type="hidden" class="button" name="page_id" value="<?php echo esc_attr( $facebook_page["id"] ); ?>" />
-                                            <button type="submit" name="get_recent_conversations"><?php esc_html_e( "Get all conversations (launches in the background. This might take a while)", 'dt_facebook' ) ?></button>
-                                        </form>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
                                         <?php
                                         if ( isset( $facebook_page["assign_to"] )){
                                             $user_for_page = get_user_by( "ID", $facebook_page["assign_to"] );
@@ -290,6 +280,17 @@ class Disciple_Tools_Facebook_Integration {
                                                 <option value="<?php echo esc_attr( $potential_user->ID ) ?>"><?php echo esc_attr( $potential_user->display_name ) ?></option>
                                             <?php endforeach; ?>
                                         </select>
+                                    </td>
+                                    <td>
+                                        <?php if ( !isset( $facebook_page["reached_the_end"] ) && isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] ) ) : ?>
+                                        <form action="" method="post">
+                                            <input type="hidden" name="_wpnonce" id="_wpnonce"
+                                                   value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
+
+                                            <input type="hidden" class="button" name="page_id" value="<?php echo esc_attr( $facebook_page["id"] ); ?>" />
+                                            <button type="submit" name="get_recent_conversations"><?php esc_html_e( "Get all conversations (launches in the background. This might take a while)", 'dt_facebook' ) ?></button>
+                                        </form>
+                                        <?php endif; ?>
                                     </td>
                                     <?php } ?>
                                 </tbody>
