@@ -241,6 +241,14 @@ class Disciple_Tools_Facebook_Integration {
                                 </thead>
                                 <tbody>
                                 <?php
+                                $user_for_page = dt_get_base_user();
+                                $potential_user_list = get_users(
+                                    [
+                                        'role__in' => [ 'dispatcher', 'marketer', 'dt_admin' ],
+                                        'order'    => 'ASC',
+                                        'orderby'  => 'display_name',
+                                    ]
+                                );
                                 $facebook_pages = get_option( "dt_facebook_pages", [] );
 
                                 foreach ( $facebook_pages as $id => $facebook_page ){ ?>
@@ -275,6 +283,20 @@ class Disciple_Tools_Facebook_Integration {
                                             <button type="submit" name="get_recent_conversations"><?php esc_html_e( "Get all conversations (launches in the background. This might take a while)", 'dt_facebook' ) ?></button>
                                         </form>
                                         <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php
+                                        if ( isset( $facebook_page["assign_to"] )){
+                                            $user_for_page = get_user_by( "ID", $facebook_page["assign_to"] );
+                                        }
+                                        ?>
+                                        <select name="<?php echo esc_attr( $facebook_page["id"] ); ?>-assign_new_contacts_to">
+                                            <option value="<?php echo esc_attr( $user_for_page->ID ) ?>"><?php echo esc_attr( $user_for_page->display_name ) ?></option>
+                                            <option disabled>---</option>
+                                            <?php foreach ( $potential_user_list as $potential_user ) : ?>
+                                                <option value="<?php echo esc_attr( $potential_user->ID ) ?>"><?php echo esc_attr( $potential_user->display_name ) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
                                     </td>
                                     <?php } ?>
                                 </tbody>
@@ -402,6 +424,11 @@ class Disciple_Tools_Facebook_Integration {
                             $facebook_pages[ $id ]["webhooks_set"] = 1;
                         }
                     }
+                }
+                $assign_to = str_replace( ' ', '_', $facebook_page["id"] . "-assign_new_contacts_to" );
+
+                if ( isset( $_POST[$assign_to] ) ){
+                    $facebook_pages[$id]["assign_to"] = sanitize_text_field( wp_unslash( $_POST[ $assign_to ] ) );
                 }
             }
             update_option( "dt_facebook_pages", $facebook_pages );
@@ -757,6 +784,9 @@ class Disciple_Tools_Facebook_Integration {
                     "links" => [ $conversation["link"] ]
                 ]
             ];
+            if ( isset( $page["assign_to"] )){
+                $fields["assigned_to"] = $page["assign_to"];
+            }
             $new_contact_id = Disciple_Tools_Contacts::create_contact( $fields, false );
             if ( is_wp_error( $new_contact_id ) ){
                 dt_send_email( "corsacca@gmail.com", "fb create failed", serialize( $fields ) );
