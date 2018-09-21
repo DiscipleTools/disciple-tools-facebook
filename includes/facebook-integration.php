@@ -48,10 +48,6 @@ class Disciple_Tools_Facebook_Integration {
         add_action( 'wp_ajax_dt-facebook-notice-dismiss', [ $this, 'dismiss_error' ] );
         add_action( "dt_async_dt_conversation_update", [ $this, "get_conversation_update" ], 10, 2 );
         add_action( "dt_async_dt_facebook_all_conversations", [ $this, "get_conversations_with_pagination" ], 10, 4 );
-        add_filter( "dt_contact_duplicate_fields_to_check", [ $this, "add_duplicate_check_field" ] );
-        add_filter( "dt_comments_additional_sections", [ $this, "add_comment_section" ], 10, 2 );
-        add_filter( "dt_search_extra_post_meta_fields", [ $this, "add_fields_in_dt_search" ] );
-
     } // End __construct()
 
     /**
@@ -769,12 +765,6 @@ class Disciple_Tools_Facebook_Integration {
         }
     }
 
-    public function add_duplicate_check_field( $fields ) {
-        $fields[] = "facebook_data";
-
-        return $fields;
-    }
-
 
     public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0, $limit_to_one = false ) {
         $conversations_request = wp_remote_get( $url );
@@ -872,21 +862,6 @@ class Disciple_Tools_Facebook_Integration {
         $id = $params["page"] ?? null;
         $this->get_recent_conversations( $id );
         return "ok";
-    }
-
-    public function add_comment_section( $sections, $post_type ){
-        if ( $post_type === "contacts" ){
-            $sections[] = [
-                "key" => "facebook",
-                "label" => __( "Facebook", "dt_facebook" )
-            ];
-        }
-        return $sections;
-    }
-
-    public function add_fields_in_dt_search( $fields ){
-        $fields[] = "facebook_data";
-        return $fields;
     }
 
 

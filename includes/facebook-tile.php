@@ -46,6 +46,9 @@ class Disciple_Tools_Facebook_Tile {
         add_filter( "dt_custom_fields_settings", [ $this, "dt_facebook_fields" ], 1, 2 );
         add_filter( "dt_details_additional_section_ids", [ $this, "dt_facebook_declare_section_id" ], 999, 2 );
         add_action( "dt_details_additional_section", [ $this, "dt_facebook_add_section" ] );
+        add_filter( "dt_contact_duplicate_fields_to_check", [ $this, "add_duplicate_check_field" ] );
+        add_filter( "dt_comments_additional_sections", [ $this, "add_comment_section" ], 10, 2 );
+        add_filter( "dt_search_extra_post_meta_fields", [ $this, "add_fields_in_dt_search" ] );
     } // End __construct()
 
     public static function dt_facebook_fields( array $fields, string $post_type = "" ) {
@@ -159,37 +162,7 @@ class Disciple_Tools_Facebook_Tile {
                 <?php endforeach; ?>
                 <?php
             }
-
-
-
-
-//            foreach ( $facebook_data as $key => $value ){
-//
             ?>
-            <!--                <div class="section-subheader">-->
-            <!--                    --><?php //echo esc_html( $key )
-            ?>
-            <!--                </div>-->
-            <!--                --><?php
-//                if ( is_array( $value )){
-//                    foreach ( $value as $id ){
-//
-            ?>
-            <!--                        <p>--><?php //echo esc_html( $id )
-            ?><!--</p>-->
-            <!--                        --><?php
-//                    }
-//                } else {
-//
-            ?>
-            <!--                    <p>--><?php //echo esc_html( $value )
-            ?><!--</p>-->
-            <!--                    --><?php
-//                }
-//            }
-
-            ?>
-
             <script type="application/javascript">
                 //enter jquery here if you need it
                 jQuery(($) => {
@@ -205,6 +178,29 @@ class Disciple_Tools_Facebook_Tile {
 
         //add more sections here if you want...
     }
+
+    public function add_comment_section( $sections, $post_type ){
+        if ( $post_type === "contacts" ){
+            $sections[] = [
+                "key" => "facebook",
+                "label" => __( "Facebook", "dt_facebook" )
+            ];
+        }
+        return $sections;
+    }
+
+    public function add_fields_in_dt_search( $fields ){
+        $fields[] = "facebook_data";
+        return $fields;
+    }
+
+    public function add_duplicate_check_field( $fields ) {
+        $fields[] = "facebook_data";
+
+        return $fields;
+    }
+
+
 
 
 }
