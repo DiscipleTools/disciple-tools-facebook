@@ -56,19 +56,12 @@ class Disciple_Tools_Facebook_Integration {
      * @since  0.1.0
      */
     public function add_api_routes() {
-
         register_rest_route(
             $this->namespace . "/dt-public/",
             'webhook',
             [
                 'methods'  => 'POST',
                 'callback' => [ $this, 'update_from_facebook' ],
-            ]
-        );
-        register_rest_route(
-            $this->namespace . "/dt-public/", 'webhook', [
-                'methods'  => 'GET',
-                'callback' => [ $this, 'verify_facebook_webhooks' ],
             ]
         );
         register_rest_route(
@@ -383,50 +376,8 @@ class Disciple_Tools_Facebook_Integration {
                 } else {
                     $facebook_pages[ $id ]["report"] = 0;
                 }
-                //Add the page to the apps subscriptions (to allow webhooks)
-                if ( $facebook_pages[ $id ]["integrate"] == 1 && ( !isset( $facebook_pages[ $id ]["subscribed"] ) || ( isset( $facebook_pages[ $id ]["subscribed"] ) && $facebook_pages[ $id ]["subscribed"] != 1 ) ) ) {
-                    $url     = "https://graph.facebook.com/v2.8/" . $id . "/subscribed_apps?access_token=" . $facebook_page["access_token"];
-                    $request = wp_remote_post( $url );
-                    if ( is_wp_error( $request ) ) {
-                        $this->display_error( $request );
-                    } else {
-                        $body = wp_remote_retrieve_body( $request );
-                        $data = json_decode( $body, true );
-                        if ( !empty( $data ) && isset( $data["error"] ) ) {
-                            $this->display_error( $data["error"]["message"] );
-                        }
-                        $facebook_pages[ $id ]["subscribed"] = 1;
-                    }
-                }
-                //enable and set up webhooks for getting page feed and conversations
-                if ( isset( $facebook_pages[ $id ]["subscribed"] ) && $facebook_pages[ $id ]["subscribed"] == 1 && !isset( $facebook_pages[ $id ]["webhooks"] ) && $facebook_pages[ $id ]["integrate"] === 1 ) {
-                    $url     = "https://graph.facebook.com/v2.12/" . $id . "/subscriptions?access_token=" . get_option( "disciple_tools_facebook_app_id", "" ) . "|" . get_option( "disciple_tools_facebook_app_secret", "" );
-                    $request = wp_remote_post(
-                        $url, [
-                            'body' => [
-                                'object'       => 'page',
-                                'callback_url' => $this->get_rest_url() . "/dt-public/webhook",
-                                'verify_token' => $this->authorize_secret(),
-                                'fields'       => [ 'conversations', 'feed' ],
-                            ],
-                        ]
-                    );
-                    if ( is_wp_error( $request ) ) {
-                        $this->display_error( $request );
-                    } else {
-
-                        $body = wp_remote_retrieve_body( $request );
-                        $data = json_decode( $body, true );
-                        if ( !empty( $data ) && isset( $data["error"] ) ) {
-                            $this->display_error( $data["error"]["message"] );
-                        }
-                        if ( !empty( $data ) && isset( $data["success"] ) ) {
-                            $facebook_pages[ $id ]["webhooks_set"] = 1;
-                        }
-                    }
-                }
+                //set the user new facebook contacts should be assigned to.
                 $assign_to = str_replace( ' ', '_', $facebook_page["id"] . "-assign_new_contacts_to" );
-
                 if ( isset( $_POST[$assign_to] ) ){
                     $facebook_pages[$id]["assign_to"] = sanitize_text_field( wp_unslash( $_POST[ $assign_to ] ) );
                 }
@@ -458,7 +409,7 @@ class Disciple_Tools_Facebook_Integration {
 
 
     /**
-     * Facebook Authentication and webhooks
+     * Facebook Authentication
      */
 
     // Generate authorization secret
@@ -467,20 +418,12 @@ class Disciple_Tools_Facebook_Integration {
     }
 
     /**
-     * called by facebook when initialising the webhook
+     * Refresh list of saved pages
+     *
+     * @param $access_token
      *
      * @return mixed
      */
-    public function verify_facebook_webhooks() {
-        if ( isset( $_GET["hub_verify_token"] ) && $_GET["hub_verify_token"] === $this->authorize_secret() ) {
-            if ( isset( $_GET['hub_challenge'] ) ) {
-                echo esc_html( sanitize_text_field( wp_unslash( $_GET['hub_challenge'] ) ) );
-                exit();
-            }
-        }
-
-        return "Could not verify";
-    }
 
     private function get_or_refresh_pages( $access_token ) {
 
@@ -586,73 +529,10 @@ class Disciple_Tools_Facebook_Integration {
         return "ok";
     }
 
-
-
-
-
-    /**
-     * Handle updates from facebook via webhooks
-     * - conversations
-     */
-
-    /**
-     * This is the route called by the Facebook webhook.
-     */
+    //legacy
     public function update_from_facebook() {
-        //decode the facebook post request from json
-//        $body = json_decode( file_get_contents( 'php://input' ), true );
-//
-//        foreach ( $body['entry'] as $entry ) {
-//            $facebook_page_id = $entry['id'];
-//            if ( $entry['changes'] ) {
-//                foreach ( $entry['changes'] as $change ) {
-//                    if ( $change['field'] == "conversations" ) {
-//                        //there is a new update in a conversation
-//                        $thread_id = $change['value']['thread_id'];
-//                        do_action( "dt_conversation_update", $facebook_page_id, $thread_id );
-//                    }
-////                    elseif ( $change['field'] == "feed" ) {
-////                        //the facebook page feed has an update
-////                    }
-//                }
-//            }
-//        }
-
-//        do_action( "dt_update_from_facebook", $body );
+        return;
     }
-
-    /**
-     * get the conversation details from facebook
-     *
-     * @param $page_id
-     * @param $thread_id , the id for the conversation containing the messages
-     */
-    public function get_conversation_update( $page_id, $thread_id ) {
-        //check the settings array to see if we have settings saved for the page
-        //get the access token and custom page name by looking for the page Id
-        $facebook_pages = get_option( "dt_facebook_pages", [] );
-        //if we have the access token, get and save the conversation
-        //make sure the "sync contacts" setting is set.
-        if ( isset( $facebook_pages[ $page_id ] ) && isset( $facebook_pages[ $page_id ]["integrate"] ) && $facebook_pages[ $page_id ]["integrate"] == 1 ) {
-
-            $access_token = $facebook_pages[ $page_id ]["access_token"];
-            $uri_for_conversations = "https://graph.facebook.com/v2.7/" . $thread_id . "?fields=link,message_count,messages{from,created_time,message},updated_time,participants&access_token=" . $access_token;
-//            $uri_for_conversations = "https://graph.facebook.com/v2.7/" . $thread_id . "?fields=updated_time,participants,messages{from,created_time,message}&access_token=" . $access_token;
-            $response              = wp_remote_get( $uri_for_conversations );
-
-            $body = json_decode( $response["body"], true );
-            if ( $body ) {
-                $participants = $body["participants"]["data"];
-                //go through each participant to save their conversations on their contact record
-                foreach ( $participants as $participant ) {
-                    if ( (string) $participant["id"] != $page_id ) {
-                        $this->update_or_create_contact( $participant, $body["updated_time"], $facebook_pages[ $page_id ], $body );
-                    }
-                }
-            }
-        }
-    }
-
 
     //The app secret proof is a sha256 hash of your access token, using the app secret as the key.
     public function get_app_secret_proof( $access_token ) {
@@ -782,7 +662,7 @@ class Disciple_Tools_Facebook_Integration {
                     "names"           => [ $participant["name"] ],
                     "last_message_at" => $updated_time,
                     "links" => [ $conversation["link"] ]
-                ]
+                ],
             ];
             if ( isset( $page["assign_to"] )){
                 $fields["assigned_to"] = $page["assign_to"];
