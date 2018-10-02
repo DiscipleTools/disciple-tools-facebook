@@ -324,6 +324,7 @@ class Disciple_Tools_Facebook_Integration {
             <p><?php echo esc_html( $err ); ?></p>
         </div>
         <?php
+        dt_write_log( $err );
         update_option( 'dt_facebook_error', $err );
     }
 
@@ -433,7 +434,7 @@ class Disciple_Tools_Facebook_Integration {
 
 
         if ( is_wp_error( $pages_request ) ) {
-            $this->display_error( $pages_request );
+            $this->display_error( $pages_request->get_error_message() );
             echo "There was an error";
         } else {
             $pages_body = wp_remote_retrieve_body( $pages_request );
