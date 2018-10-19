@@ -521,7 +521,7 @@ class Disciple_Tools_Facebook_Integration {
             $url = "https://facebook.com/v2.8/dialog/oauth";
             $url .= "?client_id=" . sanitize_key( $_POST["app_id"] );
             $url .= "&redirect_uri=" . $this->get_rest_url() . "/auth";
-            $url .= "&scope=public_profile,read_insights,manage_pages,read_page_mailboxes";
+            $url .= "&scope=public_profile,read_insights,manage_pages,read_page_mailboxes,business_management";
             $url .= "&state=" . $this->authorize_secret();
 
             wp_redirect( $url );
