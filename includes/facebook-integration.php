@@ -48,6 +48,12 @@ class Disciple_Tools_Facebook_Integration {
         add_action( 'wp_ajax_dt-facebook-notice-dismiss', [ $this, 'dismiss_error' ] );
         add_action( "dt_async_dt_conversation_update", [ $this, "get_conversation_update" ], 10, 2 );
         add_action( "dt_async_dt_facebook_all_conversations", [ $this, "get_conversations_with_pagination" ], 10, 4 );
+
+        if ( !wp_next_scheduled( 'updated_recent_conversations' ) ) {
+            wp_schedule_event( time(), '5min', 'updated_recent_conversations' );
+        }
+        add_action( 'updated_recent_conversations', [ $this, 'find_contacts_that_need_an_update' ] );
+        add_filter( 'cron_schedules', [ $this, 'my_cron_schedules' ] );
     } // End __construct()
 
     /**
@@ -100,6 +106,15 @@ class Disciple_Tools_Facebook_Integration {
         update_option( 'dt_facebook_error', "" );
     }
 
+    public function my_cron_schedules( $schedules ) {
+        if ( !isset( $schedules["5min"] ) ) {
+            $schedules["5min"] = array(
+                'interval' => 5 * 60,
+                'display'  => __( 'Once every 5 minutes' )
+            );
+        }
+        return $schedules;
+    }
 
     /**
      * Render the Facebook Settings Page
@@ -773,7 +788,7 @@ class Disciple_Tools_Facebook_Integration {
         $params = $request->get_params();
         $id = $params["page"] ?? null;
         $this->get_recent_conversations( $id );
-        return "ok";
+        return time();
     }
 
 
