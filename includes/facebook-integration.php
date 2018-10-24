@@ -52,7 +52,7 @@ class Disciple_Tools_Facebook_Integration {
         if ( !wp_next_scheduled( 'updated_recent_conversations' ) ) {
             wp_schedule_event( time(), '5min', 'updated_recent_conversations' );
         }
-        add_action( 'updated_recent_conversations', [ $this, 'find_contacts_that_need_an_update' ] );
+        add_action( 'updated_recent_conversations', [ $this, 'get_recent_conversations' ] );
         add_filter( 'cron_schedules', [ $this, 'my_cron_schedules' ] );
     } // End __construct()
 
