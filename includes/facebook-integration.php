@@ -50,9 +50,6 @@ class Disciple_Tools_Facebook_Integration {
         add_action( "dt_async_dt_facebook_all_conversations", [ $this, "get_conversations_with_pagination" ], 10, 4 );
 
         add_filter( 'cron_schedules', [ $this, 'my_cron_schedules' ] );
-        if ( !wp_next_scheduled( 'updated_recent_conversations' ) ) {
-            wp_schedule_event( time(), '5min', 'updated_recent_conversations' );
-        }
         add_action( 'updated_recent_conversations', [ $this, 'get_recent_conversations' ] );
     } // End __construct()
 
@@ -379,6 +376,9 @@ class Disciple_Tools_Facebook_Integration {
                         ];
                         update_option( "dt_site_custom_lists", $dt_custom_lists );
                     }
+                    if ( !wp_next_scheduled( 'updated_recent_conversations' ) ) {
+                        wp_schedule_event( time(), '5min', 'updated_recent_conversations' );
+                    }
                 } else {
                     $facebook_pages[ $id ]["integrate"] = 0;
                 }
@@ -695,7 +695,7 @@ class Disciple_Tools_Facebook_Integration {
 
     public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0, $limit_to_one = false ) {
         $conversations_request = wp_remote_get( $url );
-
+//        @todo save error;
         if ( !is_wp_error( $conversations_request ) ) {
             $conversations_body = wp_remote_retrieve_body( $conversations_request );
             $conversations_page = json_decode( $conversations_body, true );
@@ -784,7 +784,6 @@ class Disciple_Tools_Facebook_Integration {
 
 
     public function cron_hook( WP_REST_Request $request ){
-        // calls get_recent_conversations
         $params = $request->get_params();
         $id = $params["page"] ?? null;
         $this->get_recent_conversations( $id );
