@@ -49,11 +49,11 @@ class Disciple_Tools_Facebook_Integration {
         add_action( "dt_async_dt_conversation_update", [ $this, "get_conversation_update" ], 10, 2 );
         add_action( "dt_async_dt_facebook_all_conversations", [ $this, "get_conversations_with_pagination" ], 10, 4 );
 
+        add_filter( 'cron_schedules', [ $this, 'my_cron_schedules' ] );
         if ( !wp_next_scheduled( 'updated_recent_conversations' ) ) {
             wp_schedule_event( time(), '5min', 'updated_recent_conversations' );
         }
         add_action( 'updated_recent_conversations', [ $this, 'get_recent_conversations' ] );
-        add_filter( 'cron_schedules', [ $this, 'my_cron_schedules' ] );
     } // End __construct()
 
     /**
