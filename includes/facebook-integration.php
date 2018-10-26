@@ -695,7 +695,6 @@ class Disciple_Tools_Facebook_Integration {
 
     public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0, $limit_to_one = false, $depth = 0 ) {
         $conversations_request = wp_remote_get( $url );
-//        @todo save error;
         if ( !is_wp_error( $conversations_request ) ) {
             $conversations_body = wp_remote_retrieve_body( $conversations_request );
             $conversations_page = json_decode( $conversations_body, true );
@@ -711,11 +710,15 @@ class Disciple_Tools_Facebook_Integration {
                     $facebook_pages[$id]["reached_the_end"] = time();
                     update_option( "dt_facebook_pages", $facebook_pages );
                     $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_pages[$id]["access_token"];
-                    if ( $depth !== 0 ){
+                    if ( $depth !== 0 && ! $limit_to_one ){
                         $this->get_conversations_with_pagination( $facebook_conversations_url, $id, $latest_conversation, true, 0 );
                     }
                 }
+            } else {
+                $this->display_error( $conversations_request->get_error_message() );
             }
+        } else {
+            $this->display_error( $conversations_request->get_error_message() );
         }
     }
 
