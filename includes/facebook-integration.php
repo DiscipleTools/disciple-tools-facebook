@@ -693,7 +693,7 @@ class Disciple_Tools_Facebook_Integration {
     }
 
 
-    public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0, $limit_to_one = false ) {
+    public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0, $limit_to_one = false, $depth = 0 ) {
         $conversations_request = wp_remote_get( $url );
 //        @todo save error;
         if ( !is_wp_error( $conversations_request ) ) {
@@ -704,14 +704,16 @@ class Disciple_Tools_Facebook_Integration {
                 if ( isset( $conversations_page["paging"]["next"] ) ){
                     $oldest_conversation = end( $conversations_page["data"] );
                     if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation && !$limit_to_one ){
-                        do_action( "dt_facebook_all_conversations", $conversations_page["paging"]["next"], $id, $latest_conversation );
+                        do_action( "dt_facebook_all_conversations", $conversations_page["paging"]["next"], $id, $latest_conversation, $limit_to_one, $depth + 1 );
                     }
                 } else {
                     $facebook_pages = get_option( "dt_facebook_pages", [] );
                     $facebook_pages[$id]["reached_the_end"] = time();
                     update_option( "dt_facebook_pages", $facebook_pages );
                     $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_pages[$id]["access_token"];
-                    $this->get_conversations_with_pagination( $facebook_conversations_url, $id, $latest_conversation, true );
+                    if ( $depth !== 0 ){
+                        $this->get_conversations_with_pagination( $facebook_conversations_url, $id, $latest_conversation, true, 0 );
+                    }
                 }
             }
         }
