@@ -172,7 +172,7 @@
     <!-- <exclude name="WordPress.WhiteSpace.OperatorSpacing.NoSpaceBefore" /> -->
     <!-- <exclude name="WordPress.WhiteSpace.OperatorSpacing.SpacingAfter" /> -->
     <!-- <exclude name="WordPress.WhiteSpace.OperatorSpacing.SpacingBefore" /> -->
-
+    <exclude name="WordPress.VIP.CronInterval.CronSchedulesInterval" />
   </rule>
 
   <!-- Keeping these ones: -->
