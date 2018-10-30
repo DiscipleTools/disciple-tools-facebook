@@ -525,7 +525,7 @@ class Disciple_Tools_Facebook_Integration {
         if ( isset( $_POST['_wpnonce'] ) && !wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'wp_rest' ) ) {
             return 'Are you cheating? Where did this form come from?';
         }
-        if ( current_user_can( "manage_options" ) && check_admin_referer( 'wp_rest' ) && isset( $_POST["save_app"] ) && isset( $_POST["app_secret"] ) && isset( $_POST["app_id"] ) ) {
+        if ( current_user_can( "manage_dt" ) && check_admin_referer( 'wp_rest' ) && isset( $_POST["save_app"] ) && isset( $_POST["app_secret"] ) && isset( $_POST["app_id"] ) ) {
             update_option( 'disciple_tools_facebook_app_id', sanitize_key( $_POST["app_id"] ) );
             $secret = sanitize_key( $_POST["app_secret"] );
             if ( $secret !== "app_secret" ) {
