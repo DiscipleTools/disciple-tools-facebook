@@ -812,7 +812,12 @@ class Disciple_Tools_Facebook_Integration {
                 if ( !in_array( $message["id"], $saved_ids )){
                     $comment = $message["message"];
                     $image = "https://graph.facebook.com/" . $message['from']['id'] . "/picture?type=square";
-                    Disciple_Tools_Contacts::add_comment( $contact_id, $comment, false, "facebook", 0, $message["from"]["name"], $message["created_time"], true, $image );
+                    Disciple_Tools_Contacts::add_comment( $contact_id, $comment, "facebook", [
+                        "user_id" => 0,
+                        "comment_author" => $message["from"]["name"],
+                        "comment_date" => $message["created_time"],
+                        "comment_author_url" => $image
+                    ], false, true );
                     $saved_ids[] = $message["id"];
                 }
             }
