@@ -144,19 +144,14 @@ class Disciple_Tools_Facebook_Integration {
                             <input type="hidden" name="_wpnonce" id="_wpnonce"
                                    value="<?php echo esc_html( wp_create_nonce( 'wp_rest' ) ) ?>"/>
 
-
-
                             <table class="widefat striped">
-
                                 <thead>
                                 <tr>
                                     <th><?php esc_html_e( "Facebook App Settings", 'dt_facebook' ) ?></th>
                                     <th></th>
                                 </tr>
                                 </thead>
-
                                 <tbody>
-
                                 <tr>
                                     <td><?php esc_html_e( "Facebook App Id", 'dt_facebook' ) ?></td>
                                     <td>
@@ -190,17 +185,26 @@ class Disciple_Tools_Facebook_Integration {
                                     <td><button type="submit" class="button" name="save_app" style="padding:3px">
                                             <img style="height: 100%;" src="<?php echo esc_html( plugin_dir_url( __FILE__ ) . 'assets/flogo_RGB_HEX-72.svg' ) ?>"/>
                                             <span style="vertical-align: top"><?php esc_html_e( "Login with Facebook", 'dt_facebook' ) ?></span></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                    </td>
-                                    <td><p><?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Login with Facebook" button again) if:', 'dt_facebook' ) ?></p>
+
+                                        <p style="margin-top: 20px"><?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Login with Facebook" button again) if:', 'dt_facebook' ) ?></p>
                                         <ul style="list-style-type: disc; padding-left:40px">
                                             <li><?php esc_html_e( "You change your Facebook account password", 'dt_facebook' ) ?></li>
                                             <li><?php esc_html_e( "You delete or de­authorize your Facebook App", 'dt_facebook' ) ?></li>
-                                        </ul></td>
+                                        </ul>
+                                    </td>
                                 </tr>
+                                <?php if ( !empty( $access_token ) ) :?>
+                                <tr>
+                                    <td>
+                                        Completely log out and delete facebook settings and the page list bellow
+                                    </td>
+                                    <td>
+                                        <button class="button" name="log_out" type="submit">Log out</button>
+
+                                    </td>
+                                </tr>
+                                <?php endif; ?>
+
                                 </tbody>
                             </table>
                         </form>
@@ -514,25 +518,34 @@ class Disciple_Tools_Facebook_Integration {
         if ( isset( $_POST['_wpnonce'] ) && !wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'wp_rest' ) ) {
             return 'Are you cheating? Where did this form come from?';
         }
-        if ( current_user_can( "manage_dt" ) && check_admin_referer( 'wp_rest' ) && isset( $_POST["save_app"] ) && isset( $_POST["app_secret"] ) && isset( $_POST["app_id"] ) ) {
-            update_option( 'disciple_tools_facebook_app_id', sanitize_key( $_POST["app_id"] ) );
-            $secret = sanitize_key( $_POST["app_secret"] );
-            if ( $secret !== "app_secret" ) {
-                update_option( 'disciple_tools_facebook_app_secret', $secret );
+        if ( current_user_can( "manage_dt" ) && check_admin_referer( 'wp_rest' ) ){
+            if ( isset( $_POST["save_app"] ) && isset( $_POST["app_secret"] ) && isset( $_POST["app_id"] ) ) {
+                update_option( 'disciple_tools_facebook_app_id', sanitize_key( $_POST["app_id"] ) );
+                $secret = sanitize_key( $_POST["app_secret"] );
+                if ( $secret !== "app_secret" ) {
+                    update_option( 'disciple_tools_facebook_app_secret', $secret );
+                }
+                delete_option( 'disciple_tools_facebook_access_token' );
+
+                $url = "https://facebook.com/v" . $this->facebook_api_version . "/dialog/oauth";
+                $url .= "?client_id=" . sanitize_key( $_POST["app_id"] );
+                $url .= "&redirect_uri=" . $this->get_rest_url() . "/auth";
+                $url .= "&scope=public_profile,read_insights,manage_pages,read_page_mailboxes,business_management";
+                $url .= "&state=" . $this->authorize_secret();
+
+                wp_redirect( $url );
+                exit;
+            } elseif ( isset( $_POST["log_out"] ) ){
+                delete_option( "disciple_tools_facebook_app_secret" );
+                delete_option( "disciple_tools_facebook_app_id" );
+                delete_option( "dt_facebook_pages" );
+                delete_option( "disciple_tools_facebook_access_token" );
+                if ( isset( $_SERVER["HTTP_REFERER"] )){
+                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
+                    exit;
+                }
             }
-            delete_option( 'disciple_tools_facebook_access_token' );
-
-            $url = "https://facebook.com/v" . $this->facebook_api_version . "/dialog/oauth";
-            $url .= "?client_id=" . sanitize_key( $_POST["app_id"] );
-            $url .= "&redirect_uri=" . $this->get_rest_url() . "/auth";
-            $url .= "&scope=public_profile,read_insights,manage_pages,read_page_mailboxes,business_management";
-            $url .= "&state=" . $this->authorize_secret();
-
-            wp_redirect( $url );
-            exit;
         }
-
-        return "ok";
     }
 
     //legacy
