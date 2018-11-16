@@ -329,7 +329,7 @@ class DT_Facebook_Tab_Instructions {
                     <div id="postbox-container-1" class="postbox-container">
                         <!-- Right Column -->
 
-                        <?php //$this->right_column() ?>
+                        <?php $this->right_column() ?>
 
                         <!-- End Right Column -->
                     </div><!-- postbox-container 1 -->
@@ -344,7 +344,7 @@ class DT_Facebook_Tab_Instructions {
     public function main_column() {
         $rest_url = Disciple_Tools_Facebook_Integration::instance()->get_rest_url();
         ?>
-        <h1>Create Facebook App</h1>
+        <h1><a id="create_app"></a>1. Create Facebook App</h1>
         <p>In order to get contacts and conversations from facebook we need to create a Facebook app. This app will be the bridge between D.T and your facebook page.</p>
         <p>Usually facebook apps need to go through a review process. But since this is hard to implement for D.T and only 1 person will be using the app we can keep it in development mode.
             The user who will sign in needs to be the app creator or an admin added to the app.
@@ -365,7 +365,7 @@ class DT_Facebook_Tab_Instructions {
             <li>On the left click <strong>settings</strong> under <strong>Facebook Login</strong></li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/other_type.png" ) ?>" height="250px" />
             <li>In the <strong>Valid OAuth Redirect URIs</strong> field add: <strong><?php echo esc_url( $rest_url. "/auth" ); ?></strong></li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/oauth_redirect.png" ) ?>" height="250px" />
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/oauth_redirect.png" ) ?>" height="400px" />
             <li>Save Changes</li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_changes.png" ) ?>" />
             <li>Click <strong>Settings</strong> on the left (right under Dashboard) and then <strong>Basic</strong>. In the <strong>App Domains</strong> box put: <strong><?php echo esc_url( get_site_url() ); ?></strong></li>
@@ -380,26 +380,13 @@ class DT_Facebook_Tab_Instructions {
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_changes.png" ) ?>" />
             <li>In Settings > Basic: Get the <strong>APP ID</strong> and the <strong>APP SECRET</strong></li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/app_ids.png" ) ?>" height="250px"/>
+        </ul>
 
-            <!--        @todo configure-->
-            <h1>Associate your app with Business Manager</h1>
-            <!--        @todo info on why-->
-            <!--        <strong>Associate your app with Business Manager to help track contacts</strong>-->
-            <!--        <p>We strongly recommend you set up facebook business manager if you have not already. <a href="https://www.facebook.com/business/help/1710077379203657">More Info</a> </p>-->
-            Right now this is required. Here is information on creating on business manager: <a href="https://www.facebook.com/business/help/1710077379203657">Setup business manager</a>
-            <p>To associate you new app with your business manager account:</p>
-            <ul style="list-style-type: disc; padding-left:40px">
-                <li>Open <a href="https://business.facebook.com/settings" target="_blank">Business Settings</a></li>
-                <li>Under Accounts click <strong>Apps.</strong></li>
-                <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/business_apps.png" ) ?>" height="250px"/>
-                <li>Click <strong>Add New App</strong> and select <strong>Add an App</strong></li>
-                <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/business_add_app.png" ) ?>" height="250px"/>
-                <li>Enter the Facebook App ID from the app you just created.</li>
-                <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/business_app_id.png" ) ?>" height="200px"/>
-            </ul>
 
-            <h1>Login to connect D.T to Facebook</h1>
-
+        <br>
+        <br>
+        <h1 style="margin-top: 40px"><a id="login"></a>2. Login to connect D.T to Facebook</h1>
+        <ul style="list-style-type: disc; padding-left:40px">
             <li>Enter the <strong>APP ID</strong> and the <strong>APP SECRET</strong> in on the first tab and click <strong>Login with Facebook</strong></li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/login.png" ) ?>" />
             <li>
@@ -414,12 +401,29 @@ class DT_Facebook_Tab_Instructions {
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/sync_contacts.png" ) ?>" height="200px"/>
             <li>Click <strong>Save Pages Settings</strong></li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_pages_settings.png" ) ?>"/>
-
         </ul>
 
+        <br>
+        <br>
+        <h1 style="margin-top: 40px"><a id="business_manager"></a>3. Associate your app with Business Manager</h1>
+        <p>Highly recommended. Business manager adds a layer of protecting and helps track contacts across pages.</p>
+        <p>Here are instructions on creating a business manager: <a href="https://www.facebook.com/business/help/1710077379203657">Setup business manager</a></p>
+        <p>To associate you new app with your business manager account:</p>
+        <ul style="list-style-type: disc; padding-left:40px">
+            <li>Open <a href="https://business.facebook.com/settings" target="_blank">Business Settings</a></li>
+            <li>Under Accounts click <strong>Apps.</strong></li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/business_apps.png" ) ?>" height="250px"/>
+            <li>Click <strong>Add New App</strong> and select <strong>Add an App</strong></li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/business_add_app.png" ) ?>" height="250px"/>
+            <li>Enter the Facebook App ID from the app you just created.</li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/business_app_id.png" ) ?>" height="200px"/>
+        </ul>
+        <p>We also suggest adding your page to business manage</p>
 
 
-        <h1>Set up cron to get contacts every 5 minutes</h1>
+        <br>
+        <br>
+        <h1 style="margin-top: 40px"><a id="uptime_robot"></a>4. Set up cron to get contacts every 5 minutes</h1>
         <p>This will make sure D.T looks for new contacts every 5 minutes</p>
         <ul style="list-style-type: disc; padding-left:40px">
             <li><a href="https://uptimerobot.com/">Sign up for a Uptime Robot Account</a></li>
@@ -447,13 +451,28 @@ class DT_Facebook_Tab_Instructions {
         <table class="widefat striped">
             <thead>
             <tr>
-                <th><?php esc_html_e( "Information", 'disciple_tools' ) ?></th>
+                <th><?php esc_html_e( "Links", 'disciple_tools' ) ?></th>
             </tr>
             </thead>
             <tbody>
             <tr>
                 <td>
-                    <?php esc_html_e( "Content", 'disciple_tools' ) ?>
+                    <a href="#create_app">1. Create a Facebook App</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="#login">2. Login</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="#business_manager">3. Set up Business Manager</a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="#uptime_robot">4. Set up Uptime Robot</a>
                 </td>
             </tr>
             </tbody>
