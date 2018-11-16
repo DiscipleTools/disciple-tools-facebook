@@ -35,6 +35,7 @@ class Disciple_Tools_Facebook_Integration {
     private $version = 1.0;
     private $context = "dt_facebook";
     private $namespace;
+    private $facebook_api_version = '3.2';
 
     /**
      * Constructor function.
@@ -118,67 +119,32 @@ class Disciple_Tools_Facebook_Integration {
      */
     public function facebook_settings_page() {
 
+        $access_token = get_option( "disciple_tools_facebook_access_token", "" );
+
         ?>
-        <h3><?php esc_html_e( "Link Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook pages.", 'dt_facebook' ) ?></h3>
+        <p> This Facebook integration will provide a link between your facebook pages and D.T. </p>
+        <p>When a contact messages you page, a record for them will be created automatically. Pretty cool right?</p>
+
+<!--        <h3>--><?php //esc_html_e( "Link Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook pages.", 'dt_facebook' ) ?><!--</h3>-->
+
+        To get started, head over to the instructions tab where we'll help you get a couple things set up:
+        <ul style="list-style-type: disc; padding-left:40px">
+            <li>A facebook app</li>
+            <li>Facebook Business Manager</li>
+            <li>Uptime Robot</li>
+        </ul>
+
+        <p>When you those steps you can use the new information below</p>
         <div class="wrap">
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
                     <div id="post-body-content">
-                        <strong><?php esc_html_e( "Create Facebook App", 'dt_facebook' ) ?></strong>
-                        <ul style="list-style-type: disc; padding-left:40px">
-                            <li><?php esc_html_e( "Go to:", 'dt_facebook' ) ?>
-                                <a href="https://developers.facebook.com/apps">https://developers.facebook.com/apps</a>
-                            </li>
-                            <li><?php esc_html_e( 'Click the "Add new app" button', 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( 'You can name the app "D.T integration"', 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( 'You should be on the "Add a Product screen." Click "Set Up" on the "Facebook Login" box', 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( 'Choose the "Other" option', 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( 'On the left click settings under Facebook Login', 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( 'In the "Valid OAuth Redirect URIs" field add:', 'dt_facebook' ) ?> <strong><?php echo esc_url( $this->get_rest_url() . "/auth" ); ?></strong></li>
-                            <li><?php esc_html_e( 'Click Settings on the left (right under Dashboard) and the "Basic". ', 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( 'In the "App Domains box put":', 'dt_facebook' ) ?> <strong><?php echo esc_url( get_site_url() ); ?></strong></li>
-                            <li><?php esc_html_e( 'Scroll down. Click Add Platform. Choose Website. In "Site URL" put:', 'dt_facebook' ) ?> <strong><?php echo esc_url( get_site_url() ); ?></strong></li>
-                            <li><?php esc_html_e( 'Save Changes', 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( 'Keep your app in development mode. Don\'t make it public', 'dt_facebook' ) ?></li>
-                            <li>
-                                <?php esc_html_e( 'In Settings > Basic: Get the APP ID and the APP SECRET, enter them in below and click "Login with Facebook"', 'dt_facebook' ) ?>
-                            </li>
-                            <!-- For making pubic
-                            <li><?php esc_html_e( 'In Privacy Policy Url put:', 'dt_facebook' ) ?> https://github.com/DiscipleTools/disciple-tools-facebook/blob/master/privacy.md</li>
-                            <li><?php esc_html_e( 'Under Category choose "Business and Pages"', 'dt_facebook' ) ?></li>
-                            -->
-                        </ul>
-                        <strong><?php esc_html_e( "Associate your app with Business Manager to help track contacts", 'dt_facebook' ) ?></strong>
-                        <p><?php esc_html_e( "We strongly recommend you set up facebook business manager if you have not already.", 'dt_facebook' ) ?>  <a href="https://www.facebook.com/business/help/1710077379203657"><?php esc_html_e( "More Info", 'dt_facebook' ) ?></a> </p>
-                        <?php esc_html_e( "To associate you new app with your business manager account:", 'dt_facebook' ) ?>
-                        <ul style="list-style-type: disc; padding-left:40px">
-                            <li><?php esc_html_e( "Open", 'dt_facebook' ) ?> <a href="https://beta.mailbutler.io/tracking/hit/92221EF4-CA16-45D2-B2BC-25BAE8DB97E9/4DE418B3-6A4F-47A1-947F-64E5B46028A7/?notrack=true"><?php esc_html_e( "Business Settings", 'dt_facebook' ) ?></a></li>
-                            <li><?php esc_html_e( "Under Data Sources click Apps.", 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( "Click Add New App and select Add an App", 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( "Enter the Facebook App ID from the app you just created.", 'dt_facebook' ) ?></li>
-                        </ul>
-
-
-                        <?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Save App Settings" button bellow) if:', 'dt_facebook' ) ?>
-                        <ul style="list-style-type: disc; padding-left:40px">
-                            <li><?php esc_html_e( "You change your Facebook account password", 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( "You delete or de­authorize your Facebook App", 'dt_facebook' ) ?></li>
-                        </ul>
-
-                        <strong><?php esc_html_e( "Set up cron to get contacts every 5 minutes", 'dt_facebook' ) ?></strong>
-                        <ul style="list-style-type: disc; padding-left:40px">
-                            <li><a href="https://uptimerobot.com/"><?php esc_html_e( "Sign up for a Uptime Robot Account", 'dt_facebook' ) ?></a></li>
-                            <li><?php esc_html_e( "Once logged in. Click Add New Monitor", 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( "Monitor type: HTTP(s)", 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( "Friendly Name: Facebook Cron", 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( "Url:", 'dt_facebook' ) ?> <strong><?php echo esc_url( $this->get_rest_url() . "/dt-public/cron" ); ?></strong></li>
-                            <li><?php esc_html_e( "Monitoring Interval: 5 mins", 'dt_facebook' ) ?></li>
-                            <li><?php esc_html_e( "Click Create Monitor", 'dt_facebook' ) ?></li>
-                        </ul>
 
                         <form action="<?php echo esc_url( $this->get_rest_url() ); ?>/add-app" method="post">
                             <input type="hidden" name="_wpnonce" id="_wpnonce"
                                    value="<?php echo esc_html( wp_create_nonce( 'wp_rest' ) ) ?>"/>
+
+
 
                             <table class="widefat striped">
 
@@ -215,7 +181,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <tr>
                                     <td><?php esc_html_e( "Access Token", 'dt_facebook' ) ?></td>
                                     <td>
-                                        <?php echo( get_option( "disciple_tools_facebook_access_token" ) ? esc_html__( 'Access token is saved', 'dt_facebook' ) : esc_html__( 'No Access Token', 'dt_facebook' ) ) ?>
+                                        <?php echo( !empty( $access_token ) ? esc_html__( 'Access token is saved', 'dt_facebook' ) : esc_html__( 'No Access Token', 'dt_facebook' ) ) ?>
                                     </td>
                                 </tr>
 
@@ -226,11 +192,23 @@ class Disciple_Tools_Facebook_Integration {
                                             <span style="vertical-align: top"><?php esc_html_e( "Login with Facebook", 'dt_facebook' ) ?></span></button>
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>
+                                    </td>
+                                    <td><p><?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Login with Facebook" button again) if:', 'dt_facebook' ) ?></p>
+                                        <ul style="list-style-type: disc; padding-left:40px">
+                                            <li><?php esc_html_e( "You change your Facebook account password", 'dt_facebook' ) ?></li>
+                                            <li><?php esc_html_e( "You delete or de­authorize your Facebook App", 'dt_facebook' ) ?></li>
+                                        </ul></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </form>
 
+
+
                         <br>
+                        <p>To sync your facebook conversation to D.T check the "Sync Contacts" checkbox next to the pages you to enable the integration with</p>
                         <form action="" method="post">
                             <input type="hidden" name="_wpnonce" id="_wpnonce"
                                    value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
@@ -240,7 +218,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <tr>
                                     <th><?php esc_html_e( "Facebook Pages", 'dt_facebook' ) ?></th>
                                     <th><?php esc_html_e( "Sync Contacts", 'dt_facebook' ) ?></th>
-                                    <th><?php esc_html_e( "Include in Stats", 'dt_facebook' ) ?></th>
+<!--                                    <th>--><?php //esc_html_e( "Include in Stats", 'dt_facebook' ) ?><!--</th>-->
                                     <th><?php esc_html_e( "Part of Business Manager", 'dt_facebook' ) ?></th>
                                     <th><?php esc_html_e( "Digital Responder", 'dt_facebook' ) ?></th>
                                 </tr>
@@ -268,12 +246,12 @@ class Disciple_Tools_Facebook_Integration {
                                                type="checkbox"
                                                value="<?php echo esc_attr( $facebook_page["id"] ); ?>" <?php echo checked( 1, isset( $facebook_page["integrate"] ) ? $facebook_page["integrate"] : false, false ); ?> />
                                     </td>
-                                    <td>
-                                        <input title="Report"
-                                               name="<?php echo esc_attr( $facebook_page["id"] ) . "-report"; ?>"
-                                               type="checkbox"
-                                               value="<?php echo esc_attr( $facebook_page["id"] ); ?>" <?php echo checked( 1, isset( $facebook_page["report"] ) ? $facebook_page["report"] : false, false ); ?> />
-                                    </td>
+<!--                                    <td>-->
+<!--                                        <input title="Report"-->
+<!--                                               name="--><?php //echo esc_attr( $facebook_page["id"] ) . "-report"; ?><!--"-->
+<!--                                               type="checkbox"-->
+<!--                                               value="--><?php //echo esc_attr( $facebook_page["id"] ); ?><!--" --><?php //echo checked( 1, isset( $facebook_page["report"] ) ? $facebook_page["report"] : false, false ); ?><!-- />-->
+<!--                                    </td>-->
                                     <td>
                                         <input title="In Business Manager" disabled
                                                type="checkbox"
@@ -304,7 +282,18 @@ class Disciple_Tools_Facebook_Integration {
                                         </form>
                                         <?php endif; ?>
                                     </td>
-                                    <?php } ?>
+                                </tr>
+                                <?php } ?>
+                                <?php if ( empty( $access_token ) ) :?>
+                                    <tr>
+                                        <td>Login to list your facebook pages</td>
+                                    </tr>
+                                <?php elseif ( sizeof( $facebook_pages ) === 0 ) : ?>
+                                    <tr>
+                                        <td>No pages where found.</td>
+                                        <td></td>
+                                    </tr>
+                                <?php endif; ?>
                                 </tbody>
                             </table>
                             <input type="submit" class="button" name="get_pages"
@@ -444,7 +433,7 @@ class Disciple_Tools_Facebook_Integration {
 
     private function get_or_refresh_pages( $access_token ) {
 
-        $facebook_pages_url = "https://graph.facebook.com/v2.8/me/accounts?fields=access_token,id,name,business&access_token=" . $access_token;
+        $facebook_pages_url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/me/accounts?fields=access_token,id,name,business&access_token=" . $access_token;
         $pages_request      = wp_remote_get( $facebook_pages_url );
 
 
@@ -488,7 +477,7 @@ class Disciple_Tools_Facebook_Integration {
         //get the access token
 
         if ( isset( $get["state"] ) && strpos( $get['state'], $this->authorize_secret() ) !== false && isset( $get["code"] ) ) {
-            $url = "https://graph.facebook.com/v2.8/oauth/access_token";
+            $url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/oauth/access_token";
             $url .= "?client_id=" . get_option( "disciple_tools_facebook_app_id" );
             $url .= "&redirect_uri=" . $this->get_rest_url() . "/auth";
             $url .= "&client_secret=" . get_option( "disciple_tools_facebook_app_secret" );
@@ -533,7 +522,7 @@ class Disciple_Tools_Facebook_Integration {
             }
             delete_option( 'disciple_tools_facebook_access_token' );
 
-            $url = "https://facebook.com/v2.8/dialog/oauth";
+            $url = "https://facebook.com/v" . $this->facebook_api_version . "/dialog/oauth";
             $url .= "?client_id=" . sanitize_key( $_POST["app_id"] );
             $url .= "&redirect_uri=" . $this->get_rest_url() . "/auth";
             $url .= "&scope=public_profile,read_insights,manage_pages,read_page_mailboxes,business_management";
@@ -561,7 +550,7 @@ class Disciple_Tools_Facebook_Integration {
 
     public function get_page_scoped_ids( $used_id, $access_token ) {
         $app_secret_proof  = $this->get_app_secret_proof( $access_token );
-        $ids_for_pages_uri = "https://graph.facebook.com/v2.12/$used_id?fields=name,ids_for_pages&access_token=$access_token&appsecret_proof=$app_secret_proof";
+        $ids_for_pages_uri = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$used_id?fields=name,ids_for_pages&access_token=$access_token&appsecret_proof=$app_secret_proof";
         $response          = wp_remote_get( $ids_for_pages_uri );
         $ids               = json_decode( $response["body"], true );
         $ids_for_pages     = [];
@@ -709,7 +698,7 @@ class Disciple_Tools_Facebook_Integration {
                     $facebook_pages = get_option( "dt_facebook_pages", [] );
                     $facebook_pages[$id]["reached_the_end"] = time();
                     update_option( "dt_facebook_pages", $facebook_pages );
-                    $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_pages[$id]["access_token"];
+                    $facebook_conversations_url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_pages[$id]["access_token"];
                     if ( $depth !== 0 && ! $limit_to_one ){
                         $this->get_conversations_with_pagination( $facebook_conversations_url, $id, $latest_conversation, true, 0 );
                     }
@@ -752,7 +741,7 @@ class Disciple_Tools_Facebook_Integration {
                     wp_remote_get( $this->get_rest_url() . "/dt-public/cron?page=" . $id );
                 } else if ( $id == $page_id ) {
                     $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
-                    $facebook_conversations_url = "https://graph.facebook.com/v3.0/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_page["access_token"];
+                    $facebook_conversations_url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_page["access_token"];
                     do_action( "dt_facebook_all_conversations", $facebook_conversations_url, $id, $latest_conversation );
                 }
             }
@@ -839,7 +828,7 @@ class Disciple_Tools_Facebook_Integration {
     }
 
     public function set_note_on_conversation( $page_id, $user_id, $note, $access_token ){
-        $url = 'https://graph.facebook.com/v3.0/ ' . $page_id . "/admin_notes?access_token=" . $access_token;
+        $url = 'https://graph.facebook.com/v' . $this->facebook_api_version . '/ ' . $page_id . "/admin_notes?access_token=" . $access_token;
         return wp_remote_post( $url, [
             "body" => [
                 "body" => $note,

@@ -7,7 +7,8 @@
  * @since       0.1.0
  */
 
-if ( ! defined( 'ABSPATH' ) ) { exit; // Exit if accessed directly
+if ( !defined( 'ABSPATH' ) ) {
+    exit; // Exit if accessed directly
 }
 
 /**
@@ -32,6 +33,7 @@ class DT_Facebook_Menu {
         if ( is_null( self::$_instance ) ) {
             self::$_instance = new self();
         }
+
         return self::$_instance;
     } // End instance()
 
@@ -53,8 +55,14 @@ class DT_Facebook_Menu {
      * @since 0.1
      */
     public function register_menu() {
-        add_menu_page( __( 'Extensions (DT)', 'disciple_tools' ), __( 'Extensions (DT)', 'disciple_tools' ), 'manage_dt', 'dt_extensions', [ $this, 'extensions_menu' ], 'dashicons-admin-generic', 59 );
-        add_submenu_page( 'dt_extensions', __( 'Facebook', 'dt_facebook' ), __( 'Facebook', 'dt_facebook' ), 'manage_dt', $this->token, [ $this, 'content' ] );
+        add_menu_page( __( 'Extensions (DT)', 'disciple_tools' ), __( 'Extensions (DT)', 'disciple_tools' ), 'manage_dt', 'dt_extensions', [
+            $this,
+            'extensions_menu'
+        ], 'dashicons-admin-generic', 59 );
+        add_submenu_page( 'dt_extensions', __( 'Facebook', 'dt_facebook' ), __( 'Facebook', 'dt_facebook' ), 'manage_dt', $this->token, [
+            $this,
+            'content'
+        ] );
     }
 
     /**
@@ -79,20 +87,28 @@ class DT_Facebook_Menu {
             $tab = 'general';
         }
 
-        $link = 'admin.php?page='.$this->token.'&tab=';
+        $link = 'admin.php?page=' . $this->token . '&tab=';
 
         ?>
         <div class="wrap">
             <h2><?php esc_attr_e( 'DISCIPLE TOOLS - FACEBOOK (Under construction because Facebook is changing their APIs.)', 'dt_facebook' ) ?></h2>
             <h2 class="nav-tab-wrapper">
-                <a href="<?php echo esc_attr( $link ) . 'general' ?>" class="nav-tab <?php ( $tab == 'general' || ! isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'General', 'dt_facebook' ) ?></a>
-                <a href="<?php echo esc_attr( $link ) . 'second' ?>" class="nav-tab <?php ( $tab == 'second' ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Labels', 'dt_facebook' ) ?></a>
+                <a href="<?php echo esc_attr( $link ) . 'general' ?>"
+                   class="nav-tab <?php ( $tab == 'general' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'General', 'dt_facebook' ) ?></a>
+                <a href="<?php echo esc_attr( $link ) . 'instructions' ?>"
+                   class="nav-tab <?php ( $tab == 'instructions' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Instructions', 'dt_facebook' ) ?></a>
+                <a href="<?php echo esc_attr( $link ) . 'second' ?>"
+                   class="nav-tab <?php ( $tab == 'second' ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Labels', 'dt_facebook' ) ?></a>
             </h2>
 
             <?php
-            switch ($tab) {
+            switch ( $tab ) {
                 case "general":
                     $object = new DT_Facebook_Tab_General();
+                    $object->content();
+                    break;
+                case "instructions":
+                    $object = new DT_Facebook_Tab_Instructions();
                     $object->content();
                     break;
                 case "second":
@@ -112,8 +128,7 @@ class DT_Facebook_Menu {
     /**
      * Admin alert for when Disciple Tools Theme is not available
      */
-    public function dt_facebook_no_disciple_tools_theme_found()
-    {
+    public function dt_facebook_no_disciple_tools_theme_found() {
         ?>
         <div class="updated notice notice-error is-dismissible notice-facebook" data-notice="prefix_deprecated">
             <p><?php esc_html_e( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or deactivate 'Disciple Tools - Facebook' plugin.", "dt_facebook" ); ?></p>
@@ -123,13 +138,13 @@ class DT_Facebook_Menu {
     }
 
 }
+
 DT_Facebook_Menu::instance();
 
 /**
  * Class DT_Facebook_Tab_General
  */
-class DT_Facebook_Tab_General
-{
+class DT_Facebook_Tab_General {
     public function content() {
         ?>
         <div class="wrap">
@@ -145,7 +160,7 @@ class DT_Facebook_Tab_General
                     <div id="postbox-container-1" class="postbox-container">
                         <!-- Right Column -->
 
-                    <?php //$this->right_column() ?>
+                        <?php //$this->right_column() ?>
 
                         <!-- End Right Column -->
                     </div><!-- postbox-container 1 -->
@@ -160,11 +175,13 @@ class DT_Facebook_Tab_General
     public function main_column() {
         ?>
         <!-- Box -->
+
+
         <table class="widefat striped">
             <thead>
-                <tr>
-                    <th><?php esc_html_e( "Facebook Integration Settings", 'disciple_tools' ) ?></th>
-                </tr>
+            <tr>
+                <th><?php esc_html_e( "Facebook Integration Settings", 'disciple_tools' ) ?></th>
+            </tr>
             </thead>
             <tbody>
             <tr>
@@ -184,9 +201,9 @@ class DT_Facebook_Tab_General
         <!-- Box -->
         <table class="widefat striped">
             <thead>
-                <tr>
-                    <th><?php esc_html_e( "Information", 'disciple_tools' ) ?></th>
-                </tr>
+            <tr>
+                <th><?php esc_html_e( "Information", 'disciple_tools' ) ?></th>
+            </tr>
             </thead>
             <tbody>
             <tr>
@@ -206,8 +223,7 @@ class DT_Facebook_Tab_General
 /**
  * Class DT_Facebook_Tab_Second
  */
-class DT_Facebook_Tab_Second
-{
+class DT_Facebook_Tab_Second {
     public function content() {
         ?>
         <div class="wrap">
@@ -257,9 +273,9 @@ class DT_Facebook_Tab_Second
         <!-- Box -->
         <table class="widefat striped">
             <thead>
-                <tr>
-                    <th><?php esc_html_e( "Label Workflows", 'disciple_tools' ) ?></th>
-                </tr>
+            <tr>
+                <th><?php esc_html_e( "Label Workflows", 'disciple_tools' ) ?></th>
+            </tr>
             </thead>
             <tbody>
             <tr>
@@ -279,9 +295,160 @@ class DT_Facebook_Tab_Second
         <!-- Box -->
         <table class="widefat striped">
             <thead>
-                <tr>
-                    <th><?php esc_html_e( "Information", 'disciple_tools' ) ?></th>
-                </tr>
+            <tr>
+                <th><?php esc_html_e( "Information", 'disciple_tools' ) ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <?php esc_html_e( "Content", 'disciple_tools' ) ?>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br>
+        <!-- End Box -->
+        <?php
+    }
+}
+
+class DT_Facebook_Tab_Instructions {
+    public function content() {
+        ?>
+        <div class="wrap">
+            <div id="poststuff">
+                <div id="post-body" class="metabox-holder columns-2">
+                    <div id="post-body-content">
+                        <!-- Main Column -->
+
+                        <?php $this->main_column() ?>
+
+                        <!-- End Main Column -->
+                    </div><!-- end post-body-content -->
+                    <div id="postbox-container-1" class="postbox-container">
+                        <!-- Right Column -->
+
+                        <?php //$this->right_column() ?>
+
+                        <!-- End Right Column -->
+                    </div><!-- postbox-container 1 -->
+                    <div id="postbox-container-2" class="postbox-container">
+                    </div><!-- postbox-container 2 -->
+                </div><!-- post-body meta box container -->
+            </div><!--poststuff end -->
+        </div><!-- wrap end -->
+        <?php
+    }
+
+    public function main_column() {
+        $rest_url = Disciple_Tools_Facebook_Integration::instance()->get_rest_url();
+        ?>
+        <h1>Create Facebook App</h1>
+        <p>In order to get contacts and conversations from facebook we need to create a Facebook app. This app will be the bridge between D.T and your facebook page.</p>
+        <p>Usually facebook apps need to go through a review process. But since this is hard to implement for D.T and only 1 person will be using the app we can keep it in development mode.
+            The user who will sign in needs to be the app creator or an admin added to the app.
+
+        <p>Being in development mode has it's own limitations, but at the current time this works for the contact synchronisation. Unfortunately facebook can at any time change their api or limit access.</p>
+        <ul style="list-style-type: disc; padding-left:40px">
+            <li>Let start the creation progress: go to:
+                <a href="https://developers.facebook.com/apps">https://developers.facebook.com/apps</a>
+            </li>
+            <li>Click the <strong>Add new app</strong> button</li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/add_new_app.png" ) ?>" />
+            <li>You can name the app "D.T integration"</li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/create_app_name.png" ) ?>" height="200px" />
+            <li>You should be on the "Add a Product screen." Click <strong>Set Up</strong> on the "Facebook Login" box</li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/products.png" ) ?>" height="200px" />
+            <li>Choose the <strong>Other</strong> option</li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/login_type.png" ) ?>" height="200px" />
+            <li>On the left click <strong>settings</strong> under <strong>Facebook Login</strong></li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/other_type.png" ) ?>" height="250px" />
+            <li>In the <strong>Valid OAuth Redirect URIs</strong> field add: <strong><?php echo esc_url( $rest_url. "/auth" ); ?></strong></li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/oauth_redirect.png" ) ?>" height="250px" />
+            <li>Save Changes</li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_changes.png" ) ?>" />
+            <li>Click <strong>Settings</strong> on the left (right under Dashboard) and then <strong>Basic</strong>. In the <strong>App Domains</strong> box put: <strong><?php echo esc_url( get_site_url() ); ?></strong></li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/app_domain.png" ) ?>" height="250px" />
+            <li>Scroll down. Click <strong>Add Platform</strong>.</li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/add_platform.png" ) ?>" width="500px" />
+            <li> Choose <strong>Website</strong>. </li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/platforms.png" ) ?>" height="250px" />
+            <li>In "Site URL" put: <strong><?php echo esc_url( get_site_url() ); ?></strong></li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/site_url.png" ) ?>" width="500px" />
+            <li>Save Changes</li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_changes.png" ) ?>" />
+            <li>In Settings > Basic: Get the <strong>APP ID</strong> and the <strong>APP SECRET</strong></li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/app_ids.png" ) ?>" height="250px"/>
+
+            <!--        @todo configure-->
+            <h1>Associate your app with Business Manager</h1>
+            <!--        @todo info on why-->
+            <!--        <strong>Associate your app with Business Manager to help track contacts</strong>-->
+            <!--        <p>We strongly recommend you set up facebook business manager if you have not already. <a href="https://www.facebook.com/business/help/1710077379203657">More Info</a> </p>-->
+            Right now this is required. Here is information on creating on business manager: <a href="https://www.facebook.com/business/help/1710077379203657">Setup business manager</a>
+            <p>To associate you new app with your business manager account:</p>
+            <ul style="list-style-type: disc; padding-left:40px">
+                <li>Open <a href="https://business.facebook.com/settings" target="_blank">Business Settings</a></li>
+                <li>Under Accounts click <strong>Apps.</strong></li>
+                <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/business_apps.png" ) ?>" height="250px"/>
+                <li>Click <strong>Add New App</strong> and select <strong>Add an App</strong></li>
+                <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/business_add_app.png" ) ?>" height="250px"/>
+                <li>Enter the Facebook App ID from the app you just created.</li>
+                <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/business_app_id.png" ) ?>" height="200px"/>
+            </ul>
+
+            <h1>Login to connect D.T to Facebook</h1>
+
+            <li>Enter the <strong>APP ID</strong> and the <strong>APP SECRET</strong> in on the first tab and click <strong>Login with Facebook</strong></li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/login.png" ) ?>" />
+            <li>
+                Hit continue on this page: <br>
+                <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/confirm_login_1.png" ) ?>" height="250px" />
+            </li>
+            <li>
+                And then press OK: <br>
+                <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/confirm_login_2.png" ) ?>" height="250px" />
+            </li>
+            <li>Check <strong>Sync contacts</strong> next to the pages you want to set up to import contacts from</li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/sync_contacts.png" ) ?>" height="200px"/>
+            <li>Click <strong>Save Pages Settings</strong></li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_pages_settings.png" ) ?>"/>
+
+        </ul>
+
+
+
+        <h1>Set up cron to get contacts every 5 minutes</h1>
+        <p>This will make sure D.T looks for new contacts every 5 minutes</p>
+        <ul style="list-style-type: disc; padding-left:40px">
+            <li><a href="https://uptimerobot.com/">Sign up for a Uptime Robot Account</a></li>
+            <li>Once logged in. Click <strong>Add New Monitor</strong></li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/ur_add_new.png" ) ?>" />
+            <li>Monitor type: HTTP(s)</li>
+            <li>Friendly Name: Facebook Cron</li>
+            <li>Url: <strong><?php echo esc_html( $rest_url . "/dt-public/cron" ); ?></strong></li>
+            <li>Monitoring Interval: 5 mins</li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/ur_fields.png" ) ?>" height="250px" />
+            <li>Click <strong>Create Monitor</strong></li>
+            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/ur_save.png" ) ?>" =/>
+        </ul>
+
+
+        <h1>Well done. You are all set!</h1>
+
+
+        <?php
+    }
+
+    public function right_column() {
+        ?>
+        <!-- Box -->
+        <table class="widefat striped">
+            <thead>
+            <tr>
+                <th><?php esc_html_e( "Information", 'disciple_tools' ) ?></th>
+            </tr>
             </thead>
             <tbody>
             <tr>
