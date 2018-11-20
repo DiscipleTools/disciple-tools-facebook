@@ -204,6 +204,16 @@ class Disciple_Tools_Facebook_Integration {
                                     </td>
                                 </tr>
                                 <?php endif; ?>
+                                <tr>
+                                    <td>
+                                        Email Address to contact if the D.T to Facebook link breaks
+                                    </td>
+                                    <td>
+                                        <input name="contact_email_address" type="email" value="<?php echo esc_html( get_option( "dt_facebook_contact_email", "" ) ) ?>">
+                                        <button class="button" name="save_email" type="submit">Save Email</button>
+
+                                    </td>
+                                </tr>
 
                                 </tbody>
                             </table>
@@ -544,6 +554,15 @@ class Disciple_Tools_Facebook_Integration {
                     wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
                     exit;
                 }
+            } elseif ( isset( $_POST["save_email"], $_POST["contact_email_address"] ) ){
+                $email = sanitize_text_field( wp_unslash( $_POST["contact_email_address"] ) );
+                if ( !empty( $email )){
+                    update_option( "dt_facebook_contact_email", $email );
+                }
+                if ( isset( $_SERVER["HTTP_REFERER"] )){
+                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
+                    exit;
+                }
             }
         }
     }
@@ -687,8 +706,10 @@ class Disciple_Tools_Facebook_Integration {
                 $fields["assigned_to"] = $page["assign_to"];
             }
             $new_contact_id = Disciple_Tools_Contacts::create_contact( $fields, false );
+            dt_write_log( "Facebook contact creation failure" );
+            dt_write_log( $fields );
             if ( is_wp_error( $new_contact_id ) ){
-                dt_send_email( "corsacca@gmail.com", "fb create failed", serialize( $fields ) );
+                $this->dt_facebook_log_email( "Creating a contact failed", "The Facebook integration was not able to create a contact from facebook. If this persists, please contact support." );
             }
             return $new_contact_id;
         }
@@ -717,9 +738,25 @@ class Disciple_Tools_Facebook_Integration {
                     }
                 }
             } else {
-                $this->display_error( $conversations_request->get_error_message() );
+                dt_write_log( $conversations_page );
+                $dt_facebook_log_settings = get_option( "dt_facebook_log_settings", [] );
+                $last_email = $dt_facebook_log_settings["last_email"] ?? 0;
+                if ( isset( $conversations_page["error"]["code"] ) && $conversations_page["error"]["code"] == 190 ){
+                    $message = "Hey, \nThe facebook integration is no longer authorized with facebook. Please click 'Login with Facebook' to fix the issue or 'Log out' to stop getting this email: \n";
+                    $message .= admin_url( 'admin.php?page=dt_facebook', 'https' );
+                    if ( $last_email < ( time() - 60 * 60 * 6 ) ){ // limit to one email every 6 hours.
+                        $this->dt_facebook_log_email( "Facebook Integration Error", $message );
+                        $dt_facebook_log_settings["last_email"] = time();
+                    }
+                } elseif ( isset( $conversations_page["error"]["code"] ) ){
+                    //we wish to track if there are any other issues we are missing.
+                    // $conversations_page["error"] contains the code, subcode, id, error message and type
+                    dt_send_email( "info@disciple.tools", "Facebook plugin error", serialize( $conversations_page["error"] ) );
+                }
+                update_option( "dt_facebook_log_settings", $dt_facebook_log_settings );
             }
         } else {
+            dt_write_log( $conversations_request );
             $this->display_error( $conversations_request->get_error_message() );
         }
     }
@@ -848,5 +885,12 @@ class Disciple_Tools_Facebook_Integration {
                 "user_id" => $user_id
             ]
         ]);
+    }
+
+    public function dt_facebook_log_email( $subject, $text ){
+        $email_address = get_option( "dt_facebook_contact_email" );
+        if ( !empty( $email_address ) ){
+            dt_send_email( $email_address, $subject, $text );
+        }
     }
 }

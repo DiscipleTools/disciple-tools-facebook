@@ -91,14 +91,14 @@ class DT_Facebook_Menu {
 
         ?>
         <div class="wrap">
-            <h2><?php esc_attr_e( 'DISCIPLE TOOLS - FACEBOOK (Under construction because Facebook is changing their APIs.)', 'dt_facebook' ) ?></h2>
+            <h2><?php esc_attr_e( 'DISCIPLE TOOLS - FACEBOOK', 'dt_facebook' ) ?></h2>
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_attr( $link ) . 'general' ?>"
                    class="nav-tab <?php ( $tab == 'general' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'General', 'dt_facebook' ) ?></a>
                 <a href="<?php echo esc_attr( $link ) . 'instructions' ?>"
                    class="nav-tab <?php ( $tab == 'instructions' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Instructions', 'dt_facebook' ) ?></a>
-                <a href="<?php echo esc_attr( $link ) . 'second' ?>"
-                   class="nav-tab <?php ( $tab == 'second' ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Labels', 'dt_facebook' ) ?></a>
+<!--                <a href="--><?php //echo esc_attr( $link ) . 'second' ?><!--"-->
+<!--                   class="nav-tab --><?php //( $tab == 'second' ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?><!--">--><?php //esc_attr_e( 'Labels', 'dt_facebook' ) ?><!--</a>-->
             </h2>
 
             <?php
@@ -397,6 +397,10 @@ class DT_Facebook_Tab_Instructions {
                 And then press OK: <br>
                 <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/confirm_login_2.png" ) ?>" height="250px" />
             </li>
+            <li>
+                Add your email address so the Integration can let you know if there is an issue. Click <strong>save Email</strong>
+                <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_email.png" ) ?>" />
+            </li>
             <li>Check <strong>Sync contacts</strong> next to the pages you want to set up to import contacts from</li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/sync_contacts.png" ) ?>" height="200px"/>
             <li>Click <strong>Save Pages Settings</strong></li>
@@ -423,8 +427,9 @@ class DT_Facebook_Tab_Instructions {
 
         <br>
         <br>
-        <h1 style="margin-top: 40px"><a id="uptime_robot"></a>4. Set up cron to get contacts every 5 minutes</h1>
+        <h1 style="margin-top: 40px"><a id="uptime_robot"></a>4. Set up cron to get contacts every 5 minutes (Recommended)</h1>
         <p>This will make sure D.T looks for new contacts every 5 minutes</p>
+        <p>Wordpress will try to do this on it's own, but can sometimes go long periods without checking for updates. Uptime Robot makes sure it the checks happen often.</p>
         <ul style="list-style-type: disc; padding-left:40px">
             <li><a href="https://uptimerobot.com/">Sign up for a Uptime Robot Account</a></li>
             <li>Once logged in. Click <strong>Add New Monitor</strong></li>
