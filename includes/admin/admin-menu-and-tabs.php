@@ -398,8 +398,8 @@ class DT_Facebook_Tab_Instructions {
                 <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/confirm_login_2.png" ) ?>" height="250px" />
             </li>
             <li>
-                Add your email address so the Integration can let you know if there is an issue. Click <strong>save Email</strong>
-                <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_email.png" ) ?>" />
+                Add your email address so the Integration can let you know if there is an issue. Click <strong>Save Email</strong>
+                <br><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_email.png" ) ?>" />
             </li>
             <li>Check <strong>Sync contacts</strong> next to the pages you want to set up to import contacts from</li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/sync_contacts.png" ) ?>" height="200px"/>
