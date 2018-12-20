@@ -249,8 +249,8 @@ class Disciple_Tools_Facebook_Labels {
                                             <tr>
                                                 <th><?php esc_html_e( "Labels", 'dt_facebook' ) ?></th>
                                                 <th><?php esc_html_e( "Sync Label", 'dt_facebook' ) ?></th>
-                                                <th><?php esc_html_e( "Workflow, FB -> DT", 'dt_facebook' ) ?></th>
-                                                <th><?php esc_html_e( "Workflow, DT -> FB", 'dt_facebook' ) ?></th>
+                                                <th><?php esc_html_e( "Workflow, Facebook -> Disciple.Tools", 'dt_facebook' ) ?></th>
+                                                <th><?php esc_html_e( "Workflow, Disciple.Tools -> Facebook", 'dt_facebook' ) ?></th>
                                             </tr>
                                         </thead>
                                         <tbody>

@@ -345,18 +345,18 @@ class DT_Facebook_Tab_Instructions {
         $rest_url = Disciple_Tools_Facebook_Integration::instance()->get_rest_url();
         ?>
         <h1><a id="create_app"></a>1. Create Facebook App</h1>
-        <p>In order to get contacts and conversations from facebook we need to create a Facebook app. This app will be the bridge between D.T and your facebook page.</p>
-        <p>Usually facebook apps need to go through a review process. But since this is hard to implement for D.T and only 1 person will be using the app we can keep it in development mode.
+        <p>In order to get contacts and conversations from Facebook we need to create a Facebook app. This app will be the bridge between Disciple.Tools and your Facebook page.</p>
+        <p>Usually Facebook apps need to go through a review process. But since this is hard to implement for Disciple.Tools and only 1 person will be using the app we can keep it in development mode.
             The user who will sign in needs to be the app creator or an admin added to the app.
 
-        <p>Being in development mode has it's own limitations, but at the current time this works for the contact synchronisation. Unfortunately facebook can at any time change their api or limit access.</p>
+        <p>Being in development mode has it's own limitations, but at the current time this works for the contact synchronisation. Unfortunately Facebook can at any time change their api or limit access.</p>
         <ul style="list-style-type: disc; padding-left:40px">
             <li>Let start the creation progress: go to:
                 <a href="https://developers.facebook.com/apps">https://developers.facebook.com/apps</a>
             </li>
             <li>Click the <strong>Add new app</strong> button</li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/add_new_app.png" ) ?>" />
-            <li>You can name the app "D.T integration"</li>
+            <li>You can name the app "Disciple.Tools integration"</li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/create_app_name.png" ) ?>" height="200px" />
             <li>You should be on the "Add a Product screen." Click <strong>Set Up</strong> on the "Facebook Login" box</li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/products.png" ) ?>" height="200px" />
@@ -385,7 +385,7 @@ class DT_Facebook_Tab_Instructions {
 
         <br>
         <br>
-        <h1 style="margin-top: 40px"><a id="login"></a>2. Login to connect D.T to Facebook</h1>
+        <h1 style="margin-top: 40px"><a id="login"></a>2. Login to connect Disciple.Tools to Facebook</h1>
         <ul style="list-style-type: disc; padding-left:40px">
             <li>Enter the <strong>APP ID</strong> and the <strong>APP SECRET</strong> in on the first tab and click <strong>Login with Facebook</strong></li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/login.png" ) ?>" />
@@ -428,7 +428,7 @@ class DT_Facebook_Tab_Instructions {
         <br>
         <br>
         <h1 style="margin-top: 40px"><a id="uptime_robot"></a>4. Set up cron to get contacts every 5 minutes (Recommended)</h1>
-        <p>This will make sure D.T looks for new contacts every 5 minutes</p>
+        <p>This will make sure Disciple.Tools looks for new contacts every 5 minutes</p>
         <p>Wordpress will try to do this on it's own, but can sometimes go long periods without checking for updates. Uptime Robot makes sure it the checks happen often.</p>
         <ul style="list-style-type: disc; padding-left:40px">
             <li><a href="https://uptimerobot.com/">Sign up for a Uptime Robot Account</a></li>

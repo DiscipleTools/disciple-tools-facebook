@@ -122,14 +122,14 @@ class Disciple_Tools_Facebook_Integration {
         $access_token = get_option( "disciple_tools_facebook_access_token", "" );
 
         ?>
-        <p> This Facebook integration will provide a link between your facebook pages and D.T. </p>
+        <p> This Facebook integration will provide a link between your Facebook pages and Disciple.Tools</p>
         <p>When a contact messages you page, a record for them will be created automatically. Pretty cool right?</p>
 
 <!--        <h3>--><?php //esc_html_e( "Link Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook pages.", 'dt_facebook' ) ?><!--</h3>-->
 
         To get started, head over to the instructions tab where we'll help you get a couple things set up:
         <ul style="list-style-type: disc; padding-left:40px">
-            <li>A facebook app</li>
+            <li>A Facebook app</li>
             <li>Facebook Business Manager</li>
             <li>Uptime Robot</li>
         </ul>
@@ -196,7 +196,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <?php if ( !empty( $access_token ) ) :?>
                                 <tr>
                                     <td>
-                                        Completely log out and delete facebook settings and the page list bellow
+                                        Completely log out and delete Facebook settings and the page list bellow
                                     </td>
                                     <td>
                                         <button class="button" name="log_out" type="submit">Log out</button>
@@ -206,7 +206,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <?php endif; ?>
                                 <tr>
                                     <td>
-                                        Email Address to contact if the D.T to Facebook link breaks
+                                        Email Address to contact if the Disciple.Tools to Facebook link breaks
                                     </td>
                                     <td>
                                         <input name="contact_email_address" type="email" value="<?php echo esc_html( get_option( "dt_facebook_contact_email", "" ) ) ?>">
@@ -222,7 +222,7 @@ class Disciple_Tools_Facebook_Integration {
 
 
                         <br>
-                        <p>To sync your facebook conversation to D.T check the "Sync Contacts" checkbox next to the pages you to enable the integration with</p>
+                        <p>To sync your Facebook conversation to Disciple.Tools check the "Sync Contacts" checkbox next to the pages you to enable the integration with</p>
                         <form action="" method="post">
                             <input type="hidden" name="_wpnonce" id="_wpnonce"
                                    value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
@@ -300,7 +300,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <?php } ?>
                                 <?php if ( empty( $access_token ) ) :?>
                                     <tr>
-                                        <td>Login to list your facebook pages</td>
+                                        <td>Login to list your Facebook pages</td>
                                     </tr>
                                 <?php elseif ( sizeof( $facebook_pages ) === 0 ) : ?>
                                     <tr>
@@ -396,7 +396,7 @@ class Disciple_Tools_Facebook_Integration {
                 } else {
                     $facebook_pages[ $id ]["report"] = 0;
                 }
-                //set the user new facebook contacts should be assigned to.
+                //set the user new Facebook contacts should be assigned to.
                 $assign_to = str_replace( ' ', '_', $facebook_page["id"] . "-assign_new_contacts_to" );
                 if ( isset( $_POST[$assign_to] ) ){
                     $facebook_pages[$id]["assign_to"] = sanitize_text_field( wp_unslash( $_POST[ $assign_to ] ) );
@@ -480,7 +480,7 @@ class Disciple_Tools_Facebook_Integration {
     }
 
     /**
-     * authenticate the facebook app to get the user access token and facebook pages
+     * authenticate the Facebook app to get the user access token and Facebook pages
      *
      * @param  $get
      *
@@ -521,7 +521,7 @@ class Disciple_Tools_Facebook_Integration {
     }
 
     /**
-     * redirect workfloww for authorizing the facebook app
+     * redirect workfloww for authorizing the Facebook app
      */
     public function add_app() {
         // Check noonce
@@ -596,12 +596,12 @@ class Disciple_Tools_Facebook_Integration {
     }
 
     /**
-     * Find the facebook id in contacts and update or create the record. Then retrieve any missing messages
+     * Find the Facebook id in contacts and update or create the record. Then retrieve any missing messages
      * from the conversation.
      *
      * @param $participant
      * @param $updated_time , the time of the last message
-     * @param $page , the facebook page where the conversation is happening
+     * @param $page , the Facebook page where the conversation is happening
      *
      * @param $conversation
      *
@@ -709,7 +709,7 @@ class Disciple_Tools_Facebook_Integration {
             dt_write_log( "Facebook contact creation failure" );
             dt_write_log( $fields );
             if ( is_wp_error( $new_contact_id ) ){
-                $this->dt_facebook_log_email( "Creating a contact failed", "The Facebook integration was not able to create a contact from facebook. If this persists, please contact support." );
+                $this->dt_facebook_log_email( "Creating a contact failed", "The Facebook integration was not able to create a contact from Facebook. If this persists, please contact support." );
             }
             return $new_contact_id;
         }
@@ -742,7 +742,7 @@ class Disciple_Tools_Facebook_Integration {
                 $dt_facebook_log_settings = get_option( "dt_facebook_log_settings", [] );
                 $last_email = $dt_facebook_log_settings["last_email"] ?? 0;
                 if ( isset( $conversations_page["error"]["code"] ) && $conversations_page["error"]["code"] == 190 ){
-                    $message = "Hey, \nThe facebook integration is no longer authorized with facebook. Please click 'Login with Facebook' to fix the issue or 'Log out' to stop getting this email: \n";
+                    $message = "Hey, \nThe Facebook integration is no longer authorized with Facebook. Please click 'Login with Facebook' to fix the issue or 'Log out' to stop getting this email: \n";
                     $message .= admin_url( 'admin.php?page=dt_facebook', 'https' );
                     if ( $last_email < ( time() - 60 * 60 * 6 ) ){ // limit to one email every 6 hours.
                         $this->dt_facebook_log_email( "Facebook Integration Error", $message );
@@ -870,7 +870,7 @@ class Disciple_Tools_Facebook_Integration {
         $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
 
         if ( !isset( $facebook_data["set_dt_link"] ) ){
-            $dt_link = "DT link: " . esc_url( get_site_url() ) . '/contacts/' . $contact_id;
+            $dt_link = "Disciple.Tools link: " . esc_url( get_site_url() ) . '/contacts/' . $contact_id;
             $this->set_note_on_conversation( $page["id"], $participant_id, $dt_link, $page["access_token"] );
             $facebook_data["set_dt_link"] = true;
             update_post_meta( $contact_id, "facebook_data", $facebook_data );

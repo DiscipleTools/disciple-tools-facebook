@@ -8,7 +8,7 @@ This privacy policy has been compiled to better serve those who are concerned wi
 - email.
 - manage_pages. This is to provide access to your pages for stats and integrations.
 - read_insights. This is to provide timely and useful information about your page performance.
-- read_page_mailboxes. This is to provide stats on your facebook conversations
+- read_page_mailboxes. This is to provide stats on your Facebook conversations
 - business_management. To help link contacts across apps and messenger bots.
 
 #### What personal information do we collect from the people through our app?
@@ -16,10 +16,10 @@ This privacy policy has been compiled to better serve those who are concerned wi
 - Which pages the users has access to.
 
 #### When do we collect information?
-We collect information from you when you use the Login with facebook button.
+We collect information from you when you use the Login with Facebook button.
 
 #### How do we use your information?
-We use the information we collect and the access to the facebook pages to provide the user useful and timely stats on the pages and conversations.
+We use the information we collect and the access to the Facebook pages to provide the user useful and timely stats on the pages and conversations.
 
 #### How do we protect your information?
 While we use encryption to protect sensitive information transmitted online, we also protect your information offline. Only employees who need the information to perform a specific job (for example, billing or customer service) are granted access to personally identifiable information.
