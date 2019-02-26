@@ -83,11 +83,13 @@ class Disciple_Tools_Facebook_Tile {
 
             //check if content is there before adding empty tile
             $contact_id    = get_the_ID();
-            $contact       = Disciple_Tools_Contacts::get_contact( $contact_id, true );
-            if ( isset( $contact["facebook_data"] ) ) {
-                if ( isset( $contact_fields["facebook_data"] ) ) {
-                    $sections[] = "contact_facebook_data";
-                      //add more section ids here if you want...
+            if ( $contact_id ){
+                $contact       = Disciple_Tools_Contacts::get_contact( $contact_id, true );
+                if ( isset( $contact["facebook_data"] ) ) {
+                    if ( isset( $contact_fields["facebook_data"] ) ) {
+                        $sections[] = "contact_facebook_data";
+                          //add more section ids here if you want...
+                    }
                 }
             }
         }
