@@ -80,10 +80,16 @@ class Disciple_Tools_Facebook_Tile {
         if ( $post_type === "contacts" ) {
             $contact_fields = Disciple_Tools_Contact_Post_Type::instance()->get_custom_fields_settings();
             //check if the language field is set
-            if ( isset( $contact_fields["facebook_data"] ) ) {
-                $sections[] = "contact_facebook_data";
+
+            //check if content is there before adding empty tile
+            $contact_id    = get_the_ID();
+            $contact       = Disciple_Tools_Contacts::get_contact( $contact_id, true );
+            if ( isset( $contact["facebook_data"] ) ) {
+                if ( isset( $contact_fields["facebook_data"] ) ) {
+                    $sections[] = "contact_facebook_data";
+                      //add more section ids here if you want...
+                }
             }
-            //add more section ids here if you want...
         }
         return $sections;
     }
