@@ -448,34 +448,21 @@ class Disciple_Tools_Facebook_Integration {
     private function get_or_refresh_pages( $access_token ) {
 
         $facebook_pages_url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/me/accounts?fields=access_token,id,name,business&access_token=" . $access_token;
-        $pages_request      = wp_remote_get( $facebook_pages_url );
-
-
-        if ( is_wp_error( $pages_request ) ) {
-            $this->display_error( $pages_request->get_error_message() );
-            echo "There was an error";
-        } else {
-            $pages_body = wp_remote_retrieve_body( $pages_request );
-            $pages_data = json_decode( $pages_body, true );
-            if ( !empty( $pages_data ) ) {
-                if ( isset( $pages_data["data"] ) ) {
-                    $pages = get_option( "dt_facebook_pages", [] );
-                    foreach ( $pages_data["data"] as $page ) {
-                        if ( !isset( $pages[ $page["id"] ] ) ) {
-                            $pages[ $page["id"] ] = $page;
-                        } else {
-                            $pages[ $page["id"] ]["access_token"] = $page["access_token"];
-                            $pages[ $page["id"] ]["name"]         = $page["name"];
-                            if ( isset( $page["business"] ) ) {
-                                $pages[ $page["id"] ]["business"] = $page["business"];
-                            }
-                        }
+        $pages_data = $this->get_all_with_pagination( $facebook_pages_url );
+        if ( !empty( $pages_data ) ) {
+            $pages = get_option( "dt_facebook_pages", [] );
+            foreach ( $pages_data as $page ) {
+                if ( !isset( $pages[ $page["id"] ] ) ) {
+                    $pages[ $page["id"] ] = $page;
+                } else {
+                    $pages[ $page["id"] ]["access_token"] = $page["access_token"];
+                    $pages[ $page["id"] ]["name"]         = $page["name"];
+                    if ( isset( $page["business"] ) ) {
+                        $pages[ $page["id"] ]["business"] = $page["business"];
                     }
-                    update_option( "dt_facebook_pages", $pages );
-                } elseif ( isset( $pages_data["error"] ) && isset( $pages_data["error"]["message"] ) ) {
-                    $this->display_error( $pages_data["error"]["message"] );
                 }
             }
+            update_option( "dt_facebook_pages", $pages );
         }
     }
 
