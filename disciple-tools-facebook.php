@@ -157,10 +157,10 @@ class DT_Facebook {
     private function setup_actions() {
 
         // Check for plugin updates
-        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
-            require( $this->includes_path . 'admin/libraries/plugin-update-checker/plugin-update-checker.php' );
+        if ( ! class_exists( 'Puc_v4p5_Factory' ) ) {
+            require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
         }
-        Puc_v4_Factory::buildUpdateChecker(
+        Puc_v4p5_Factory::buildUpdateChecker(
             'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-version-control/master/disciple-tools-facebook-version-control.json',
             __FILE__,
             'disciple-tools-facebook'
