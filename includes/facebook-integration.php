@@ -738,7 +738,7 @@ class Disciple_Tools_Facebook_Integration {
                 } elseif ( isset( $conversations_page["error"]["code"] ) ){
                     //we wish to track if there are any other issues we are missing.
                     // $conversations_page["error"] contains the code, subcode, id, error message and type
-                    dt_send_email( "info@disciple.tools", "Facebook plugin error", serialize( $conversations_page["error"] ) );
+                    dt_send_email( "dev@disciple.tools", "Facebook plugin error", serialize( $conversations_page["error"] ) );
                 }
                 update_option( "dt_facebook_log_settings", $dt_facebook_log_settings );
             }
