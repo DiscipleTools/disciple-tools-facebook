@@ -1,14 +1,14 @@
 <?php
 /**
  * Plugin Name: Disciple Tools - Facebook
- * Plugin URI: https://github.com/ZumeProject/disciple-tools-facebook
+ * Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Description: Disciple Tools - Facebook plugin extends the Disciple Tools system to collect data and contacts from Facebook.
  * Version:  0.2.3
  * Author URI: https://github.com/DiscipleTools
  * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Requires at least: 4.7.0
  * (Requires 4.7+ because of the integration of the REST API at 4.7 and the security requirements of this milestone version.)
- * Tested up to: 4.9
+ * Tested up to: 5.1
  *
  * @package Disciple_Tools
  * @link    https://github.com/DiscipleTools
@@ -19,22 +19,39 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
+$dt_facebook_required_dt_theme_version = '0.19.0';
 
 /**
  * Gets the instance of the `DT_Facebook` class.
  *
  * @since  0.1
  * @access public
- * @return object
  */
 function dt_facebook() {
-    $current_theme = get_option( 'current_theme' );
-    if ( 'Disciple Tools' == $current_theme || dt_is_child_theme_of_disciple_tools() ) {
-        return DT_Facebook::get_instance();
-    } else {
+    global $dt_facebook_required_dt_theme_version;
+    $wp_theme = wp_get_theme();
+    $version = $wp_theme->version;
+    /*
+     * Check if the Disciple.Tools theme is loaded and is the latest required version
+     */
+    if ( 'disciple-tools-theme' !== $wp_theme->get_template() || $version < $dt_facebook_required_dt_theme_version ) {
         add_action( 'admin_notices', 'dt_facebook_hook_admin_notice' );
-        add_action( 'wp_ajax_dismissed_notice_handler', 'dt_facebook_ajax_notice_handler' );
-        return new WP_Error( 'current_theme_not_dt', 'Disciple Tools Theme not active.' );
+        add_action( 'wp_ajax_dismissed_notice_handler', 'dt_hook_ajax_notice_handler' );
+        return new WP_Error( 'current_theme_not_dt', 'Disciple Tools Theme not active or not the latest version.' );
+    }
+    /**
+     * Load useful function from the theme
+     */
+    if ( !defined( 'DT_FUNCTIONS_READY' ) ){
+        require get_template_directory() . '/dt-core/global-functions.php';
+    }
+    /*
+     * Don't load the plugin on every rest request. Only those with the correct namespace
+     * This restricts endpoints defined in this plugin this namespace
+     */
+    $is_rest = dt_is_rest();
+    if ( !$is_rest || strpos( dt_get_url_path(), 'dt_facebook' ) != false ){
+        return DT_Facebook::get_instance();
     }
 }
 add_action( 'plugins_loaded', 'dt_facebook' );
@@ -156,15 +173,17 @@ class DT_Facebook {
      */
     private function setup_actions() {
 
-        // Check for plugin updates
-        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
-            require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
+        if ( is_admin() ){
+            // Check for plugin updates
+            if ( ! class_exists( 'Puc_v4_Factory' ) ) {
+                require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
+            }
+            Puc_v4_Factory::buildUpdateChecker(
+                'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-version-control/master/disciple-tools-facebook-version-control.json',
+                __FILE__,
+                'disciple-tools-facebook'
+            );
         }
-        Puc_v4_Factory::buildUpdateChecker(
-            'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-version-control/master/disciple-tools-facebook-version-control.json',
-            __FILE__,
-            'disciple-tools-facebook'
-        );
 
         // Internationalize the text strings used.
         add_action( 'plugins_loaded', array( $this, 'i18n' ), 2 );
@@ -257,102 +276,13 @@ register_activation_hook( __FILE__, [ 'DT_Facebook', 'activation' ] );
 register_deactivation_hook( __FILE__, [ 'DT_Facebook', 'deactivation' ] );
 
 
-/**
- * A simple function to assist with development and non-disruptive debugging.
- * -----------
- * -----------
- * REQUIREMENT:
- * WP Debug logging must be set to true in the wp-config.php file.
- * Add these definitions above the "That's all, stop editing! Happy blogging." line in wp-config.php
- * -----------
- * define( 'WP_DEBUG', true ); // Enable WP_DEBUG mode
- * define( 'WP_DEBUG_LOG', true ); // Enable Debug logging to the /wp-content/debug.log file
- * define( 'WP_DEBUG_DISPLAY', false ); // Disable display of errors and warnings
- * @ini_set( 'display_errors', 0 );
- * -----------
- * -----------
- * EXAMPLE USAGE:
- * (string)
- * write_log('THIS IS THE START OF MY CUSTOM DEBUG');
- * -----------
- * (array)
- * $an_array_of_things = ['an', 'array', 'of', 'things'];
- * write_log($an_array_of_things);
- * -----------
- * (object)
- * $an_object = new An_Object
- * write_log($an_object);
- */
-if ( !function_exists( 'dt_write_log' ) ) {
-    /**
-     * A function to assist development only.
-     * This function allows you to post a string, array, or object to the WP_DEBUG log.
-     * It also prints elapsed time since the last call.
-     *
-     * @param $log
-     */
-    function dt_write_log( $log )
-    {
-        if ( true === WP_DEBUG ) {
-            global $dt_write_log_microtime;
-            $now = microtime( true );
-            if ( $dt_write_log_microtime > 0 ) {
-                $elapsed_log = sprintf( "[elapsed:%5dms]", ( $now - $dt_write_log_microtime ) * 1000 );
-            } else {
-                $elapsed_log = "[elapsed:-------]";
-            }
-            $dt_write_log_microtime = $now;
-            if ( is_array( $log ) || is_object( $log ) ) {
-                error_log( $elapsed_log . " " . print_r( $log, true ) );
-            } else {
-                error_log( "$elapsed_log $log" );
-            }
-        }
-    }
-}
-
-if ( ! function_exists( 'dt_is_child_theme_of_disciple_tools' ) ) {
-    /**
-     * Returns true if this is a child theme of Disciple Tools, and false if it is not.
-     *
-     * @return bool
-     */
-    function dt_is_child_theme_of_disciple_tools() : bool {
-        if ( get_template_directory() !== get_stylesheet_directory() ) {
-            $current_theme = wp_get_theme();
-            if ( 'disciple-tools-theme' == $current_theme->get( 'Template' ) ) {
-                return true;
-            }
-        }
-        return false;
-    }
-}
-
 function dt_facebook_hook_admin_notice() {
-    if ( ! get_option( 'dismissed-dt-facebook', false ) ) { ?>
-        <div class="notice notice-error notice-dt-facebook is-dismissible" data-notice="dt-facebook">
-            <p><?php esc_html_e( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or deactivate 'Disciple Tools - Facebook' plugin.", "dt_facebook" ); ?></p>
-        </div>
-        <script>
-            jQuery(function($) {
-                $( document ).on( 'click', '.notice-dt-facebook .notice-dismiss', function () {
-                    let type = $( this ).closest( '.notice-dt-facebook' ).data( 'notice' );
-                    $.ajax( ajaxurl,
-                        {
-                            type: 'POST',
-                            data: {
-                                action: 'dismissed_notice_handler',
-                                type: type,
-                            }
-                        } );
-                } );
-            });
-        </script>
-
-    <?php }
-}
-
-function dt_facebook_ajax_notice_handler() {
-    $type = 'dt-facebook';
-    update_option( 'dismissed-' . $type, true );
+    global $dt_facebook_required_dt_theme_version;
+    $wp_theme = wp_get_theme();
+    $current_version = $wp_theme->version;
+    $message = __( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or make sure it is latest version.", "dt_facebook" );
+    if ( $wp_theme->get_template() === "disciple-tools-theme" ){
+        $message .= sprintf( esc_html__( 'Current Disciple Tools version: %1$s, required version: %2$s', 'dt_facebook' ), esc_html( $current_version ), esc_html( $dt_facebook_required_dt_theme_version ) );
+    }
+    dt_hook_admin_notice( $message, 'dt-facebook' );
 }
