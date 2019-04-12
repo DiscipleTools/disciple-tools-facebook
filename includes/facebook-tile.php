@@ -84,7 +84,7 @@ class Disciple_Tools_Facebook_Tile {
             //check if content is there before adding empty tile
             $contact_id    = get_the_ID();
             if ( $contact_id ){
-                $contact       = Disciple_Tools_Contacts::get_contact( $contact_id, true );
+                $contact       = Disciple_Tools_Contacts::get_contact( $contact_id, true, true );
                 if ( isset( $contact["facebook_data"] ) ) {
                     if ( isset( $contact_fields["facebook_data"] ) ) {
                         $sections[] = "contact_facebook_data";
@@ -100,7 +100,7 @@ class Disciple_Tools_Facebook_Tile {
     public static function dt_facebook_add_section( $section ) {
         if ( $section == "contact_facebook_data" ) {
             $contact_id    = get_the_ID();
-            $contact       = Disciple_Tools_Contacts::get_contact( $contact_id, true );
+            $contact       = Disciple_Tools_Contacts::get_contact( $contact_id, true, true );
             $facebook_data = [];
             if ( isset( $contact["facebook_data"] ) ) {
                 $facebook_data = maybe_unserialize( $contact["facebook_data"] );
