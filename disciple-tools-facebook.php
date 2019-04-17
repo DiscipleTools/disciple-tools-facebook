@@ -43,7 +43,7 @@ function dt_facebook() {
      * Load useful function from the theme
      */
     if ( !defined( 'DT_FUNCTIONS_READY' ) ){
-        require get_template_directory() . '/dt-core/global-functions.php';
+        require_once get_template_directory() . '/dt-core/global-functions.php';
     }
     /*
      * Don't load the plugin on every rest request. Only those with the correct namespace
@@ -284,5 +284,37 @@ function dt_facebook_hook_admin_notice() {
     if ( $wp_theme->get_template() === "disciple-tools-theme" ){
         $message .= sprintf( esc_html__( 'Current Disciple Tools version: %1$s, required version: %2$s', 'dt_facebook' ), esc_html( $current_version ), esc_html( $dt_facebook_required_dt_theme_version ) );
     }
-    dt_hook_admin_notice( $message, 'dt-facebook' );
+    // Check if it's been dismissed...
+    if ( ! get_option( 'dismissed-dt-facebook', false ) ) { ?>
+        <div class="notice notice-error notice-dt-facebook is-dismissible" data-notice="dt-facebook">
+            <p><?php echo esc_html( $message );?></p>
+        </div>
+        <script>
+            jQuery(function($) {
+                $( document ).on( 'click', '.notice-dt-facebook .notice-dismiss', function () {
+                    $.ajax( ajaxurl, {
+                        type: 'POST',
+                        data: {
+                            action: 'dismissed_notice_handler',
+                            type: 'dt-facebook',
+                            security: '<?php echo esc_html( wp_create_nonce( 'wp_rest_dismiss' ) ) ?>'
+                        }
+                    })
+                });
+            });
+        </script>
+    <?php }
+}
+
+/**
+ * AJAX handler to store the state of dismissible notices.
+ */
+if ( !function_exists( "dt_hook_ajax_notice_handler" )){
+    function dt_hook_ajax_notice_handler(){
+        check_ajax_referer( 'wp_rest_dismiss', 'security' );
+        if ( isset( $_POST["type"] ) ){
+            $type = sanitize_text_field( wp_unslash( $_POST["type"] ) );
+            update_option( 'dismissed-' . $type, true );
+        }
+    }
 }
