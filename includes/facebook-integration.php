@@ -571,6 +571,10 @@ class Disciple_Tools_Facebook_Integration {
         $app_secret_proof  = $this->get_app_secret_proof( $access_token );
         $ids_for_pages_uri = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$used_id?fields=name,ids_for_pages&access_token=$access_token&appsecret_proof=$app_secret_proof";
         $response          = wp_remote_get( $ids_for_pages_uri );
+        if ( is_wp_error( $response ) ){
+            dt_write_log( $response );
+            return [];
+        }
         $ids               = json_decode( $response["body"], true );
         $ids_for_pages     = [];
         if ( isset( $ids["ids_for_pages"] ) && isset( $ids["ids_for_pages"]["data"] ) ) {
