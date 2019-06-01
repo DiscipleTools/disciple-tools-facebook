@@ -4,7 +4,7 @@ if ( !defined( 'ABSPATH' ) ) {
 } // Exit if accessed directly
 
 /**
- * Class Disciple_Tools_Facebook_Integration
+ * Class Disciple_Tools_Facebook_Tile
  */
 class Disciple_Tools_Facebook_Tile {
     /**
