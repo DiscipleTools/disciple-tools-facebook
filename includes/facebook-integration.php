@@ -740,9 +740,13 @@ class Disciple_Tools_Facebook_Integration {
                         $dt_facebook_log_settings["last_email"] = time();
                     }
                 } elseif ( isset( $conversations_page["error"]["code"] ) ){
-                    //we wish to track if there are any other issues we are missing.
-                    // $conversations_page["error"] contains the code, subcode, id, error message and type
-                    dt_send_email( "dev@disciple.tools", "Facebook plugin error", get_site_url() . ' ' . serialize( $conversations_page["error"] ) );
+                    if ( $conversations_page["error"]["code"] === 283 ){
+                        $this->display_error( isset( $conversations_page["error"]["message"] ) );
+                    } else {
+                        //we wish to track if there are any other issues we are missing.
+                        // $conversations_page["error"] contains the code, subcode, id, error message and type
+                        dt_send_email( "dev@disciple.tools", "Facebook plugin error", get_site_url() . ' ' . serialize( $conversations_page["error"] ) );
+                    }
                 }
                 update_option( "dt_facebook_log_settings", $dt_facebook_log_settings );
             }
