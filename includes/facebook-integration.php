@@ -35,7 +35,7 @@ class Disciple_Tools_Facebook_Integration {
     private $version = 1.0;
     private $context = "dt_facebook";
     private $namespace;
-    private $facebook_api_version = '3.2';
+    private $facebook_api_version = '3.3';
 
     /**
      * Constructor function.
@@ -46,6 +46,7 @@ class Disciple_Tools_Facebook_Integration {
     public function __construct() {
         $this->namespace = $this->context . "/v" . intval( $this->version );
         add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
+        add_action( 'admin_notices', [ $this, 'dt_admin_notice' ] );
         add_action( 'wp_ajax_dt-facebook-notice-dismiss', [ $this, 'dismiss_error' ] );
         add_action( "dt_async_dt_conversation_update", [ $this, "get_conversation_update" ], 10, 2 );
         add_action( "dt_async_dt_facebook_all_conversations", [ $this, "get_conversations_with_pagination" ], 10, 4 );
@@ -527,7 +528,7 @@ class Disciple_Tools_Facebook_Integration {
                 $url = "https://facebook.com/v" . $this->facebook_api_version . "/dialog/oauth";
                 $url .= "?client_id=" . sanitize_key( $_POST["app_id"] );
                 $url .= "&redirect_uri=" . $this->get_rest_url() . "/auth";
-                $url .= "&scope=public_profile,read_insights,manage_pages,read_page_mailboxes,business_management";
+                $url .= "&scope=public_profile,read_insights,pages_messaging,manage_pages,read_page_mailboxes,business_management";
                 $url .= "&state=" . $this->authorize_secret();
 
                 wp_redirect( $url );
@@ -740,9 +741,8 @@ class Disciple_Tools_Facebook_Integration {
                         $dt_facebook_log_settings["last_email"] = time();
                     }
                 } elseif ( isset( $conversations_page["error"]["code"] ) ){
-                    if ( $conversations_page["error"]["code"] === 283 ){
-                        $this->display_error( isset( $conversations_page["error"]["message"] ) );
-                    } else {
+                    $this->display_error( $conversations_page["error"]["message"] );
+                    if ( !$conversations_page["error"]["code"] === 283 ){
                         //we wish to track if there are any other issues we are missing.
                         // $conversations_page["error"] contains the code, subcode, id, error message and type
                         dt_send_email( "dev@disciple.tools", "Facebook plugin error", get_site_url() . ' ' . serialize( $conversations_page["error"] ) );
