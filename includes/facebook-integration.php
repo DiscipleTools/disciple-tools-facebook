@@ -98,6 +98,20 @@ class Disciple_Tools_Facebook_Integration {
             <div class="notice notice-error dt-facebook-notice is-dismissible">
                 <p><?php echo esc_html( $error ); ?></p>
             </div>
+            <script>
+                jQuery(function($) {
+                    $( document ).on( 'click', '.dt-facebook-notice .notice-dismiss', function () {
+                        $.ajax( ajaxurl, {
+                            type: 'POST',
+                            data: {
+                                action: 'dt-facebook-notice-dismiss',
+                                type: 'dt-facebook',
+                                //security: '<?php //echo esc_html( wp_create_nonce( 'wp_rest_dismiss' ) ) ?>//'
+                            }
+                        })
+                    });
+                });
+            </script>
         <?php }
     }
 
