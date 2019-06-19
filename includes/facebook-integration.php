@@ -349,7 +349,7 @@ class Disciple_Tools_Facebook_Integration {
      * @param $err
      */
     private function display_error( $err ) {
-        $err = date( "Y-m-d h:i:sa" ) . ' ' . $err; ?>
+        $err = 'Facebook Extension error at ' .  date( "Y-m-d h:i:sa" ) . ': ' . $err; ?>
         <div class="notice notice-error is-dismissible">
             <p><?php echo esc_html( $err ); ?></p>
         </div>
