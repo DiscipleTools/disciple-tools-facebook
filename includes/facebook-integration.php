@@ -208,7 +208,7 @@ class Disciple_Tools_Facebook_Integration {
                                         </ul>
                                     </td>
                                 </tr>
-                                <?php if ( !empty( $access_token ) ) :?>
+                                <?php if ( !empty( $access_token ) || !empty( get_option( "dt_facebook_pages", [] ) ) ) :?>
                                 <tr>
                                     <td>
                                         Completely log out and delete Facebook settings and the page list bellow
@@ -794,7 +794,7 @@ class Disciple_Tools_Facebook_Integration {
     public function get_recent_conversations( $page_id = null ){
         $facebook_pages      = get_option( "dt_facebook_pages", [] );
         foreach ( $facebook_pages as $id => $facebook_page ) {
-            if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] )){
+            if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && !empty( $facebook_page["access_token"] )){
                 if ( !$page_id ){
                     //get conversations
                     wp_remote_get( $this->get_rest_url() . "/dt-public/cron?page=" . $id );
