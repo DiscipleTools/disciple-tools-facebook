@@ -49,6 +49,7 @@ function dt_facebook() {
      * Don't load the plugin on every rest request. Only those with the correct namespace
      * This restricts endpoints defined in this plugin this namespace
      */
+    require_once( 'includes/dt-hooks.php' );
     $is_rest = dt_is_rest();
     if ( !$is_rest || strpos( dt_get_url_path(), 'dt_facebook' ) != false ){
         return DT_Facebook::get_instance();

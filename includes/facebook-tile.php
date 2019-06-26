@@ -17,12 +17,12 @@ class Disciple_Tools_Facebook_Tile {
     private static $_instance = null;
 
     /**
-     * Main Disciple_Tools_Facebook_Integration Instance
+     * Main Disciple_Tools_Facebook_Tile Instance
      * Ensures only one instance of Disciple_Tools_Facebook_Integration is loaded or can be loaded.
      *
      * @since  0.1.0
      * @static
-     * @return Disciple_Tools_Facebook_Integration instance
+     * @return Disciple_Tools_Facebook_Tile instance
      */
     public static function instance() {
         if ( is_null( self::$_instance ) ) {
@@ -48,7 +48,6 @@ class Disciple_Tools_Facebook_Tile {
         add_action( "dt_details_additional_section", [ $this, "dt_facebook_add_section" ] );
         add_filter( "dt_contact_duplicate_fields_to_check", [ $this, "add_duplicate_check_field" ] );
         add_filter( "dt_comments_additional_sections", [ $this, "add_comment_section" ], 10, 2 );
-        add_filter( "dt_search_extra_post_meta_fields", [ $this, "add_fields_in_dt_search" ] );
     } // End __construct()
 
     public static function dt_facebook_fields( array $fields, string $post_type = "" ) {
@@ -195,11 +194,6 @@ class Disciple_Tools_Facebook_Tile {
             ];
         }
         return $sections;
-    }
-
-    public function add_fields_in_dt_search( $fields ){
-        $fields[] = "facebook_data";
-        return $fields;
     }
 
     public function add_duplicate_check_field( $fields ) {
