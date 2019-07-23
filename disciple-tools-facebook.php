@@ -34,7 +34,9 @@ function dt_facebook() {
     /*
      * Check if the Disciple.Tools theme is loaded and is the latest required version
      */
-    if ( 'disciple-tools-theme' !== $wp_theme->get_template() || $version < $dt_facebook_required_dt_theme_version ) {
+    $name = $wp_theme->name;
+    $is_theme_dt = strpos( $wp_theme->get_template(), "disciple-tools-theme" ) !== false || $wp_theme->name === "Disciple Tools";
+    if ( !$is_theme_dt || $version < $dt_facebook_required_dt_theme_version ) {
         add_action( 'admin_notices', 'dt_facebook_hook_admin_notice' );
         add_action( 'wp_ajax_dismissed_notice_handler', 'dt_hook_ajax_notice_handler' );
         return new WP_Error( 'current_theme_not_dt', 'Disciple Tools Theme not active or not the latest version.' );
@@ -282,7 +284,7 @@ function dt_facebook_hook_admin_notice() {
     $wp_theme = wp_get_theme();
     $current_version = $wp_theme->version;
     $message = __( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or make sure it is latest version.", "dt_facebook" );
-    if ( $wp_theme->get_template() === "disciple-tools-theme" ){
+    if ( strpos( $wp_theme->get_template(), "disciple-tools-theme" ) !== false || $wp_theme->name === "Disciple Tools" ) {
         $message .= sprintf( esc_html__( 'Current Disciple Tools version: %1$s, required version: %2$s', 'dt_facebook' ), esc_html( $current_version ), esc_html( $dt_facebook_required_dt_theme_version ) );
     }
     // Check if it's been dismissed...
