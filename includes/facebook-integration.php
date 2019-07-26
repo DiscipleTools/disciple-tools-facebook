@@ -87,6 +87,12 @@ class Disciple_Tools_Facebook_Integration {
                 'callback' => [ $this, 'cron_hook' ],
             ]
         );
+        register_rest_route(
+            $this->namespace ."/dt-public/", "cron", [
+                'methods'  => "POST",
+                'callback' => [ $this, 'cron_hook' ],
+            ]
+        );
     }
 
     /**
@@ -722,8 +728,8 @@ class Disciple_Tools_Facebook_Integration {
     }
 
 
-    public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0, $limit_to_one = false, $depth = 0 ) {
-        $conversations_request = wp_remote_get( $url );
+    public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0, $limit_to_one = false ) {
+        $conversations_request = wp_remote_get( $url, [ "timeout" => 15 ] );
         if ( !is_wp_error( $conversations_request ) ) {
             $conversations_body = wp_remote_retrieve_body( $conversations_request );
             $conversations_page = json_decode( $conversations_body, true );
@@ -731,17 +737,22 @@ class Disciple_Tools_Facebook_Integration {
                 $this->save_conversation_page( $conversations_page["data"], $id, $latest_conversation );
                 if ( isset( $conversations_page["paging"]["next"] ) ){
                     $oldest_conversation = end( $conversations_page["data"] );
+                    // if we have caught up on conversations.
                     if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation && !$limit_to_one ){
-                        do_action( "dt_facebook_all_conversations", $conversations_page["paging"]["next"], $id, $latest_conversation, $limit_to_one, $depth + 1 );
+                        $facebook_pages = get_option( "dt_facebook_pages", [] );
+                        $depth = $facebook_pages[$id]["depth"] ?? 0;
+                        $facebook_pages[$id]["depth"] = ++$depth;
+                        //save the next page if the process get interrupted.
+                        $facebook_pages[$id]["next_page"] = $conversations_page["paging"]["next"];
+                        update_option( "dt_facebook_pages", $facebook_pages );
+                        wp_remote_post( $this->get_rest_url() . "/dt-public/cron?page=" . $id );
                     }
                 } else {
                     $facebook_pages = get_option( "dt_facebook_pages", [] );
                     $facebook_pages[$id]["reached_the_end"] = time();
+                    $facebook_pages[$id]["next_page"] = null;
+                    $facebook_pages[ $id ]["depth"] = 0;
                     update_option( "dt_facebook_pages", $facebook_pages );
-                    $facebook_conversations_url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_pages[$id]["access_token"];
-                    if ( $depth !== 0 && ! $limit_to_one ){
-                        $this->get_conversations_with_pagination( $facebook_conversations_url, $id, $latest_conversation, true, 0 );
-                    }
                 }
             } else {
                 dt_write_log( $conversations_page );
@@ -755,7 +766,7 @@ class Disciple_Tools_Facebook_Integration {
                         $dt_facebook_log_settings["last_email"] = time();
                     }
                 } elseif ( isset( $conversations_page["error"]["code"] ) ){
-                    $this->display_error( $conversations_page["error"]["message"] );
+                    $this->display_error( "Conversations page: " . $conversations_page["error"]["message"] );
                     if ( !$conversations_page["error"]["code"] === 283 ){
                         //we wish to track if there are any other issues we are missing.
                         // $conversations_page["error"] contains the code, subcode, id, error message and type
@@ -766,7 +777,7 @@ class Disciple_Tools_Facebook_Integration {
             }
         } else {
             dt_write_log( $conversations_request );
-            $this->display_error( $conversations_request->get_error_message() );
+            $this->display_error( "Get conversations: " . $conversations_request->get_error_message() );
         }
     }
 
@@ -797,10 +808,13 @@ class Disciple_Tools_Facebook_Integration {
             if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && !empty( $facebook_page["access_token"] )){
                 if ( !$page_id ){
                     //get conversations
-                    wp_remote_get( $this->get_rest_url() . "/dt-public/cron?page=" . $id );
+                    wp_remote_post( $this->get_rest_url() . "/dt-public/cron?page=" . $id );
                 } else if ( $id == $page_id ) {
                     $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
-                    $facebook_conversations_url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$id/conversations?fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_page["access_token"];
+                    $facebook_conversations_url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$id/conversations?limit=10&fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_page["access_token"];
+                    if ( !empty( $facebook_page["next_page"] ) && ( !isset( $facebook_page["reached_the_end"] ) || $facebook_page["reached_the_end"] === null ) ){
+                        $facebook_conversations_url = $facebook_page["next_page"];
+                    }
                     do_action( "dt_facebook_all_conversations", $facebook_conversations_url, $id, $latest_conversation );
                 }
             }
