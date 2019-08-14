@@ -105,20 +105,6 @@ class Disciple_Tools_Facebook_Tile {
                 $facebook_data = maybe_unserialize( $contact["facebook_data"] );
             }
             ?>
-            <!-- need you own css? -->
-            <style type="text/css">
-                .facebook-label {
-                    background: #ecf5fc;
-                    padding: 2px 4px;
-                    border-radius: 2px;
-                    border: 1px solid #c2e0ff;
-                }
-            </style>
-
-            <label class="section-header">
-                <?php esc_html_e( 'Facebook', 'dt_facebook' ) ?>
-            </label>
-
 
             <?php
             if ( isset( $facebook_data["names"] ) ) {
@@ -133,19 +119,6 @@ class Disciple_Tools_Facebook_Tile {
                         <p><?php echo esc_html( $id ) ?></p>
                     <?php }
                 }
-            }
-            if ( isset( $facebook_data["labels"] ) ) {
-                ?>
-                <div class="section-subheader">
-                    <?php esc_html_e( "Labels", "dt_facebook" ) ?>
-                </div>
-                <p>
-                    <?php foreach ( $facebook_data["labels"] as $id => $value ) {
-                        ?>
-                        <span class="facebook-label"><?php echo esc_html( $id ) ?></span>
-                    <?php } ?>
-                </p>
-                <?php
             }
 
             if ( isset( $facebook_data["last_message_at"] ) ) {

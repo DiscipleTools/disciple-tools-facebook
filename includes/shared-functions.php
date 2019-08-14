@@ -25,29 +25,6 @@ function dt_facebook_get_object_with_paging( $url, $current_records = [] ) {
     }
 }
 
-function dt_facebook_api( $endpoint, $main_id, $access_token, $second_id = "" ){
-    $base = "https://graph.facebook.com/v2.12/";
-    switch ($endpoint) {
-        case "page_labels":
-            $uri_for_page_labels = "https://graph.facebook.com/v2.12/" . $main_id . "/labels?fields=name&access_token=" . $access_token;
-            return dt_facebook_get_object_with_paging( $uri_for_page_labels );
-            break;
-        case "label_users":
-            $uri_for_page_labels = "https://graph.facebook.com/v2.12/" . $main_id . "/users?&access_token=" . $access_token;
-            return dt_facebook_get_object_with_paging( $uri_for_page_labels );
-            break;
-        case "apply_label":
-            $uri = $base . $second_id . "/users?access_token=" . $access_token;
-            return wp_remote_post( $uri, [
-                "body" => [ "user_ids" => [ $main_id ] ]
-            ] );
-            break;
-
-        default:
-            return [];
-    }
-}
-
 function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app_scoped_id = null, string $app_id = null ){
     if ( sizeof( $page_scoped_ids ) === 0 && ( empty( $app_scoped_id ) || empty( $app_id ) ) ){
         return [];

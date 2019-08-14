@@ -834,7 +834,6 @@ class Disciple_Tools_Facebook_Integration {
                             $facebook_pages[$id]["last_contact_id"] = $contact_id;
                             update_option( "dt_facebook_pages", $facebook_pages );
                             $this->update_facebook_messages_on_contact( $contact_id, $conversation );
-                            $this->set_notes_on_conversation( $contact_id, $page, $participant["id"] );
                         }
                     }
                 }
@@ -889,26 +888,6 @@ class Disciple_Tools_Facebook_Integration {
         }
     }
 
-    public function set_notes_on_conversation( $contact_id, $page, $participant_id ){
-        $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
-
-        if ( !isset( $facebook_data["set_dt_link"] ) ){
-            $dt_link = "Disciple.Tools link: " . esc_url( get_site_url() ) . '/contacts/' . $contact_id;
-            $this->set_note_on_conversation( $page["id"], $participant_id, $dt_link, $page["access_token"] );
-            $facebook_data["set_dt_link"] = true;
-            update_post_meta( $contact_id, "facebook_data", $facebook_data );
-        }
-    }
-
-    public function set_note_on_conversation( $page_id, $user_id, $note, $access_token ){
-        $url = 'https://graph.facebook.com/v' . $this->facebook_api_version . '/ ' . $page_id . "/admin_notes?access_token=" . $access_token;
-        return wp_remote_post( $url, [
-            "body" => [
-                "body" => $note,
-                "user_id" => $user_id
-            ]
-        ]);
-    }
 
     public function dt_facebook_log_email( $subject, $text ){
         $email_address = get_option( "dt_facebook_contact_email" );

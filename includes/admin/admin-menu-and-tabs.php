@@ -97,8 +97,6 @@ class DT_Facebook_Menu {
                    class="nav-tab <?php ( $tab == 'general' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'General', 'dt_facebook' ) ?></a>
                 <a href="<?php echo esc_attr( $link ) . 'instructions' ?>"
                    class="nav-tab <?php ( $tab == 'instructions' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Instructions', 'dt_facebook' ) ?></a>
-<!--                <a href="--><?php //echo esc_attr( $link ) . 'second' ?><!--"-->
-<!--                   class="nav-tab --><?php //( $tab == 'second' ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?><!--">--><?php //esc_attr_e( 'Labels', 'dt_facebook' ) ?><!--</a>-->
             </h2>
 
             <?php
@@ -218,99 +216,6 @@ class DT_Facebook_Tab_General {
         <?php
     }
 
-}
-
-/**
- * Class DT_Facebook_Tab_Second
- */
-class DT_Facebook_Tab_Second {
-    public function content() {
-        ?>
-        <div class="wrap">
-            <div id="poststuff">
-                <div id="post-body" class="metabox-holder columns-2">
-                    <div id="post-body-content">
-                        <!-- Main Column -->
-
-                        <?php $this->main_column() ?>
-
-                        <!-- End Main Column -->
-                    </div><!-- end post-body-content -->
-                    <div id="postbox-container-1" class="postbox-container">
-                        <!-- Right Column -->
-
-                        <?php //$this->right_column() ?>
-
-                        <!-- End Right Column -->
-                    </div><!-- postbox-container 1 -->
-                    <div id="postbox-container-2" class="postbox-container">
-                    </div><!-- postbox-container 2 -->
-                </div><!-- post-body meta box container -->
-            </div><!--poststuff end -->
-        </div><!-- wrap end -->
-        <?php
-    }
-
-    public function main_column() {
-        ?>
-        <!-- Box -->
-        <table class="widefat striped">
-            <thead>
-            <tr>
-                <th><?php esc_html_e( "Labels", 'disciple_tools' ) ?></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>
-                    <?php Disciple_Tools_Facebook_Labels::instance()->facebook_labels_page() ?>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        <br>
-        <!-- End Box -->
-        <!-- Box -->
-        <table class="widefat striped">
-            <thead>
-            <tr>
-                <th><?php esc_html_e( "Label Workflows", 'disciple_tools' ) ?></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>
-                    <?php Disciple_Tools_Facebook_Labels::instance()->display_facebook_label_workflows() ?>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        <br>
-        <!-- End Box -->
-        <?php
-    }
-
-    public function right_column() {
-        ?>
-        <!-- Box -->
-        <table class="widefat striped">
-            <thead>
-            <tr>
-                <th><?php esc_html_e( "Information", 'disciple_tools' ) ?></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td>
-                    <?php esc_html_e( "Content", 'disciple_tools' ) ?>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-        <br>
-        <!-- End Box -->
-        <?php
-    }
 }
 
 class DT_Facebook_Tab_Instructions {
