@@ -43,35 +43,11 @@ class Disciple_Tools_Facebook_Tile {
      * @since  0.1.0
      */
     public function __construct() {
-        add_filter( "dt_custom_fields_settings", [ $this, "dt_facebook_fields" ], 1, 2 );
         add_filter( "dt_details_additional_section_ids", [ $this, "dt_facebook_declare_section_id" ], 999, 2 );
         add_action( "dt_details_additional_section", [ $this, "dt_facebook_add_section" ] );
         add_filter( "dt_contact_duplicate_fields_to_check", [ $this, "add_duplicate_check_field" ] );
         add_filter( "dt_comments_additional_sections", [ $this, "add_comment_section" ], 10, 2 );
     } // End __construct()
-
-    public static function dt_facebook_fields( array $fields, string $post_type = "" ) {
-        //check if we are dealing with a contact
-        if ( $post_type === "contacts" ) {
-            //check if the language field is already set
-            if ( !isset( $fields["facebook_data"] ) ) {
-                //define the language field
-                $fields["facebook_data"] = [
-                    "name"    => __( "Facebook Ids", "dt_facebook" ),
-                    "type"    => "array",
-                    "default" => []
-                ];
-            }
-            if ( !isset( $fields["reason_closed"]["default"]["closed_from_facebook"] ) ) {
-                $fields["reason_closed"]["default"]["closed_from_facebook"] = __( "Closed from Facebook", "dt_facebook" );
-            }
-            if ( !isset( $fields["overall_status"]["default"]["from_facebook"] ) ) {
-                $fields["overall_status"]["default"]["from_facebook"] = __( "From Facebook", "dt_facebook" );
-            }
-        }
-        //don't forget to return the update fields array
-        return $fields;
-    }
 
 
     public static function dt_facebook_declare_section_id( $sections, $post_type = "" ) {
