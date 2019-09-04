@@ -691,7 +691,7 @@ class Disciple_Tools_Facebook_Integration {
                 $facebook_data["links"][] = $conversation["link"];
             }
             if ( $facebook_data != $initial_facebook_data ) {
-                Disciple_Tools_Contacts::update_contact( $contact_id, [ "facebook_data" => $facebook_data ], false );
+                Disciple_Tools_Contacts::update_contact( $contact_id, [ "facebook_data" => $facebook_data ], false, true );
             }
             return $contact_id;
         } else if ( !$contact_id ) {
@@ -717,7 +717,7 @@ class Disciple_Tools_Facebook_Integration {
             if ( isset( $page["assign_to"] )){
                 $fields["assigned_to"] = $page["assign_to"];
             }
-            $new_contact_id = Disciple_Tools_Contacts::create_contact( $fields, false );
+            $new_contact_id = Disciple_Tools_Contacts::create_contact( $fields, false, true );
             dt_write_log( "Facebook contact creation failure" );
             dt_write_log( $fields );
             if ( is_wp_error( $new_contact_id ) ){
