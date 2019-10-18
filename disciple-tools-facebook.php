@@ -128,6 +128,7 @@ class DT_Facebook {
         Disciple_Tools_Facebook_Tile::instance();
         require_once( 'includes/facebook-integration.php' );
         Disciple_Tools_Facebook_Integration::instance();
+        require_once( 'includes/metrics/facebook-metrics.php' );
         try {
             new DT_Facebook_Conversation_Update( 3 );
             new DT_Facebook_Stats( 3 );
