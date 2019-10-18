@@ -25,7 +25,7 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
         if ( "metrics/$this->base_slug/$this->slug" === $url_path ) {
             add_action( 'wp_enqueue_scripts', [ $this, 'scripts' ], 99 );
         }
-//        add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
+        add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
     } // End __construct
 
     public function scripts(){
@@ -33,12 +33,14 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
             'moment',
             'jquery',
             'jquery-ui-core',
+            'datepicker',
             'amcharts-core',
             'amcharts-charts',
-        ], filemtime( plugin_dir_path( __FILE__ ) .$this->js_file_name ), true );
+        ], filemtime( plugin_dir_path( __FILE__ ) .$this->js_file_name ) );
 
         wp_localize_script(
             'dt_'.$this->slug.'_script', $this->js_object_name, [
+                'rest_endpoints_base' => esc_url_raw( rest_url() ) . "dt-metrics/$this->base_slug/$this->slug",
                 'name_key' => $this->slug,
                 'root' => esc_url_raw( rest_url() ),
                 'plugin_uri' => plugin_dir_url( __DIR__ ),
@@ -54,10 +56,30 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
                 ],
                 'translations' => [
                     "title" => $this->title,
-                    "Sample API Call" => __( "Sample API Call" )
+                    'all_time' => __( "All time", 'disciple_tools' ),
+                    'filter_to_date_range' => __( "Filter Contact created in date range", 'disciple_tools' )
                 ]
             ]
         );
+    }
+
+    public function add_api_routes() {
+        $namespace = "dt-metrics/$this->base_slug/$this->slug";
+        register_rest_route(
+            $namespace, '/time_to_meeting', [
+                'methods'  => 'GET',
+                'callback' => [ $this, 'time_to_meeting_endpoint' ],
+            ]
+        );
+    }
+
+    public function time_to_meeting_endpoint( WP_REST_Request $request ) {
+        if ( !$this->has_permission() ){
+            return new WP_Error( __FUNCTION__, "Permission required", [ 'status' => 403 ] );
+        }
+        $params = $request->get_params();
+        return $this->time_from_1st_message_to_meeting( $params["start"] ?? 0, $params["end"] ?? 0 );
+
     }
 
 

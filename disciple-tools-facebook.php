@@ -52,7 +52,7 @@ function dt_facebook() {
      */
     require_once( 'includes/dt-hooks.php' );
     $is_rest = dt_is_rest();
-    if ( !$is_rest || strpos( dt_get_url_path(), 'dt_facebook' ) != false ){
+    if ( !$is_rest || strpos( dt_get_url_path(), 'facebook' ) != false ){
         return DT_Facebook::get_instance();
     }
 }
