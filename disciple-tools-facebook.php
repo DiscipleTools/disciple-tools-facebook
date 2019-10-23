@@ -52,7 +52,7 @@ function dt_facebook() {
      */
     require_once( 'includes/dt-hooks.php' );
     $is_rest = dt_is_rest();
-    if ( !$is_rest || strpos( dt_get_url_path(), 'dt_facebook' ) != false ){
+    if ( !$is_rest || strpos( dt_get_url_path(), 'facebook' ) != false ){
         return DT_Facebook::get_instance();
     }
 }
@@ -128,6 +128,7 @@ class DT_Facebook {
         Disciple_Tools_Facebook_Tile::instance();
         require_once( 'includes/facebook-integration.php' );
         Disciple_Tools_Facebook_Integration::instance();
+        require_once( 'includes/metrics/facebook-metrics.php' );
         try {
             new DT_Facebook_Conversation_Update( 3 );
             new DT_Facebook_Stats( 3 );
