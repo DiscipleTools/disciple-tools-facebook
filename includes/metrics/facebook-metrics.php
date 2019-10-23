@@ -1,6 +1,6 @@
 <?php
-if ( file_exists( get_template_directory() . '/dt-metrics/charts-base.php' ) ) {
-    require_once get_template_directory() . '/dt-metrics/charts-base.php';
+if ( file_exists( trailingslashit(get_template_directory() ) . 'dt-metrics/charts-base.php' ) ) {
+    require_once trailingslashit( get_template_directory() ) . 'dt-metrics/charts-base.php';
 } else {
     dt_write_log(get_template_directory() . '/dt-metrics/charts-base.php');
     return;
