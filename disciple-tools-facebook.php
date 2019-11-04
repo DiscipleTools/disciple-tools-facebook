@@ -56,7 +56,7 @@ function dt_facebook() {
         return DT_Facebook::get_instance();
     }
 }
-add_action( 'plugins_loaded', 'dt_facebook' );
+add_action( 'after_setup_theme', 'dt_facebook' );
 
 /**
  * Singleton class for setting up the plugin.
