@@ -1,8 +1,4 @@
 <?php
-if ( ! file_exists( trailingslashit( get_template_directory() ) . 'dt-metrics/charts-base.php' ) ) {
-    exit;
-}
-require_once trailingslashit( get_template_directory() ) . 'dt-metrics/charts-base.php';
 
 /**
  * Class DT_Facebook_Metrics
