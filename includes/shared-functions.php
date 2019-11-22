@@ -32,7 +32,11 @@ function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app
     $meta_query = [
         'relation' => "OR",
     ];
-    $ids = array_merge( $page_scoped_ids, [ $app_scoped_id ] );
+    $ids = $page_scoped_ids;
+    if ( !empty( $app_scoped_id ) ) {
+        $ids = array_merge( $page_scoped_ids, [ $app_scoped_id ] );
+    }
+
     foreach ( $ids as $id ){
         $meta_query[] = [
             'key' => 'facebook_data',
