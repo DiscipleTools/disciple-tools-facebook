@@ -9,6 +9,10 @@ if ( !defined( 'ABSPATH' ) ) {
 
 add_filter( "dt_search_extra_post_meta_fields", "dt_add_fields_in_dt_search" );
 add_filter( "dt_custom_fields_settings", "dt_facebook_fields", 10, 2 );
+if ( ! wp_next_scheduled( 'daily_facebook_cron' ) ) {
+    wp_schedule_event( strtotime( 'today 1am' ), 'daily', 'daily_facebook_cron' );
+}
+add_action( 'daily_facebook_cron', "daily_cron" );
 
 function dt_add_fields_in_dt_search( $fields ){
     $fields[] = "facebook_data";
@@ -38,3 +42,35 @@ function dt_facebook_fields( array $fields, string $post_type = "" ) {
     return $fields;
 }
 
+function daily_cron(){
+    global $wpdb;
+    $facebook_to_close = $wpdb->get_results(  $wpdb->prepare( "
+        SELECT pm.post_id FROM $wpdb->postmeta pm 
+        INNER JOIN $wpdb->postmeta pm1 ON ( pm.post_id = pm1.post_id AND pm1.meta_key = 'last_modified' )
+        WHERE pm.meta_key = 'overall_status' AND pm.meta_value = 'from_facebook'
+        AND pm1.meta_value < %d
+        LIMIT 300
+        ", time() - 24 * 3600 * 90 ), ARRAY_A );
+    $my_id = get_current_user_id();
+    wp_set_current_user( 0 );
+    $current_user = wp_get_current_user();
+    $current_user->display_name = "Facebook Extension";
+    foreach ( $facebook_to_close as $post ){
+        DT_Posts::update_post( "contacts", $post['post_id'], [
+            "overall_status" => 'closed',
+            "reason_closed" => 'no_longer_responding'
+        ], true, false );
+        DT_Posts::add_post_comment( "contacts",
+            $post['post_id'],
+            "This contact was automatically closed due to inactivity.",
+            "comment",
+            [
+                "user_id" => 0,
+                "comment_author" => __( "Facebook Extension", 'disciple_tools' )
+            ],
+            false,
+            true
+        );
+    }
+    wp_set_current_user( $my_id );
+}
