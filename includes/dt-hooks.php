@@ -12,7 +12,7 @@ add_filter( "dt_custom_fields_settings", "dt_facebook_fields", 10, 2 );
 if ( ! wp_next_scheduled( 'daily_facebook_cron' ) ) {
     wp_schedule_event( strtotime( 'today 1am' ), 'daily', 'daily_facebook_cron' );
 }
-add_action( 'daily_facebook_cron', "daily_cron" );
+add_action( 'daily_facebook_cron', "dt_facebook_daily_cron" );
 
 function dt_add_fields_in_dt_search( $fields ){
     $fields[] = "facebook_data";
@@ -42,7 +42,7 @@ function dt_facebook_fields( array $fields, string $post_type = "" ) {
     return $fields;
 }
 
-function daily_cron(){
+function dt_facebook_daily_cron(){
     global $wpdb;
     $months = get_option( "dt_facebook_close_after_months", "3" );
     if ( $months === "0" ){
