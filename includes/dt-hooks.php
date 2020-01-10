@@ -44,13 +44,18 @@ function dt_facebook_fields( array $fields, string $post_type = "" ) {
 
 function daily_cron(){
     global $wpdb;
+    $months = get_option( "dt_facebook_close_after_months", "3" );
+    if ( $months === "0" ){
+        return;
+    }
+
     $facebook_to_close = $wpdb->get_results(  $wpdb->prepare( "
         SELECT pm.post_id FROM $wpdb->postmeta pm 
         INNER JOIN $wpdb->postmeta pm1 ON ( pm.post_id = pm1.post_id AND pm1.meta_key = 'last_modified' )
         WHERE pm.meta_key = 'overall_status' AND pm.meta_value = 'from_facebook'
         AND pm1.meta_value < %d
         LIMIT 300
-        ", time() - 24 * 3600 * 90 ), ARRAY_A );
+    ", time() - 24 * 3600 * ( 30 * (int) $months ) ), ARRAY_A );
     $my_id = get_current_user_id();
     wp_set_current_user( 0 );
     $current_user = wp_get_current_user();

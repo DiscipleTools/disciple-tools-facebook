@@ -204,7 +204,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <tr>
                                     <td><?php esc_html_e( "Save or Refresh", 'dt_facebook' ) ?></td>
                                     <td><button type="submit" class="button" name="save_app" style="padding:3px">
-                                            <img style="height: 100%;" src="<?php echo esc_html( plugin_dir_url( __FILE__ ) . 'assets/flogo_RGB_HEX-72.svg' ) ?>"/>
+                                            <img style="height: 25px" src="<?php echo esc_html( plugin_dir_url( __FILE__ ) . 'assets/flogo_RGB_HEX-72.svg' ) ?>"/>
                                             <span style="vertical-align: top"><?php esc_html_e( "Login with Facebook", 'dt_facebook' ) ?></span></button>
 
                                         <p style="margin-top: 20px"><?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Login with Facebook" button again) if:', 'dt_facebook' ) ?></p>
@@ -232,6 +232,18 @@ class Disciple_Tools_Facebook_Integration {
                                     <td>
                                         <input name="contact_email_address" type="email" value="<?php echo esc_html( get_option( "dt_facebook_contact_email", "" ) ) ?>">
                                         <button class="button" name="save_email" type="submit">Save Email</button>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Close contacts with status "From Facebook" if there is no activity on the contact for a number of months.
+                                        Default: 3 months. Choose 0 for never.
+                                    </td>
+                                    <td>
+                                        Months:
+                                        <input name="close_after_months" type="number"  min="0" style="width: 70px" value="<?php echo esc_html( get_option( "dt_facebook_close_after_months", "3" ) ) ?>">
+                                        <button class="button" name="save_close_after_months" type="submit">Update</button>
 
                                     </td>
                                 </tr>
@@ -355,7 +367,7 @@ class Disciple_Tools_Facebook_Integration {
      * @param $err
      */
     private function display_error( $err ) {
-        $err = 'Facebook Extension error at ' .  date( "Y-m-d h:i:sa" ) . ': ' . $err; ?>
+        $err = 'Facebook Extension error at ' .  gmdate( "Y-m-d h:i:sa" ) . ': ' . $err; ?>
         <div class="notice notice-error is-dismissible">
             <p><?php echo esc_html( $err ); ?></p>
         </div>
@@ -566,6 +578,15 @@ class Disciple_Tools_Facebook_Integration {
                 $email = sanitize_text_field( wp_unslash( $_POST["contact_email_address"] ) );
                 if ( !empty( $email )){
                     update_option( "dt_facebook_contact_email", $email );
+                }
+                if ( isset( $_SERVER["HTTP_REFERER"] )){
+                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
+                    exit;
+                }
+            } elseif ( isset( $_POST["save_close_after_months"], $_POST["close_after_months"] ) ){
+                $months = sanitize_text_field( wp_unslash( $_POST["close_after_months"] ) );
+                if ( isset( $months )){
+                    update_option( "dt_facebook_close_after_months", $months );
                 }
                 if ( isset( $_SERVER["HTTP_REFERER"] )){
                     wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
