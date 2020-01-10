@@ -711,8 +711,12 @@ class Disciple_Tools_Facebook_Integration {
             if ( !in_array( $conversation["link"], $facebook_data["links"] ) ) {
                 $facebook_data["links"][] = $conversation["link"];
             }
+            $update = [ "facebook_data" => $facebook_data ];
+            if ( isset( $contact["overall_status"]["key"], $contact["reason_closed"]["key"] ) && $contact["overall_status"]["key"] === "closed" && $contact["reason_closed"]["key"] === 'no_longer_responding' ){
+                $update["overall_status"] = "from_facebook";
+            }
             if ( $facebook_data != $initial_facebook_data ) {
-                Disciple_Tools_Contacts::update_contact( $contact_id, [ "facebook_data" => $facebook_data ], false, true );
+                Disciple_Tools_Contacts::update_contact( $contact_id, $update, false, true );
             }
             return $contact_id;
         } else if ( !$contact_id ) {
