@@ -897,6 +897,9 @@ class Disciple_Tools_Facebook_Integration {
             foreach ( $messages as  $message ){
                 if ( !in_array( $message["id"], $saved_ids )){
                     $comment = $message["message"];
+                    if ( empty( $comment ) ){
+                        $comment = "[picture, sticker or emoji]";
+                    }
                     $image = "https://graph.facebook.com/" . $message['from']['id'] . "/picture?type=square";
                     Disciple_Tools_Contacts::add_comment( $contact_id, $comment, "facebook", [
                         "user_id" => 0,
