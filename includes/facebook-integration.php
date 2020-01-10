@@ -204,7 +204,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <tr>
                                     <td><?php esc_html_e( "Save or Refresh", 'dt_facebook' ) ?></td>
                                     <td><button type="submit" class="button" name="save_app" style="padding:3px">
-                                            <img style="height: 25px" src="<?php echo esc_html( plugin_dir_url( __FILE__ ) . 'assets/flogo_RGB_HEX-72.svg' ) ?>"/>
+                                            <img style="height: 25px;vertical-align: middle;" src="<?php echo esc_html( plugin_dir_url( __FILE__ ) . 'assets/flogo_RGB_HEX-72.svg' ) ?>"/>
                                             <span style="vertical-align: top"><?php esc_html_e( "Login with Facebook", 'dt_facebook' ) ?></span></button>
 
                                         <p style="margin-top: 20px"><?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Login with Facebook" button again) if:', 'dt_facebook' ) ?></p>
@@ -217,7 +217,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <?php if ( !empty( $access_token ) || !empty( get_option( "dt_facebook_pages", [] ) ) ) :?>
                                 <tr>
                                     <td>
-                                        Completely log out and delete Facebook settings and the page list bellow
+                                        Completely log out and delete Facebook settings and the page list below
                                     </td>
                                     <td>
                                         <button class="button" name="log_out" type="submit">Log out</button>
