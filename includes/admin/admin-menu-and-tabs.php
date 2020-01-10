@@ -334,7 +334,7 @@ class DT_Facebook_Tab_Instructions {
         <br>
         <h1 style="margin-top: 40px"><a id="uptime_robot"></a>4. Set up cron to get contacts every 5 minutes (Recommended)</h1>
         <p>This will make sure Disciple.Tools looks for new contacts every 5 minutes</p>
-        <p>Wordpress will try to do this on it's own, but can sometimes go long periods without checking for updates. Uptime Robot makes sure it the checks happen often.</p>
+        <p>Wordpress will try to do this on it's own, but can sometimes go long periods without checking for updates. Uptime Robot makes sure the checks happen often.</p>
         <ul style="list-style-type: disc; padding-left:40px">
             <li><a href="https://uptimerobot.com/">Sign up for a Uptime Robot Account</a></li>
             <li>Once logged in. Click <strong>Add New Monitor</strong></li>
@@ -392,5 +392,3 @@ class DT_Facebook_Tab_Instructions {
         <?php
     }
 }
-
-
