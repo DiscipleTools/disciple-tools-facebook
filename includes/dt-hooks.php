@@ -30,6 +30,12 @@ function dt_facebook_fields( array $fields, string $post_type = "" ) {
                 "type"    => "array",
                 "default" => []
             ];
+            $fields["last_message_received"] = [
+                "name"    => __( "Last Message", "dt_facebook" ),
+                "type"    => "date",
+                "default" => '',
+                "hidden" => true
+            ];
         }
         if ( !isset( $fields["reason_closed"]["default"]["closed_from_facebook"] ) ) {
             $fields["reason_closed"]["default"]["closed_from_facebook"] = __( "Closed from Facebook", "dt_facebook" );
