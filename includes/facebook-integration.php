@@ -715,7 +715,7 @@ class Disciple_Tools_Facebook_Integration {
             if ( isset( $contact["overall_status"]["key"], $contact["reason_closed"]["key"] ) && $contact["overall_status"]["key"] === "closed" && $contact["reason_closed"]["key"] === 'no_longer_responding' ){
                 $update["overall_status"] = "from_facebook";
             }
-            $update["last_message_received"] = $updated_time;
+            $update["last_message_received"] = strtotime( $updated_time );
             if ( $facebook_data != $initial_facebook_data ) {
                 Disciple_Tools_Contacts::update_contact( $contact_id, $update, false, true );
             }
@@ -739,7 +739,7 @@ class Disciple_Tools_Facebook_Integration {
                     "last_message_at" => $updated_time,
                     "links" => [ $conversation["link"] ]
                 ],
-                "last_message_received" => $updated_time
+                "last_message_received" => strtotime( $updated_time )
             ];
             if ( isset( $page["assign_to"] )){
                 $fields["assigned_to"] = $page["assign_to"];
