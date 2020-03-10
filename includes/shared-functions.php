@@ -13,9 +13,9 @@ if ( !defined( 'ABSPATH' ) ) {
 function dt_facebook_get_object_with_paging( $url, $current_records = [] ) {
     $response = wp_remote_get( $url );
     $more_records = json_decode( $response["body"], true );
-    if ( !isset( $more_records["data"] ) ){
-        //@todo return error
-    }
+//    if ( !isset( $more_records["data"] ) ){
+//        //@todo return error
+//    }
     $current_records = array_map( "unserialize", array_unique( array_map( "serialize", array_merge( $current_records, $more_records["data"] ) ) ) );
 
     if ( !isset( $more_records["paging"] ) || !isset( $more_records["paging"]["next"] ) ) {

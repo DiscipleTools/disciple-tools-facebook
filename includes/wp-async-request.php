@@ -75,8 +75,7 @@ if ( !class_exists( 'Disciple_Tools_Async_Task' ) ) {
          *
          * @param int $auth_level The authentication level to use (see above)
          */
-        public function __construct( $auth_level = self::BOTH )
-        {
+        public function __construct( $auth_level = self::BOTH ) {
             if ( empty( $this->action ) ) {
                 throw new Exception( 'Action not defined for class ' . __CLASS__ );
             }
@@ -95,8 +94,7 @@ if ( !class_exists( 'Disciple_Tools_Async_Task' ) ) {
          *
          * @uses func_get_args() To grab any arguments passed by the action
          */
-        public function launch()
-        {
+        public function launch() {
             $data = func_get_args();
             try {
                 $data = $this->prepare_data( $data );
@@ -128,8 +126,7 @@ if ( !class_exists( 'Disciple_Tools_Async_Task' ) ) {
          * @uses admin_url()
          * @uses wp_remote_post()
          */
-        public function launch_on_shutdown()
-        {
+        public function launch_on_shutdown() {
             if ( !empty( $this->_body_data ) ) {
                 $cookies = [];
                 foreach ( $_COOKIE as $name => $value ) {
@@ -160,8 +157,7 @@ if ( !class_exists( 'Disciple_Tools_Async_Task' ) ) {
          * @uses add_filter()
          * @uses wp_die()
          */
-        public function handle_postback()
-        {
+        public function handle_postback() {
 
             $test = "";
             // @codingStandardsIgnoreLine
@@ -187,8 +183,7 @@ if ( !class_exists( 'Disciple_Tools_Async_Task' ) ) {
          * @uses wp_hash()
          * @return string The one-time use token
          */
-        protected function create_async_nonce()
-        {
+        protected function create_async_nonce() {
             $action = $this->get_nonce_action();
             $i = wp_nonce_tick();
 
@@ -205,8 +200,7 @@ if ( !class_exists( 'Disciple_Tools_Async_Task' ) ) {
          *
          * @return bool Whether the nonce check passed or failed
          */
-        protected function verify_async_nonce( $nonce )
-        {
+        protected function verify_async_nonce( $nonce ) {
             $action = $this->get_nonce_action();
             $i = wp_nonce_tick();
 
@@ -229,8 +223,7 @@ if ( !class_exists( 'Disciple_Tools_Async_Task' ) ) {
          *
          * @return string The nonce action for the current instance
          */
-        protected function get_nonce_action()
-        {
+        protected function get_nonce_action() {
             $action = $this->action;
             if ( substr( $action, 0, 7 ) === 'nopriv_' ) {
                 $action = substr( $action, 7 );

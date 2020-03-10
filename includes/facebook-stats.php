@@ -50,7 +50,7 @@ class Disciple_Tools_Facebook_Reports {
                     //create reports for each day in the month
                     $first_value = $data->data[0]->values[0];
                     $has_value = isset( $first_value->value );
-                    $earliest = date( 'Y-m-d', strtotime( $first_value->end_time ) );
+                    $earliest = gmdate( 'Y-m-d', strtotime( $first_value->end_time ) );
 
                     if ($since <= $earliest && isset( $data->paging->previous ) && $has_value){
                         $next_page = self::get_facebook_insights_with_paging( $data->paging->previous, $since, $page_id );
@@ -75,14 +75,14 @@ class Disciple_Tools_Facebook_Reports {
      *
      */
     public static function get_and_save_stats_data( $date_of_last_record, $facebook_page ) {
-        $date_of_last_record = date( 'Y-m-d', strtotime( $date_of_last_record ) );
-        $since = date( 'Y-m-d', strtotime( '-60 days' ) );
+        $date_of_last_record = gmdate( 'Y-m-d', strtotime( $date_of_last_record ) );
+        $since = gmdate( 'Y-m-d', strtotime( '-60 days' ) );
         if ($date_of_last_record > $since){
             $since = $date_of_last_record;
         }
         if (isset( $facebook_page["rebuild"] ) && $facebook_page["rebuild"] == true){
-            $since = date( 'Y-m-d', strtotime( '-90 days' ) );
-            $date_of_last_record = date( 'Y-m-d', strtotime( '-1 years' ) );
+            $since = gmdate( 'Y-m-d', strtotime( '-90 days' ) );
+            $date_of_last_record = gmdate( 'Y-m-d', strtotime( '-1 years' ) );
         }
         $page_reports = [];
 
@@ -93,7 +93,7 @@ class Disciple_Tools_Facebook_Reports {
             $url .= ",page_engaged_users";
             $url .= ",page_admin_num_posts";
             $url .= "&since=" . $since;
-            $url .= "&until=" . date( 'Y-m-d', strtotime( 'tomorrow' ) );
+            $url .= "&until=" . gmdate( 'Y-m-d', strtotime( 'tomorrow' ) );
             $url .= "&access_token=" . $access_token;
 
             $all_page_data = self::get_facebook_insights_with_paging( $url, $date_of_last_record, $facebook_page["id"] );
@@ -119,7 +119,7 @@ class Disciple_Tools_Facebook_Reports {
             foreach ($month_metrics as $day => $value){
                 array_push(
                     $page_reports, [
-                        'report_date' => date( 'Y-m-d h:m:s', strtotime( $day ) ),
+                        'report_date' => gmdate( 'Y-m-d h:m:s', strtotime( $day ) ),
                         'report_source' => "Facebook",
                         'report_subsource' => $facebook_page["id"],
                         'meta_input' => $value,
@@ -157,17 +157,16 @@ class Disciple_Tools_Facebook_Reports {
      * then loops those days through the Disciple_Tools_Reports_Integrations class. These loops return success or error
      * reports that are then logged to the reports database as a history of update and debugging.
      */
-    public function build_all_facebook_reports_async()
-    {
+    public function build_all_facebook_reports_async() {
         //get the facebook pages and access tokens from the settings
         $facebook_pages = get_option( "dt_facebook_pages", [] );
         foreach ( $facebook_pages as $page_id => $facebook_page ) {
             $last_facebook_report = Disciple_Tools_Reports_API::get_last_record_of_source_and_subsource( 'Facebook', $page_id );
             if ( $last_facebook_report && isset( $last_facebook_report->report_date ) ) {
-                $date_of_last_record = date( 'Y-m-d', strtotime( $last_facebook_report->report_date ) );
+                $date_of_last_record = gmdate( 'Y-m-d', strtotime( $last_facebook_report->report_date ) );
             } else {
                 //set to yesterday to get today's report
-                $date_of_last_record = date( 'Y-m-d', strtotime( '-1 day' ) );
+                $date_of_last_record = gmdate( 'Y-m-d', strtotime( '-1 day' ) );
             }
 
             self::get_and_save_stats_data( $date_of_last_record, $facebook_page );

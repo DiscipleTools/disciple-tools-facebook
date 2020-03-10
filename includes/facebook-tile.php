@@ -103,7 +103,7 @@ class Disciple_Tools_Facebook_Tile {
                 <div class="section-subheader">
                     <?php esc_html_e( "Last message at:", "dt_facebook" ) ?>
                 </div>
-                <p class="last_message_at"><?php echo esc_html( date( "Y-m-d H:m", $date ) ) ?></p>
+                <p class="last_message_at"><?php echo esc_html( gmdate( "Y-m-d H:m", $date ) ) ?></p>
                 <?php
             }
 
