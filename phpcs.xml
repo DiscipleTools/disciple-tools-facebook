@@ -173,6 +173,8 @@
     <!-- <exclude name="WordPress.WhiteSpace.OperatorSpacing.SpacingAfter" /> -->
     <!-- <exclude name="WordPress.WhiteSpace.OperatorSpacing.SpacingBefore" /> -->
     <exclude name="WordPress.VIP.CronInterval.CronSchedulesInterval" />
+    <exclude name="Generic.Arrays.DisallowShortArraySyntax.Found"/>
+    <exclude name="WordPress.PHP.DisallowShortTernary.Found"/>
   </rule>
 
   <!-- Keeping these ones: -->

@@ -36,11 +36,12 @@ function dt_facebook() {
      * Check if the Disciple.Tools theme is loaded and is the latest required version
      */
     $is_theme_dt = strpos( $wp_theme->get_template(), "disciple-tools-theme" ) !== false || $wp_theme->name === "Disciple Tools";
-    if ( !$is_theme_dt || version_compare( $version, $dt_facebook_required_dt_theme_version, "<" ) ) {
-        if ( ! is_multisite() ) {
-            add_action( 'admin_notices', 'dt_facebook_hook_admin_notice' );
-            add_action( 'wp_ajax_dismissed_notice_handler', 'dt_hook_ajax_notice_handler' );
-        }
+    if ( $is_theme_dt && version_compare( $version, $dt_facebook_required_dt_theme_version, "<" ) ) {
+        add_action( 'admin_notices', 'dt_facebook_hook_admin_notice' );
+        add_action( 'wp_ajax_dismissed_notice_handler', 'dt_hook_ajax_notice_handler' );
+        return false;
+    }
+    if ( !$is_theme_dt ){
         return false;
     }
     /**
@@ -55,7 +56,7 @@ function dt_facebook() {
      */
     require_once( 'includes/dt-hooks.php' );
     $is_rest = dt_is_rest();
-    if ( !$is_rest || strpos( dt_get_url_path(), 'facebook' ) != false ){
+    if ( !$is_rest || strpos( dt_get_url_path(), 'facebook' ) !== false ){
         return DT_Facebook::get_instance();
     }
 }
