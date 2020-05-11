@@ -55,7 +55,7 @@ jQuery(document).ready(function() {
 
     // this makes the data to be grouped
     dateAxis.groupData = true;
-    dateAxis.groupCount = 500;
+    // dateAxis.groupCount = 500;
 
     let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     valueAxis.title.text = "Number of messages"
@@ -66,6 +66,7 @@ jQuery(document).ready(function() {
     series.tooltipText = "{valueY}";
     series.tooltip.pointerOrientation = "vertical";
     series.tooltip.background.fillOpacity = 0.5;
+    series.groupFields.valueY = "sum"
 
     series.connect = false;
     let bullet = series.bullets.push(new am4charts.CircleBullet());
@@ -101,7 +102,7 @@ jQuery(document).ready(function() {
 
     // this makes the data to be grouped
     dateAxis.groupData = true;
-    dateAxis.groupCount = 500;
+    // dateAxis.groupCount = 500;
 
     let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     valueAxis.title.text = "Number of contacts"
@@ -112,6 +113,7 @@ jQuery(document).ready(function() {
     series.tooltipText = "{valueY}";
     series.tooltip.pointerOrientation = "vertical";
     series.tooltip.background.fillOpacity = 0.5;
+    series.groupFields.valueY = "sum"
 
     series.connect = false;
     let bullet = series.bullets.push(new am4charts.CircleBullet());
@@ -147,7 +149,7 @@ jQuery(document).ready(function() {
 
     // this makes the data to be grouped
     dateAxis.groupData = true;
-    dateAxis.groupCount = 500;
+    // dateAxis.groupCount = 500;
 
     let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     valueAxis.title.text = "Number of assignments"
@@ -158,6 +160,7 @@ jQuery(document).ready(function() {
     series.tooltipText = "{valueY}";
     series.tooltip.pointerOrientation = "vertical";
     series.tooltip.background.fillOpacity = 0.5;
+    series.groupFields.valueY = "sum"
 
     series.connect = false;
     let bullet = series.bullets.push(new am4charts.CircleBullet());
@@ -193,7 +196,7 @@ jQuery(document).ready(function() {
 
     // this makes the data to be grouped
     dateAxis.groupData = true;
-    dateAxis.groupCount = 500;
+    // dateAxis.groupCount = 500;
 
     let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     valueAxis.title.text = "Number of meetings"
@@ -204,6 +207,7 @@ jQuery(document).ready(function() {
     series.tooltipText = "{valueY}";
     series.tooltip.pointerOrientation = "vertical";
     series.tooltip.background.fillOpacity = 0.5;
+    series.groupFields.valueY = "sum"
 
     series.connect = false;
     let bullet = series.bullets.push(new am4charts.CircleBullet());
