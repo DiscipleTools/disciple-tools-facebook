@@ -55,7 +55,7 @@ jQuery(document).ready(function() {
 
     // this makes the data to be grouped
     dateAxis.groupData = true;
-    // dateAxis.groupCount = 500;
+    dateAxis.groupCount = 500;
 
     let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     valueAxis.title.text = "Number of messages"
@@ -102,7 +102,7 @@ jQuery(document).ready(function() {
 
     // this makes the data to be grouped
     dateAxis.groupData = true;
-    // dateAxis.groupCount = 500;
+    dateAxis.groupCount = 500;
 
     let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     valueAxis.title.text = "Number of contacts"
@@ -149,7 +149,7 @@ jQuery(document).ready(function() {
 
     // this makes the data to be grouped
     dateAxis.groupData = true;
-    // dateAxis.groupCount = 500;
+    dateAxis.groupCount = 500;
 
     let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     valueAxis.title.text = "Number of assignments"
@@ -196,7 +196,7 @@ jQuery(document).ready(function() {
 
     // this makes the data to be grouped
     dateAxis.groupData = true;
-    // dateAxis.groupCount = 500;
+    dateAxis.groupCount = 500;
 
     let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
     valueAxis.title.text = "Number of meetings"
