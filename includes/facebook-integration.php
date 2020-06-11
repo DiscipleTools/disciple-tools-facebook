@@ -35,7 +35,7 @@ class Disciple_Tools_Facebook_Integration {
     private $version = 1.0;
     private $context = "dt_facebook";
     private $namespace;
-    private $facebook_api_version = '3.3';
+    private $facebook_api_version = '7.0';
 
     /**
      * Constructor function.
@@ -560,7 +560,7 @@ class Disciple_Tools_Facebook_Integration {
                 $url = "https://facebook.com/v" . $this->facebook_api_version . "/dialog/oauth";
                 $url .= "?client_id=" . sanitize_key( $_POST["app_id"] );
                 $url .= "&redirect_uri=" . $this->get_rest_url() . "/auth";
-                $url .= "&scope=public_profile,read_insights,pages_messaging,manage_pages,read_page_mailboxes,business_management";
+                $url .= "&scope=public_profile,read_insights,pages_messaging,pages_show_list,pages_read_engagement,pages_manage_metadata,read_page_mailboxes,business_management";
                 $url .= "&state=" . $this->authorize_secret();
 
                 wp_redirect( $url );
