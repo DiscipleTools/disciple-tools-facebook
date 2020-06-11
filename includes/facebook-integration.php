@@ -82,13 +82,13 @@ class Disciple_Tools_Facebook_Integration {
             ]
         );
         register_rest_route(
-            $this->namespace ."/dt-public/", "cron", [
+            $this->namespace ."/dt-public", "cron", [
                 'methods'  => "GET",
                 'callback' => [ $this, 'cron_hook' ],
             ]
         );
         register_rest_route(
-            $this->namespace ."/dt-public/", "cron", [
+            $this->namespace ."/dt-public", "cron", [
                 'methods'  => "POST",
                 'callback' => [ $this, 'cron_hook' ],
             ]
