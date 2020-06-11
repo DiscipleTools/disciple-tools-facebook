@@ -62,7 +62,7 @@ class Disciple_Tools_Facebook_Integration {
      */
     public function add_api_routes() {
         register_rest_route(
-            $this->namespace . "/dt-public/",
+            $this->namespace . "/dt-public",
             'webhook',
             [
                 'methods'  => 'POST',
