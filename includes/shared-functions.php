@@ -29,29 +29,28 @@ function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app
     if ( sizeof( $page_scoped_ids ) === 0 && ( empty( $app_scoped_id ) || empty( $app_id ) ) ){
         return [];
     }
-    $meta_query = [
-        'relation' => "OR",
-    ];
+    $meta_query = "";
     $ids = $page_scoped_ids;
     if ( !empty( $app_scoped_id ) ) {
         $ids = array_merge( $page_scoped_ids, [ $app_scoped_id ] );
     }
 
+    global $wpdb;
     foreach ( $ids as $id ){
-        $meta_query[] = [
-            'key' => 'facebook_data',
-            'value' => $id,
-            'compare' => 'LIKE'
-        ];
+        $meta_query .= empty( $meta_query ) ? '' : ' OR ';
+        $meta_query .= "( meta_key = 'facebook_data' AND meta_value LIKE '%" . esc_sql( $id ) . "%' )";
     }
-    $query = new WP_Query(
-        [
-            'post_type'  => 'contacts',
-            'meta_query' => $meta_query
-        ]
-    );
 
-    $posts = $query->get_posts();
+    //phpcs:disable
+    // WordPress.WP.PreparedSQL.NotPrepare
+    $posts = $wpdb->get_results( "
+        SELECT ID 
+        FROM $wpdb->posts
+        INNER JOIN $wpdb->postmeta pm ON ( pm.post_id = ID )
+        WHERE post_type = 'contacts'
+        AND ( $meta_query )
+    ", OBJECT );
+    //phpcs:enable
     $matching = [];
     $matching_ids = [];
     foreach ( $posts as $post ) {

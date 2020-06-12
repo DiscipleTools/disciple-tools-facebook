@@ -623,6 +623,7 @@ class Disciple_Tools_Facebook_Integration {
         $ids_for_pages_uri = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$used_id?fields=name,ids_for_pages&access_token=$access_token&appsecret_proof=$app_secret_proof";
         $response          = wp_remote_get( $ids_for_pages_uri );
         if ( is_wp_error( $response ) ){
+            $this->display_error( $response->get_error_message() );
             dt_write_log( $response );
             return [];
         }
@@ -654,6 +655,10 @@ class Disciple_Tools_Facebook_Integration {
         $page_scoped_ids = [];
 
         $app_id = get_option( "disciple_tools_facebook_app_id", null );
+        if ( empty( $app_id ) ){
+            $this->display_error( "missing app_id" );
+            return new WP_Error( "app_id", "missing app_id" );
+        }
 
         $contacts = dt_facebook_find_contacts_with_ids( $page_scoped_ids, $participant["id"], $app_id );
 
@@ -757,6 +762,7 @@ class Disciple_Tools_Facebook_Integration {
             dt_write_log( "Facebook contact creation failure" );
             dt_write_log( $fields );
             if ( is_wp_error( $new_contact_id ) ){
+                $this->display_error( $new_contact_id->get_error_message() );
                 $this->dt_facebook_log_email( "Creating a contact failed", "The Facebook integration was not able to create a contact from Facebook. If this persists, please contact support." );
             }
             return $new_contact_id;
