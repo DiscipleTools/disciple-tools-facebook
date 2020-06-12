@@ -97,6 +97,8 @@ class DT_Facebook_Menu {
                    class="nav-tab <?php ( $tab == 'general' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'General', 'dt_facebook' ) ?></a>
                 <a href="<?php echo esc_attr( $link ) . 'instructions' ?>"
                    class="nav-tab <?php ( $tab == 'instructions' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Instructions', 'dt_facebook' ) ?></a>
+                <a href="<?php echo esc_attr( $link ) . 'log' ?>"
+                   class="nav-tab <?php ( $tab == 'log' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Log', 'dt_facebook' ) ?></a>
             </h2>
 
             <?php
@@ -109,8 +111,8 @@ class DT_Facebook_Menu {
                     $object = new DT_Facebook_Tab_Instructions();
                     $object->content();
                     break;
-                case "second":
-                    $object = new DT_Facebook_Tab_Second();
+                case "log":
+                    $object = new DT_Facebook_Tab_Log();
                     $object->content();
                     break;
                 default:
@@ -187,6 +189,85 @@ class DT_Facebook_Tab_General {
                     <?php Disciple_Tools_Facebook_Integration::instance()->facebook_settings_page() ?>
                 </td>
             </tr>
+            </tbody>
+        </table>
+        <br>
+        <!-- End Box -->
+        <?php
+    }
+
+    public function right_column() {
+        ?>
+        <!-- Box -->
+        <table class="widefat striped">
+            <thead>
+            <tr>
+                <th><?php esc_html_e( "Information", 'disciple_tools' ) ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <?php esc_html_e( "Content", 'disciple_tools' ) ?>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br>
+        <!-- End Box -->
+        <?php
+    }
+
+}
+
+class DT_Facebook_Tab_Log {
+    public function content() {
+        ?>
+        <div class="wrap">
+            <div id="poststuff">
+                <div id="post-body" class="metabox-holder columns-2">
+                    <div id="post-body-content">
+                        <!-- Main Column -->
+
+                        <?php $this->main_column() ?>
+
+                        <!-- End Main Column -->
+                    </div><!-- end post-body-content -->
+                    <div id="postbox-container-1" class="postbox-container">
+                        <!-- Right Column -->
+
+                        <?php //$this->right_column() ?>
+
+                        <!-- End Right Column -->
+                    </div><!-- postbox-container 1 -->
+                    <div id="postbox-container-2" class="postbox-container">
+                    </div><!-- postbox-container 2 -->
+                </div><!-- post-body meta box container -->
+            </div><!--poststuff end -->
+        </div><!-- wrap end -->
+        <?php
+    }
+
+    public function main_column() {
+        ?>
+        <!-- Box -->
+
+
+        <table class="widefat striped">
+            <thead>
+            <tr>
+                <th><?php esc_html_e( "Recent Error Logs", 'disciple_tools' ) ?></th>
+            </tr>
+            </thead>
+            <tbody>
+                <?php $log = array_reverse( get_option( "dt_facebook_error_logs", [] ) );
+                foreach ( $log as $l ): ?>
+                <tr>
+                    <td>
+                        <?php echo esc_html( dt_format_date( $l["time"] ) . ': ' . $l["message"] ); ?>
+                    </td>
+                </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
         <br>

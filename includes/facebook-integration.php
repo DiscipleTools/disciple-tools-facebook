@@ -35,7 +35,7 @@ class Disciple_Tools_Facebook_Integration {
     private $version = 1.0;
     private $context = "dt_facebook";
     private $namespace;
-    private $facebook_api_version = '3.3';
+    private $facebook_api_version = '7.0';
 
     /**
      * Constructor function.
@@ -62,7 +62,7 @@ class Disciple_Tools_Facebook_Integration {
      */
     public function add_api_routes() {
         register_rest_route(
-            $this->namespace . "/dt-public/",
+            $this->namespace . "/dt-public",
             'webhook',
             [
                 'methods'  => 'POST',
@@ -82,13 +82,13 @@ class Disciple_Tools_Facebook_Integration {
             ]
         );
         register_rest_route(
-            $this->namespace ."/dt-public/", "cron", [
+            $this->namespace ."/dt-public", "cron", [
                 'methods'  => "GET",
                 'callback' => [ $this, 'cron_hook' ],
             ]
         );
         register_rest_route(
-            $this->namespace ."/dt-public/", "cron", [
+            $this->namespace ."/dt-public", "cron", [
                 'methods'  => "POST",
                 'callback' => [ $this, 'cron_hook' ],
             ]
@@ -373,7 +373,16 @@ class Disciple_Tools_Facebook_Integration {
         </div>
         <?php
         dt_write_log( $err );
-        update_option( 'dt_facebook_error', $err );
+//        update_option( 'dt_facebook_error', $err );
+        $log = get_option( "dt_facebook_error_logs", [] );
+        $log[] = [
+            "time" => time(),
+            "message" => $err,
+        ];
+        if ( sizeof( $log ) > 50 ){
+            array_shift( $log );
+        }
+        update_option( "dt_facebook_error_logs", $log );
     }
 
     /**
@@ -560,7 +569,7 @@ class Disciple_Tools_Facebook_Integration {
                 $url = "https://facebook.com/v" . $this->facebook_api_version . "/dialog/oauth";
                 $url .= "?client_id=" . sanitize_key( $_POST["app_id"] );
                 $url .= "&redirect_uri=" . $this->get_rest_url() . "/auth";
-                $url .= "&scope=public_profile,read_insights,pages_messaging,manage_pages,read_page_mailboxes,business_management";
+                $url .= "&scope=public_profile,read_insights,pages_messaging,pages_show_list,pages_read_engagement,pages_manage_metadata,read_page_mailboxes,business_management";
                 $url .= "&state=" . $this->authorize_secret();
 
                 wp_redirect( $url );
@@ -614,6 +623,7 @@ class Disciple_Tools_Facebook_Integration {
         $ids_for_pages_uri = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$used_id?fields=name,ids_for_pages&access_token=$access_token&appsecret_proof=$app_secret_proof";
         $response          = wp_remote_get( $ids_for_pages_uri );
         if ( is_wp_error( $response ) ){
+            $this->display_error( $response->get_error_message() );
             dt_write_log( $response );
             return [];
         }
@@ -645,6 +655,10 @@ class Disciple_Tools_Facebook_Integration {
         $page_scoped_ids = [];
 
         $app_id = get_option( "disciple_tools_facebook_app_id", null );
+        if ( empty( $app_id ) ){
+            $this->display_error( "missing app_id" );
+            return new WP_Error( "app_id", "missing app_id" );
+        }
 
         $contacts = dt_facebook_find_contacts_with_ids( $page_scoped_ids, $participant["id"], $app_id );
 
@@ -748,6 +762,7 @@ class Disciple_Tools_Facebook_Integration {
             dt_write_log( "Facebook contact creation failure" );
             dt_write_log( $fields );
             if ( is_wp_error( $new_contact_id ) ){
+                $this->display_error( $new_contact_id->get_error_message() );
                 $this->dt_facebook_log_email( "Creating a contact failed", "The Facebook integration was not able to create a contact from Facebook. If this persists, please contact support." );
             }
             return $new_contact_id;
@@ -785,6 +800,7 @@ class Disciple_Tools_Facebook_Integration {
                 dt_write_log( $conversations_page );
                 $dt_facebook_log_settings = get_option( "dt_facebook_log_settings", [] );
                 $last_email = $dt_facebook_log_settings["last_email"] ?? 0;
+                $this->display_error( "Conversations page: " . $conversations_page["error"]["message"] );
                 if ( isset( $conversations_page["error"]["code"] ) && $conversations_page["error"]["code"] == 190 ){
                     $message = "Hey, \nThe Facebook integration is no longer authorized with Facebook. Please click 'Login with Facebook' to fix the issue or 'Log out' to stop getting this email: \n";
                     $message .= admin_url( 'admin.php?page=dt_facebook', 'https' );
