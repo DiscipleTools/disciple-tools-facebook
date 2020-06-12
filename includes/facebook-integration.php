@@ -373,7 +373,16 @@ class Disciple_Tools_Facebook_Integration {
         </div>
         <?php
         dt_write_log( $err );
-        update_option( 'dt_facebook_error', $err );
+//        update_option( 'dt_facebook_error', $err );
+        $log = get_option( "dt_facebook_error_logs", [] );
+        $log[] = [
+            "time" => time(),
+            "message" => $err,
+        ];
+        if ( sizeof( $log ) > 50 ){
+            array_shift( $log );
+        }
+        update_option( "dt_facebook_error_logs", $log );
     }
 
     /**
@@ -785,6 +794,7 @@ class Disciple_Tools_Facebook_Integration {
                 dt_write_log( $conversations_page );
                 $dt_facebook_log_settings = get_option( "dt_facebook_log_settings", [] );
                 $last_email = $dt_facebook_log_settings["last_email"] ?? 0;
+                $this->display_error( "Conversations page: " . $conversations_page["error"]["message"] );
                 if ( isset( $conversations_page["error"]["code"] ) && $conversations_page["error"]["code"] == 190 ){
                     $message = "Hey, \nThe Facebook integration is no longer authorized with Facebook. Please click 'Login with Facebook' to fix the issue or 'Log out' to stop getting this email: \n";
                     $message .= admin_url( 'admin.php?page=dt_facebook', 'https' );
