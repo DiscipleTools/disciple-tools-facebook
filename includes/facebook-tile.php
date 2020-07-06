@@ -81,6 +81,9 @@ class Disciple_Tools_Facebook_Tile {
                 $facebook_data = maybe_unserialize( $contact["facebook_data"] );
             }
             ?>
+            <div class="section-header">
+                <?php esc_html_e( 'Facebook', 'dt_facebook' )?>
+            </div>
 
             <?php
             if ( isset( $facebook_data["names"] ) ) {
