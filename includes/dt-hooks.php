@@ -13,6 +13,7 @@ if ( ! wp_next_scheduled( 'daily_facebook_cron' ) ) {
     wp_schedule_event( strtotime( 'today 1am' ), 'daily', 'daily_facebook_cron' );
 }
 add_action( 'daily_facebook_cron', "dt_facebook_daily_cron" );
+add_filter( "dt_record_picture", "fb_dt_record_picture", 10, 3 );
 
 function dt_add_fields_in_dt_search( $fields ){
     $fields[] = "facebook_data";
@@ -84,4 +85,15 @@ function dt_facebook_daily_cron(){
         );
     }
     wp_set_current_user( $my_id );
+}
+
+function fb_dt_record_picture( $picture, $post_type, $contact_id ){
+    if ( $post_type === "contacts" ){
+        $post = DT_Posts::get_post( $post_type, $contact_id );
+        if ( isset( $post["facebook_data"]["app_scoped_ids"] ) && !empty( $post["facebook_data"]["app_scoped_ids"] ) ) {
+            $image_id = $post["facebook_data"]["app_scoped_ids"][array_key_first( $post["facebook_data"]["app_scoped_ids"] )];
+            $picture = "https://graph.facebook.com/$image_id/picture?type=square";
+        }
+    }
+    return $picture;
 }
