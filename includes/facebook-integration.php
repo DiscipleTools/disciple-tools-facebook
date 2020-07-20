@@ -770,6 +770,33 @@ class Disciple_Tools_Facebook_Integration {
     }
 
 
+    public function get_participant_profile_pic( $user_id, $facebook_data, $contact_id, $page_id = null ){
+        $facebook_pages = get_option( "dt_facebook_pages", [] );
+        if ( isset( $facebook_data["profile_pic"] ) ) {
+            return $facebook_data["profile_pic"];
+        }
+
+        $page_id = $page_id ?: $facebook_data["page_ids"][0];
+        $page = $facebook_pages[ $page_id ];
+        $access_token = $page['access_token'];
+        $url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$user_id/picture?redirect=0&access_token=$access_token";
+        $request = wp_remote_get( $url );
+
+        if ( is_wp_error( $request ) ) {
+            return false;
+        } else {
+            $body_json = wp_remote_retrieve_body( $request );
+            $body = json_decode( $body_json, true );
+            if ( isset( $body["data"]["url"] ) ) {
+                $facebook_data["profile_pic"] = $body["data"]["url"];
+                update_post_meta( $contact_id, "facebook_data", $facebook_data );
+                return $body["data"]["url"];
+            } else {
+                return false;
+            }
+        }
+    }
+
     public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0, $limit_to_one = false ) {
         $conversations_request = wp_remote_get( $url, [ "timeout" => 15 ] );
         if ( !is_wp_error( $conversations_request ) ) {
@@ -876,7 +903,7 @@ class Disciple_Tools_Facebook_Integration {
                             $facebook_pages = get_option( "dt_facebook_pages", [] );
                             $facebook_pages[$id]["last_contact_id"] = $contact_id;
                             update_option( "dt_facebook_pages", $facebook_pages );
-                            $this->update_facebook_messages_on_contact( $contact_id, $conversation );
+                            $this->update_facebook_messages_on_contact( $contact_id, $conversation, $participant["id"] );
                         }
                     }
                 }
@@ -900,7 +927,7 @@ class Disciple_Tools_Facebook_Integration {
     }
 
 
-    public function update_facebook_messages_on_contact( $contact_id, $conversation ){
+    public function update_facebook_messages_on_contact( $contact_id, $conversation, $participant_id ){
         $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
         $message_count = $conversation["message_count"];
         $number_of_messages = sizeof( $conversation["messages"]["data"] );
@@ -918,7 +945,16 @@ class Disciple_Tools_Facebook_Integration {
                     if ( empty( $comment ) ){
                         $comment = "[picture, sticker or emoji]";
                     }
-                    $image = "https://graph.facebook.com/" . $message['from']['id'] . "/picture?type=square";
+                    if ( $participant_id == $message["from"]["id"] ){
+                        //is the contact
+                        if ( !isset( $facebook_data["profile_pic"] ) ){
+                            $facebook_data["profile_pic"] = $this->get_participant_profile_pic( $participant_id, $facebook_data, $contact_id );
+                        }
+                        $image = $facebook_data["profile_pic"] !== false ? $facebook_data["profile_pic"] : "";
+                    } else {
+                        //is the page
+                        $image = "https://graph.facebook.com/" . $message['from']['id'] . "/picture?type=square";
+                    }
                     Disciple_Tools_Contacts::add_comment( $contact_id, $comment, "facebook", [
                         "user_id" => 0,
                         "comment_author" => $message["from"]["name"],

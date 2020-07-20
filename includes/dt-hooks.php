@@ -90,9 +90,18 @@ function dt_facebook_daily_cron(){
 function fb_dt_record_picture( $picture, $post_type, $contact_id ){
     if ( $post_type === "contacts" ){
         $post = DT_Posts::get_post( $post_type, $contact_id );
-        if ( isset( $post["facebook_data"]["app_scoped_ids"] ) && !empty( $post["facebook_data"]["app_scoped_ids"] ) ) {
-            $image_id = $post["facebook_data"]["app_scoped_ids"][array_key_first( $post["facebook_data"]["app_scoped_ids"] )];
-            $picture = "https://graph.facebook.com/$image_id/picture?type=square";
+        if ( isset( $post["facebook_data"]["profile_pic"] ) ){
+            if ( $post["facebook_data"]["profile_pic"] === false ){
+                return $picture;
+            } else {
+                $picture = $post["facebook_data"]["profile_pic"];
+            }
+        } elseif ( isset( $post["facebook_data"]["page_scoped_ids"] ) && !empty( $post["facebook_data"]["page_scoped_ids"] ) ) {
+            $facebook_id = $post["facebook_data"]["page_scoped_ids"][0];
+            $profile_pic = Disciple_Tools_Facebook_Integration::instance()->get_participant_profile_pic( $facebook_id, $post["facebook_data"], $contact_id );
+            if ( !empty( $profile_pic ) ){
+                $picture = $profile_pic;
+            }
         }
     }
     return $picture;
