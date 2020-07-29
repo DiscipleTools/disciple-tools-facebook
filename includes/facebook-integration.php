@@ -825,16 +825,18 @@ class Disciple_Tools_Facebook_Integration {
                 }
             } else {
                 dt_write_log( $conversations_page );
-                $dt_facebook_log_settings = get_option( "dt_facebook_log_settings", [] );
-                $last_email = $dt_facebook_log_settings["last_email"] ?? 0;
                 $this->display_error( "Conversations page: " . $conversations_page["error"]["message"] );
                 if ( isset( $conversations_page["error"]["code"] ) && $conversations_page["error"]["code"] == 190 ){
+                    // this error sometimes triggers even if all is ok.
                     $message = "Hey, \nThe Facebook integration is no longer authorized with Facebook. Please click 'Login with Facebook' to fix the issue or 'Log out' to stop getting this email: \n";
-                    $message .= admin_url( 'admin.php?page=dt_facebook', 'https' );
-                    if ( $last_email < ( time() - 60 * 60 * 6 ) ){ // limit to one email every 6 hours.
-                        $this->dt_facebook_log_email( "Facebook Integration Error", $message );
-                        $dt_facebook_log_settings["last_email"] = time();
-                    }
+//                    $dt_facebook_log_settings = get_option( "dt_facebook_log_settings", [] );
+//                    $last_email = $dt_facebook_log_settings["last_email"] ?? 0;
+//                    $message .= admin_url( 'admin.php?page=dt_facebook', 'https' );
+//                    if ( $last_email < ( time() - 60 * 60 * 6 ) ){ // limit to one email every 6 hours.
+//                        $this->dt_facebook_log_email( "Facebook Integration Error", $message );
+//                        $dt_facebook_log_settings["last_email"] = time();
+//                        update_option( "dt_facebook_log_settings", $dt_facebook_log_settings );
+//                    }
                 } elseif ( isset( $conversations_page["error"]["code"] ) ){
                     $this->display_error( "Conversations page: " . $conversations_page["error"]["message"] );
                     if ( !$conversations_page["error"]["code"] === 283 ){
@@ -843,7 +845,6 @@ class Disciple_Tools_Facebook_Integration {
                         dt_send_email( "dev@disciple.tools", "Facebook plugin error", get_site_url() . ' ' . serialize( $conversations_page["error"] ) );
                     }
                 }
-                update_option( "dt_facebook_log_settings", $dt_facebook_log_settings );
             }
         } else {
             dt_write_log( $conversations_request );
