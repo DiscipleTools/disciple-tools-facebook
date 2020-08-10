@@ -777,6 +777,9 @@ class Disciple_Tools_Facebook_Integration {
         }
 
         $page_id = $page_id ?: $facebook_data["page_ids"][0];
+        if ( ! isset( $facebook_pages[ $page_id ] )){
+            return false;
+        }
         $page = $facebook_pages[ $page_id ];
         $access_token = $page['access_token'];
         $url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$user_id/picture?redirect=0&access_token=$access_token";
