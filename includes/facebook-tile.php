@@ -52,7 +52,7 @@ class Disciple_Tools_Facebook_Tile {
 
     public static function dt_facebook_declare_section_id( $sections, $post_type = "" ) {
         //check if we are on a contact
-        if ( $post_type === "contacts" ) {
+        if ( $post_type === "contacts" && is_singular( $post_type ) ){
             $contact_fields = Disciple_Tools_Contact_Post_Type::instance()->get_custom_fields_settings();
             //check if the language field is set
 
