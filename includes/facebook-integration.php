@@ -50,9 +50,8 @@ class Disciple_Tools_Facebook_Integration {
         add_action( 'wp_ajax_dt-facebook-notice-dismiss', [ $this, 'dismiss_error' ] );
         add_action( "dt_async_dt_conversation_update", [ $this, "get_conversation_update" ], 10, 2 );
         add_action( "dt_async_dt_facebook_all_conversations", [ $this, "get_conversations_with_pagination" ], 10, 4 );
-
-        add_filter( 'cron_schedules', [ $this, 'my_cron_schedules' ] );
         add_action( 'updated_recent_conversations', [ $this, 'get_recent_conversations' ] );
+
     } // End __construct()
 
     /**
@@ -125,22 +124,24 @@ class Disciple_Tools_Facebook_Integration {
         update_option( 'dt_facebook_error', "" );
     }
 
-    public function my_cron_schedules( $schedules ) {
-        if ( !isset( $schedules["5min"] ) ) {
-            $schedules["5min"] = array(
-                'interval' => 5 * 60,
-                'display'  => __( 'Once every 5 minutes' )
-            );
-        }
-        return $schedules;
-    }
-
     /**
      * Render the Facebook Settings Page
      */
     public function facebook_settings_page() {
 
         $access_token = get_option( "disciple_tools_facebook_access_token", "" );
+
+        // make sure cron is running if a page is set to sync
+        $facebook_pages = get_option( "dt_facebook_pages", [] );
+        $sync_enabled = false;
+        foreach ( $facebook_pages as $id => $facebook_page ){
+            if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && !empty( $facebook_page["access_token"] ) ){
+                $sync_enabled = true;
+            }
+        }
+        if ( $sync_enabled && !wp_next_scheduled( 'updated_recent_conversations' )){
+            wp_schedule_event( time(), '5min', 'updated_recent_conversations' );
+        }
 
         ?>
         <p> This Facebook integration will provide a link between your Facebook pages and Disciple.Tools</p>
@@ -210,7 +211,7 @@ class Disciple_Tools_Facebook_Integration {
                                         <p style="margin-top: 20px"><?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Login with Facebook" button again) if:', 'dt_facebook' ) ?></p>
                                         <ul style="list-style-type: disc; padding-left:40px">
                                             <li><?php esc_html_e( "You change your Facebook account password", 'dt_facebook' ) ?></li>
-                                            <li><?php esc_html_e( "You delete or de­authorize your Facebook App", 'dt_facebook' ) ?></li>
+                                            <li><?php esc_html_e( "You delete or de-authorize your Facebook App", 'dt_facebook' ) ?></li>
                                         </ul>
                                     </td>
                                 </tr>
@@ -244,6 +245,22 @@ class Disciple_Tools_Facebook_Integration {
                                         Months:
                                         <input name="close_after_months" type="number"  min="0" style="width: 70px" value="<?php echo esc_html( get_option( "dt_facebook_close_after_months", "3" ) ) ?>">
                                         <button class="button" name="save_close_after_months" type="submit">Update</button>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <?php $disable_wp_cron = get_option( 'dt_facebook_disable_cron', false ); ?>
+                                    <td>
+                                        Disable getting updates with the wordpress scheduler.
+                                        <br>Check if using the 'wp-json/dt_facebook/v1/dt-public/cron' endpoint with service like "Uptime Robot".
+                                        <br>And if you are getting duplicate contacts or comments from Facebook
+                                    </td>
+                                    <td>
+                                        <label>
+                                            <input type="checkbox" name="dt_facebook_disable_cron" value="<?php echo esc_html( $disable_wp_cron ); ?>" <?php checked( $disable_wp_cron ) ?> />
+                                            Disable wp-cron for Facebook
+                                        </label>
+                                       <button class="button" name="save_disable_cron" type="submit">Update</button>
 
                                     </td>
                                 </tr>
@@ -601,6 +618,16 @@ class Disciple_Tools_Facebook_Integration {
                     wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
                     exit;
                 }
+            } elseif ( isset( $_POST["save_disable_cron"] ) ){
+                if ( isset( $_POST["dt_facebook_disable_cron"] ) ){
+                    update_option( "dt_facebook_disable_cron", true );
+                } else {
+                    update_option( "dt_facebook_disable_cron", false );
+                }
+                if ( isset( $_SERVER["HTTP_REFERER"] )){
+                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
+                    exit;
+                }
             }
         }
     }
@@ -878,6 +905,11 @@ class Disciple_Tools_Facebook_Integration {
 
     public function get_recent_conversations( $page_id = null ){
         $facebook_pages      = get_option( "dt_facebook_pages", [] );
+
+        //abort if running cron job and getting conversations by cron job is disabled
+        if ( wp_doing_cron() && !empty( get_option( 'dt_facebook_disable_cron', false ) ) ){
+            return;
+        }
         foreach ( $facebook_pages as $id => $facebook_page ) {
             if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && !empty( $facebook_page["access_token"] )){
                 if ( !$page_id ){

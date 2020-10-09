@@ -14,6 +14,17 @@ if ( ! wp_next_scheduled( 'daily_facebook_cron' ) ) {
 }
 add_action( 'daily_facebook_cron', "dt_facebook_daily_cron" );
 add_filter( "dt_record_picture", "fb_dt_record_picture", 10, 3 );
+add_filter( 'cron_schedules', 'dt_facebook_cron_schedules' );
+
+function dt_facebook_cron_schedules( $schedules ) {
+    if ( !isset( $schedules["5min"] ) ) {
+        $schedules["5min"] = array(
+            'interval' => 5 * 60,
+            'display'  => __( 'Once every 5 minutes' )
+        );
+    }
+    return $schedules;
+}
 
 function dt_add_fields_in_dt_search( $fields ){
     $fields[] = "facebook_data";
@@ -57,7 +68,7 @@ function dt_facebook_daily_cron(){
     }
 
     $facebook_to_close = $wpdb->get_results(  $wpdb->prepare( "
-        SELECT pm.post_id FROM $wpdb->postmeta pm 
+        SELECT pm.post_id FROM $wpdb->postmeta pm
         INNER JOIN $wpdb->postmeta pm1 ON ( pm.post_id = pm1.post_id AND pm1.meta_key = 'last_modified' )
         WHERE pm.meta_key = 'overall_status' AND pm.meta_value = 'from_facebook'
         AND pm1.meta_value < %d

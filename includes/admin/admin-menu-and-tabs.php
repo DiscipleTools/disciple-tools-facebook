@@ -413,9 +413,12 @@ class DT_Facebook_Tab_Instructions {
 
         <br>
         <br>
-        <h1 style="margin-top: 40px"><a id="uptime_robot"></a>4. Set up cron to get contacts every 5 minutes (Recommended)</h1>
-        <p>This will make sure Disciple.Tools looks for new contacts every 5 minutes</p>
-        <p>Wordpress will try to do this on it's own, but can sometimes go long periods without checking for updates. Uptime Robot makes sure the checks happen often.</p>
+        <h1 style="margin-top: 40px"><a id="uptime_robot"></a>4. Set up cron to get contacts every 5 minutes.</h1>
+        <p>Getting Disciple.Tools to look for new facebook contacts every 5 minutes</p>
+        <p><strong>Option 1. Setting up a cron job (Recommended)</strong></p>
+        <p>We recommend setting up a proper cron job for your instance. See <a href="https://disciple.tools/dev-docs/hosting/cron/">CRON Documentation</a></p>
+        <p><strong>Option 2. Use a service like Update Robot to ping the D.T Facebook plugin to check for updates</strong></p>
+
         <ul style="list-style-type: disc; padding-left:40px">
             <li><a href="https://uptimerobot.com/">Sign up for a Uptime Robot Account</a></li>
             <li>Once logged in. Click <strong>Add New Monitor</strong></li>
@@ -427,6 +430,7 @@ class DT_Facebook_Tab_Instructions {
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/ur_fields.png" ) ?>" height="250px" />
             <li>Click <strong>Create Monitor</strong></li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/ur_save.png" ) ?>" =/>
+            <li>Check the "Disable wp-cron for Facebook" checkbox on the Facebook plugin settings page. And click update.</li>
         </ul>
 
 
