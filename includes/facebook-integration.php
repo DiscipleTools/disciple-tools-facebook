@@ -153,10 +153,10 @@ class Disciple_Tools_Facebook_Integration {
         <ul style="list-style-type: disc; padding-left:40px">
             <li>A Facebook app</li>
             <li>Facebook Business Manager</li>
-            <li>Uptime Robot</li>
+            <li>Scheduled update checker (cron job)</li>
         </ul>
 
-        <p>When you those steps you can use the new information below</p>
+        <p>Use the information from the instructions fill the form below</p>
         <div class="wrap">
             <div id="poststuff">
                 <div id="post-body" class="metabox-holder columns-2">
