@@ -335,8 +335,8 @@ class Disciple_Tools_Facebook_Integration {
                                             <?php endforeach; ?>
                                         </select>
                                     </td>
+                                    <?php if ( !isset( $facebook_page["reached_the_end"] ) && isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] ) ) : ?>
                                     <td>
-                                        <?php if ( !isset( $facebook_page["reached_the_end"] ) && isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] ) ) : ?>
                                         <form action="" method="post">
                                             <input type="hidden" name="_wpnonce" id="_wpnonce"
                                                    value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
@@ -344,8 +344,8 @@ class Disciple_Tools_Facebook_Integration {
                                             <input type="hidden" class="button" name="page_id" value="<?php echo esc_attr( $facebook_page["id"] ); ?>" />
                                             <button type="submit" name="get_recent_conversations"><?php esc_html_e( "Get all conversations (launches in the background. This might take a while)", 'dt_facebook' ) ?></button>
                                         </form>
-                                        <?php endif; ?>
                                     </td>
+                                    <?php endif; ?>
                                 </tr>
                                 <?php } ?>
                                 <?php if ( empty( $access_token ) ) :?>
@@ -367,6 +367,18 @@ class Disciple_Tools_Facebook_Integration {
                             <br>
 
 
+
+
+                            <br>
+                            <br>
+                            <h3>Tools</h3>
+                            <form action="" method="post">
+                                <input type="hidden" name="_wpnonce" id="_wpnonce"
+                                       value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
+
+                                <input type="hidden" class="button" name="page_id" />
+                                <button type="submit" class="button" name="delete_duplicates"><?php esc_html_e( "Try deleting duplicates", 'dt_facebook' ) ?></button>
+                            </form>
 
                         </form>
                     </div><!-- end post-body-content -->
@@ -479,6 +491,9 @@ class Disciple_Tools_Facebook_Integration {
             update_option( "dt_facebook_pages", $facebook_pages );
 
             $this->get_recent_conversations( $id );
+        }
+        if ( isset( $_POST["delete_duplicates"] ) ){
+            self::delete_obvious_duplicates();
         }
     }
 
@@ -943,6 +958,63 @@ class Disciple_Tools_Facebook_Integration {
                     }
                     do_action( "dt_facebook_all_conversations", $facebook_conversations_url, $id, $latest_conversation );
                 }
+            }
+        }
+    }
+
+    public function delete_obvious_duplicates(){
+        global $wpdb;
+        $dups = $wpdb->get_results("
+            SELECT pm.meta_value fb_id, COUNT(*) c, pm2.meta_value
+            FROM $wpdb->postmeta pm
+            INNER JOIN $wpdb->posts p on ( p.ID = pm.post_id AND p.post_date > '2019-01-01' )
+            LEFT JOIN $wpdb->postmeta pm2 ON (
+                pm.post_id = pm2.post_id
+                and pm2.meta_key = 'overall_status'
+            )
+            WHERE pm.meta_key LIKE 'contact_facebook%'
+            AND pm.meta_key NOT LIKE '%_details'
+            AND pm.meta_value LIKE 'https://www.facebook.com%'
+            GROUP BY pm.meta_value, pm2.meta_value HAVING c>1
+        ", ARRAY_A );
+
+        foreach ( $dups as $dup ){
+            $to_delete = [];
+            $rows = $wpdb->get_results( $wpdb->prepare( "
+                SELECT pm.post_id, MAX(m.user_id) as user_id, COUNT( DISTINCT c.comment_ID ) as c_count
+                FROM $wpdb->postmeta pm
+                INNER JOIN $wpdb->posts p on ( p.ID = pm.post_id AND p.post_date > '2019-01-01' )
+                LEFT JOIN $wpdb->dt_activity_log m ON ( pm.post_id = m.object_id )
+                LEFT JOIN $wpdb->comments c ON ( pm.post_id = c.comment_post_ID AND c.comment_type = 'facebook' )
+                WHERE pm.meta_key LIKE 'contact_facebook%'
+                AND pm.meta_key NOT LIKE '%_details'
+                AND pm.meta_value = %s
+                GROUP BY pm.post_id
+                ORDER BY pm.post_id
+            ", $dup["fb_id"] ), ARRAY_A);
+
+            $with_user_activity = [];
+            $max_comments_index = 0;
+            foreach ( $rows as $index => $row ){
+                if ( !empty( $row["user_id"] ) ){
+                    $with_user_activity[] = $row["post_id"];
+                }
+                if ( (int) $row["c_count"] >= (int) $rows[$max_comments_index]["c_count"] ){
+                    $max_comments_index = $index;
+                }
+            }
+            if ( sizeof( $with_user_activity ) === 0 ){
+                //keep contact with most facebook comments
+                $with_user_activity[] = $rows[$max_comments_index]["post_id"];
+            }
+            foreach ( $rows as $index => $row ){
+                if ( sizeof( $with_user_activity ) > 0 && !in_array( $row["post_id"], $with_user_activity ) && empty( $row["user_id"] ) ){
+                    $to_delete[] = $row;
+                }
+            }
+            foreach ( $to_delete as $row ){
+                DT_Posts::delete_post( $row["post_id"], "contacts" );
+                dt_write_log( $row );
             }
         }
     }
