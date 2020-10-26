@@ -381,7 +381,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <?php
                                 $dup_number_option = get_option( 'dt_facebook_dups_found', 0 );
                                 if ( !empty( $dup_number_option )){
-                                    echo 'Remaining potential duplicates to process: ' .$dup_number_option;
+                                    echo 'Remaining potential duplicates to process: ' . esc_html( $dup_number_option );
                                 }
                                 ?>
                             </form>
@@ -984,7 +984,7 @@ class Disciple_Tools_Facebook_Integration {
             AND pm.meta_value LIKE 'https://www.facebook.com%'
             GROUP BY pm.meta_value, pm2.meta_value HAVING c>1
         ", ARRAY_A );
-        $dup_number_option =  sizeof( $dups );
+        $dup_number_option = sizeof( $dups );
         update_option( "dt_facebook_dups_found", $dup_number_option );
 
         foreach ( $dups as $dup ){
@@ -995,12 +995,12 @@ class Disciple_Tools_Facebook_Integration {
                 INNER JOIN $wpdb->posts p on ( p.ID = pm.post_id AND p.post_date > '2019-01-01' )
                 LEFT JOIN $wpdb->dt_activity_log m ON ( pm.post_id = m.object_id )
                 LEFT JOIN $wpdb->comments c ON ( pm.post_id = c.comment_post_ID AND c.comment_type = 'facebook' )
-                WHERE pm.meta_key LIKE 'contact_facebook%'
-                AND pm.meta_key NOT LIKE '%_details'
+                WHERE pm.meta_key LIKE %s
+                AND pm.meta_key NOT LIKE %s
                 AND pm.meta_value = %s
                 GROUP BY pm.post_id
                 ORDER BY pm.post_id
-            ", $dup["fb_id"] ), ARRAY_A);
+            ", 'contact_facebook%', '%_details', $dup["fb_id"] ), ARRAY_A );
 
             $with_user_activity = [];
             $max_comments_index = 0;
