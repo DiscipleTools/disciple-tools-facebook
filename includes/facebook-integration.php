@@ -378,6 +378,12 @@ class Disciple_Tools_Facebook_Integration {
 
                                 <input type="hidden" class="button" name="page_id" />
                                 <button type="submit" class="button" name="delete_duplicates"><?php esc_html_e( "Try deleting duplicates", 'dt_facebook' ) ?></button>
+                                <?php
+                                $dup_number_option = get_option( 'dt_facebook_dups_found', 0 );
+                                if ( !empty( $dup_number_option )){
+                                    echo 'Remaining potential duplicates to process: ' .$dup_number_option;
+                                }
+                                ?>
                             </form>
 
                         </form>
@@ -964,6 +970,7 @@ class Disciple_Tools_Facebook_Integration {
 
     public function delete_obvious_duplicates(){
         global $wpdb;
+        $dup_number_option = get_option( 'dt_facebook_dups_found', 0 );
         $dups = $wpdb->get_results("
             SELECT pm.meta_value fb_id, COUNT(*) c, pm2.meta_value
             FROM $wpdb->postmeta pm
@@ -977,6 +984,8 @@ class Disciple_Tools_Facebook_Integration {
             AND pm.meta_value LIKE 'https://www.facebook.com%'
             GROUP BY pm.meta_value, pm2.meta_value HAVING c>1
         ", ARRAY_A );
+        $dup_number_option =  sizeof( $dups );
+        update_option( "dt_facebook_dups_found", $dup_number_option );
 
         foreach ( $dups as $dup ){
             $to_delete = [];
@@ -1017,6 +1026,8 @@ class Disciple_Tools_Facebook_Integration {
                 dt_write_log( $row );
             }
         }
+        $dup_number_option = 0;
+        update_option( "dt_facebook_dups_found", $dup_number_option, false );
     }
 
     public function save_conversation_page( $conversations, $id, $latest_conversation = 0 ){
