@@ -720,7 +720,7 @@ class Disciple_Tools_Facebook_Integration {
 
         if ( sizeof( $contacts ) > 1 ) {
             foreach ( $contacts as $contact_post ) {
-                $contact = Disciple_Tools_Contacts::get_contact( $contact_post->ID, false, true );
+                $contact = DT_Posts::get_post( "contacts", $contact_post->ID, false, true );
                 if ( isset( $contact["overall_status"]["key"] ) && $contact["overall_status"]["key"] != "closed" ) {
                     $contact_id = $contact["ID"];
                 }
@@ -736,7 +736,7 @@ class Disciple_Tools_Facebook_Integration {
 
         $facebook_url = "https://www.facebook.com/" . $participant["id"];
         if ( $contact_id ) {
-            $contact                          = Disciple_Tools_Contacts::get_contact( $contact_id, false );
+            $contact                          = DT_Posts::get_post( "contacts", $contact_id, false );
             $facebook_data                    = maybe_unserialize( $contact["facebook_data"] ) ?? [];
             $initial_facebook_data = $facebook_data;
             $facebook_data["last_message_at"] = $updated_time;
@@ -781,7 +781,7 @@ class Disciple_Tools_Facebook_Integration {
             }
             $update["last_message_received"] = strtotime( $updated_time );
             if ( $facebook_data != $initial_facebook_data ) {
-                Disciple_Tools_Contacts::update_contact( $contact_id, $update, false, true );
+                DT_Posts::update_post( "contacts", $contact_id, $update, false, true );
             }
             return $contact_id;
         } else if ( !$contact_id ) {
@@ -808,7 +808,7 @@ class Disciple_Tools_Facebook_Integration {
             if ( isset( $page["assign_to"] )){
                 $fields["assigned_to"] = $page["assign_to"];
             }
-            $new_contact_id = Disciple_Tools_Contacts::create_contact( $fields, false, true );
+            $new_contact_id = DT_Posts::create_post( "contacts", $fields, false, true );
             dt_write_log( "Facebook contact creation failure" );
             dt_write_log( $fields );
             if ( is_wp_error( $new_contact_id ) ){
@@ -1088,7 +1088,7 @@ class Disciple_Tools_Facebook_Integration {
                         //is the page
                         $image = "https://graph.facebook.com/" . $message['from']['id'] . "/picture?type=square";
                     }
-                    Disciple_Tools_Contacts::add_comment( $contact_id, $comment, "facebook", [
+                    DT_Posts::add_post_comment( "contacts", $contact_id, $comment, "facebook", [
                         "user_id" => 0,
                         "comment_author" => $message["from"]["name"],
                         "comment_date" => $message["created_time"],

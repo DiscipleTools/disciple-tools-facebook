@@ -8,7 +8,7 @@ if ( !defined( 'ABSPATH' ) ) {
  */
 
 add_filter( "dt_search_extra_post_meta_fields", "dt_add_fields_in_dt_search" );
-add_filter( "dt_custom_fields_settings", "dt_facebook_fields", 10, 2 );
+add_filter( "dt_custom_fields_settings", "dt_facebook_fields", 50, 2 );
 if ( ! wp_next_scheduled( 'daily_facebook_cron' ) ) {
     wp_schedule_event( strtotime( 'today 1am' ), 'daily', 'daily_facebook_cron' );
 }
