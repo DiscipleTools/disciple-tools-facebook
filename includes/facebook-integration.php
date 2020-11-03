@@ -808,14 +808,14 @@ class Disciple_Tools_Facebook_Integration {
             if ( isset( $page["assign_to"] )){
                 $fields["assigned_to"] = $page["assign_to"];
             }
-            $new_contact_id = DT_Posts::create_post( "contacts", $fields, false, true );
+            $new_contact = DT_Posts::create_post( "contacts", $fields, false, true );
             dt_write_log( "Facebook contact creation failure" );
             dt_write_log( $fields );
-            if ( is_wp_error( $new_contact_id ) ){
-                $this->display_error( $new_contact_id->get_error_message() );
+            if ( is_wp_error( $new_contact ) ){
+                $this->display_error( $new_contact->get_error_message() );
                 $this->dt_facebook_log_email( "Creating a contact failed", "The Facebook integration was not able to create a contact from Facebook. If this persists, please contact support." );
             }
-            return $new_contact_id;
+            return $new_contact["ID"];
         }
     }
 
