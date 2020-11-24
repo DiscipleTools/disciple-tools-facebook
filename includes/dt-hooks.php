@@ -49,10 +49,11 @@ function dt_facebook_fields( array $fields, string $post_type = "" ) {
                 "hidden" => true
             ];
         }
-        if ( !isset( $fields["reason_closed"]["default"]["closed_from_facebook"] ) ) {
+
+        if ( isset( $fields["reason_closed"] ) && !isset( $fields["reason_closed"]["default"]["closed_from_facebook"] ) ) {
             $fields["reason_closed"]["default"]["closed_from_facebook"] = __( "Closed from Facebook", "dt_facebook" );
         }
-        if ( !isset( $fields["overall_status"]["default"]["from_facebook"] ) ) {
+        if ( isset( $fields["overall_status"] ) && !isset( $fields["overall_status"]["default"]["from_facebook"] ) ) {
             $fields["overall_status"]["default"]["from_facebook"] = __( "From Facebook", "dt_facebook" );
         }
     }
