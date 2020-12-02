@@ -24,8 +24,8 @@ class Disciple_Tools_Facebook_Reports {
      * @since  0.1.0
      */
     public function __construct() {
-        add_action( "dt_async_dt_facebook_stats", [ $this, "build_all_facebook_reports_async" ] );
-        add_action( 'build_disciple_tools_reports', [ $this, 'register_stats_cron' ] );
+//        add_action( "dt_async_dt_facebook_stats", [ $this, "build_all_facebook_reports_async" ] );
+//        add_action( 'build_disciple_tools_reports', [ $this, 'register_stats_cron' ] );
     } // End __construct()
 
 
@@ -160,17 +160,17 @@ class Disciple_Tools_Facebook_Reports {
     public function build_all_facebook_reports_async() {
         //get the facebook pages and access tokens from the settings
         $facebook_pages = get_option( "dt_facebook_pages", [] );
-        foreach ( $facebook_pages as $page_id => $facebook_page ) {
-            $last_facebook_report = Disciple_Tools_Reports_API::get_last_record_of_source_and_subsource( 'Facebook', $page_id );
-            if ( $last_facebook_report && isset( $last_facebook_report->report_date ) ) {
-                $date_of_last_record = gmdate( 'Y-m-d', strtotime( $last_facebook_report->report_date ) );
-            } else {
-                //set to yesterday to get today's report
-                $date_of_last_record = gmdate( 'Y-m-d', strtotime( '-1 day' ) );
-            }
-
-            self::get_and_save_stats_data( $date_of_last_record, $facebook_page );
-        }
+//        foreach ( $facebook_pages as $page_id => $facebook_page ) {
+//            $last_facebook_report = Disciple_Tools_Reports_API::get_last_record_of_source_and_subsource( 'Facebook', $page_id );
+//            if ( $last_facebook_report && isset( $last_facebook_report->report_date ) ) {
+//                $date_of_last_record = gmdate( 'Y-m-d', strtotime( $last_facebook_report->report_date ) );
+//            } else {
+//                //set to yesterday to get today's report
+//                $date_of_last_record = gmdate( 'Y-m-d', strtotime( '-1 day' ) );
+//            }
+//
+//            self::get_and_save_stats_data( $date_of_last_record, $facebook_page );
+//        }
     }
 
 }
