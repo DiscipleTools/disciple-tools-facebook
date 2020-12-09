@@ -14,7 +14,7 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
     public $js_object_name = 'wp_json_object'; // This object will be loaded into the metrics.js file by the wp_localize_script.
     public $js_file_name = 'facebook-metrics.js'; // should be full file name plus extension
     public $deep_link_hash = '#facebook_metrics'; // should be the full hash name. #template_of_hash
-    public $permissions = [ 'view_any_contacts', 'view_project_metrics' ];
+    public $permissions = [ 'dt_all_access_contacts', 'view_project_metrics' ];
 
     public function __construct(){
         parent::__construct();
