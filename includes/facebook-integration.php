@@ -721,7 +721,7 @@ class Disciple_Tools_Facebook_Integration {
 
         if ( sizeof( $contacts ) > 1 ) {
             foreach ( $contacts as $contact_post ) {
-                $contact = DT_Posts::get_post( "contacts", $contact_post->ID, false, true );
+                $contact = DT_Posts::get_post( "contacts", $contact_post->ID, true, false );
                 if ( isset( $contact["overall_status"]["key"] ) && $contact["overall_status"]["key"] != "closed" ) {
                     $contact_id = $contact["ID"];
                 }
@@ -737,7 +737,7 @@ class Disciple_Tools_Facebook_Integration {
 
         $facebook_url = "https://www.facebook.com/" . $participant["id"];
         if ( $contact_id ) {
-            $contact                          = DT_Posts::get_post( "contacts", $contact_id, false );
+            $contact                          = DT_Posts::get_post( "contacts", $contact_id, true, false );
             $facebook_data                    = maybe_unserialize( $contact["facebook_data"] ) ?? [];
             $initial_facebook_data = $facebook_data;
             $facebook_data["last_message_at"] = $updated_time;
@@ -782,7 +782,7 @@ class Disciple_Tools_Facebook_Integration {
             }
             $update["last_message_received"] = strtotime( $updated_time );
             if ( $facebook_data != $initial_facebook_data ) {
-                DT_Posts::update_post( "contacts", $contact_id, $update, false, true );
+                DT_Posts::update_post( "contacts", $contact_id, $update, true, false );
             }
             return $contact_id;
         } else if ( !$contact_id ) {
@@ -809,7 +809,7 @@ class Disciple_Tools_Facebook_Integration {
             if ( isset( $page["assign_to"] )){
                 $fields["assigned_to"] = $page["assign_to"];
             }
-            $new_contact = DT_Posts::create_post( "contacts", $fields, false, true );
+            $new_contact = DT_Posts::create_post( "contacts", $fields, true, false );
             dt_write_log( "Facebook contact creation failure" );
             dt_write_log( $fields );
             if ( is_wp_error( $new_contact ) ){
