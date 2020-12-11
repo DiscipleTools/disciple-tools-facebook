@@ -788,7 +788,6 @@ class Disciple_Tools_Facebook_Integration {
         } else if ( !$contact_id ) {
             $fields = [
                 "title"            => $participant["name"],
-                "source_details"   => "Facebook Page: " . $page["name"],
                 "contact_facebook" => [ [ "value" => $facebook_url ] ],
                 "sources"          => [
                     "values" => [
