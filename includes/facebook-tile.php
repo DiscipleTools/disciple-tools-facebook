@@ -51,16 +51,13 @@ class Disciple_Tools_Facebook_Tile {
 
 
     public static function dt_facebook_declare_section_id( $sections, $post_type = "" ) {
-        //check if we are on a contact
         if ( $post_type === "contacts" && is_singular( $post_type ) ){
-            $contact_fields = DT_Posts::get_post_field_settings( $post_type );
-            //check if the language field is set
-
             //check if content is there before adding empty tile
             $contact_id    = get_the_ID();
             if ( $contact_id ){
-                $contact       = DT_Posts::get_post( "contacts", $contact_id, true, true );
-                if ( isset( $contact["facebook_data"] ) ) {
+                $contact = DT_Posts::get_post( "contacts", $contact_id, true, true );
+                if ( !is_wp_error( $contact ) && isset( $contact["facebook_data"] ) ) {
+                    $contact_fields = DT_Posts::get_post_field_settings( $post_type );
                     if ( isset( $contact_fields["facebook_data"] ) ) {
                         $sections[] = "contact_facebook_data";
                           //add more section ids here if you want...
@@ -77,6 +74,9 @@ class Disciple_Tools_Facebook_Tile {
             $contact_id    = get_the_ID();
             $contact       = DT_Posts::get_post( "contacts", $contact_id, true, true );
             $facebook_data = [];
+            if ( is_wp_error( $contact ) ){
+                return $section;
+            }
             if ( isset( $contact["facebook_data"] ) ) {
                 $facebook_data = maybe_unserialize( $contact["facebook_data"] );
             }
