@@ -4,7 +4,7 @@
 Integration between Disciple.Tools and Facebook pages.
 
 ## Purpose
-Create a contact record in Disciple.Tools when someone messages your Facebook Pages(s).
+Create a contact record in Disciple.Tools when someone messages your Facebook Pages(s). You will still have your conversation with the seeker using Facebook or another tool like Manychat.
 
 Here is what this plugin does:
 - Automatically create a contact in D.T when a conversation is started on you Facebook Page.
@@ -14,6 +14,7 @@ Here is what this plugin does:
 Does not do:
 - Does not create a link on the Facebook conversation to the D.T contact.
 - Does not create a link to the contact's Facebook profile.
+- Does not let you send messages to the contact directly from D.T.
 - Does not sync posts.
 - Does not sync comments made on your posts.
 - Does not sync labels or notes saved on the Facebook Conversation.
