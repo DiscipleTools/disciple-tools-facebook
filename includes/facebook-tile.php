@@ -43,15 +43,15 @@ class Disciple_Tools_Facebook_Tile {
      * @since  0.1.0
      */
     public function __construct() {
-        add_filter( "dt_details_additional_section_ids", [ $this, "dt_facebook_declare_section_id" ], 999, 2 );
+        add_filter( "dt_details_additional_tiles", [ $this, "dt_details_additional_tiles" ], 10, 2 );
         add_action( "dt_details_additional_section", [ $this, "dt_facebook_add_section" ] );
         add_filter( "dt_contact_duplicate_fields_to_check", [ $this, "add_duplicate_check_field" ] );
         add_filter( "dt_comments_additional_sections", [ $this, "add_comment_section" ], 10, 2 );
     } // End __construct()
 
 
-    public static function dt_facebook_declare_section_id( $sections, $post_type = "" ) {
-        if ( $post_type === "contacts" && is_singular( $post_type ) ){
+    public static function dt_details_additional_tiles( $sections, $post_type = "" ) {
+        if ( $post_type === "contacts" ){
             //check if content is there before adding empty tile
             $contact_id    = get_the_ID();
             if ( $contact_id ){
@@ -59,8 +59,7 @@ class Disciple_Tools_Facebook_Tile {
                 if ( !is_wp_error( $contact ) && isset( $contact["facebook_data"] ) ) {
                     $contact_fields = DT_Posts::get_post_field_settings( $post_type );
                     if ( isset( $contact_fields["facebook_data"] ) ) {
-                        $sections[] = "contact_facebook_data";
-                          //add more section ids here if you want...
+                        $sections["contact_facebook_data"] = [ "label" => __( "Facebook", 'disciple_tools' ) ];
                     }
                 }
             }
@@ -81,9 +80,6 @@ class Disciple_Tools_Facebook_Tile {
                 $facebook_data = maybe_unserialize( $contact["facebook_data"] );
             }
             ?>
-            <div class="section-header">
-                <?php esc_html_e( 'Facebook', 'dt_facebook' )?>
-            </div>
 
             <?php
             if ( isset( $facebook_data["names"] ) ) {
