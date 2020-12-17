@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/DiscipleTools/disciple-tools-facebook.svg?branch=master)](https://travis-ci.com/DiscipleTools/disciple-tools-facebook)
 
-# disciple-tools-facebook
+# Disciple Tools Facebook Plugin
 Integration between Disciple.Tools and Facebook pages.
 
 ## Purpose
