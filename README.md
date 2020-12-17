@@ -33,3 +33,9 @@ Install the plugin on your instance. [Instructions](https://disciple.tools/user-
 ## Setup
 After you have installed and activate the plugin. Head the the WP-Admin plugin page under Exentsions (D.T) > Facebook. The click on the Instructions tab.
 Or see an overview [here](https://github.com/DiscipleTools/disciple-tools-facebook/wiki)
+
+## Screenshots
+![Facebook Tile](https://github.com/DiscipleTools/disciple-tools-facebook/blob/master/includes/assets/facebook_tile.png)
+
+![Facebook Comments](https://github.com/DiscipleTools/disciple-tools-facebook/blob/master/includes/assets/facebook_comments.png)
+
