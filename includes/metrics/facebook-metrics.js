@@ -6,31 +6,31 @@ jQuery(document).ready(function() {
   chartDiv.empty().html(`
       <h3>Facebook Messages Activity</h3>
       <div id="facebook_messages_chart" style="min-height: 300px"></div>
-      
+
       <hr>
-      
+
       <h3>New Facebook Contacts</h3>
       <div id="facebook_contacts_chart" style="min-height: 300px"></div>
-          
+
       <hr>
-        
+
       <h3>Facebook Contacts Assigned for Face to Face Meetings</h3>
       <div id="facebook_assignments_chart" style="min-height: 300px"></div>
-      
+
       <hr>
-      
+
       <h3>Facebook Contacts marked as First Meeting Complete</h3>
       <div id="facebook_meetings_chart" style="min-height: 300px"></div>
-  
+
       <hr>
-  
-      
-  
+
+
+
       <h3>Time from 1st message to 1st Meeting</h1>
       <p>Filters to just show facebook contacts created during:</p>
       <div class="date_range_picker">
           <i class="fi-calendar"></i>&nbsp;
-          <span>${_.escape(window.wp_json_object.translations.all_time)}</span> 
+          <span>${_.escape(window.wp_json_object.translations.all_time)}</span>
           <i class="dt_caret down"></i>
       </div>
       <div style="display: inline-block" class="loading-spinner"></div>

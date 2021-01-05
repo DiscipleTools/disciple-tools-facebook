@@ -14,7 +14,7 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
     public $js_object_name = 'wp_json_object'; // This object will be loaded into the metrics.js file by the wp_localize_script.
     public $js_file_name = 'facebook-metrics.js'; // should be full file name plus extension
     public $deep_link_hash = '#facebook_metrics'; // should be the full hash name. #template_of_hash
-    public $permissions = [ 'view_any_contacts', 'view_project_metrics' ];
+    public $permissions = [ 'dt_all_access_contacts', 'view_project_metrics' ];
 
     public function __construct(){
         parent::__construct();
@@ -31,6 +31,11 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
     } // End __construct
 
     public function scripts(){
+         // Amcharts
+        wp_register_script( 'amcharts-core', 'https://www.amcharts.com/lib/4/core.js', false, 4, true );
+        wp_register_script( 'amcharts-charts', 'https://www.amcharts.com/lib/4/charts.js', false, 4, true );
+        wp_register_script( 'amcharts-animated', 'https://www.amcharts.com/lib/4/themes/animated.js', [], 4, true );
+        wp_register_script( 'amcharts-maps', 'https://www.amcharts.com/lib/4/maps.js', false, 4, true );
         wp_enqueue_script( 'dt_'.$this->slug.'_script', trailingslashit( plugin_dir_url( __FILE__ ) ) . $this->js_file_name, [
             'moment',
             'jquery',
@@ -97,11 +102,11 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
         $results = $wpdb->get_results( $wpdb->prepare( "
             SELECT log.object_id, MIN(hist_time) as met, MIN(c.comment_date) as message
             FROM $wpdb->dt_activity_log log
-            JOIN $wpdb->comments c ON ( 
-                c.comment_post_ID = log.object_id 
+            JOIN $wpdb->comments c ON (
+                c.comment_post_ID = log.object_id
                 AND c.comment_type = 'facebook'
-                AND c.comment_date >= %s      
-                AND c.comment_date < %s      
+                AND c.comment_date >= %s
+                AND c.comment_date < %s
             )
             WHERE object_type = 'contacts' AND meta_key = 'seeker_path' AND meta_value = 'met'
             GROUP BY object_id
@@ -142,9 +147,9 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
         $results = $wpdb->get_results( "
             SELECT DATE(post_date) date, COUNT(DISTINCT posts.ID) count
             FROM $wpdb->posts as posts
-            INNER JOIN $wpdb->comments ON ( comment_type = 'facebook' AND posts.ID = comment_post_ID )   
+            INNER JOIN $wpdb->comments ON ( comment_type = 'facebook' AND posts.ID = comment_post_ID )
             WHERE post_type = 'contacts'
-            GROUP BY DATE( post_date )  
+            GROUP BY DATE( post_date )
         ", ARRAY_A);
 
         return $results;
@@ -155,11 +160,11 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
         $results = $wpdb->get_results( "
             SELECT from_unixtime(hist_time, '%Y-%m-%d')  date, COUNT(DISTINCT object_id) count
             FROM $wpdb->dt_activity_log as log
-            INNER JOIN $wpdb->comments ON ( comment_type = 'facebook' AND log.object_id = comment_post_ID )   
+            INNER JOIN $wpdb->comments ON ( comment_type = 'facebook' AND log.object_id = comment_post_ID )
             WHERE object_type = 'contacts'
-            AND meta_key = 'overall_status' 
-            AND ( meta_value = 'assigned' OR meta_value = 'active' ) 
-            GROUP BY from_unixtime(hist_time, '%Y-%m-%d')  
+            AND meta_key = 'overall_status'
+            AND ( meta_value = 'assigned' OR meta_value = 'active' )
+            GROUP BY from_unixtime(hist_time, '%Y-%m-%d')
         ", ARRAY_A);
 
         return $results;
@@ -169,11 +174,11 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
         $results = $wpdb->get_results( "
             SELECT from_unixtime(hist_time, '%Y-%m-%d')  date, COUNT(DISTINCT object_id) count
             FROM $wpdb->dt_activity_log as log
-            INNER JOIN $wpdb->comments ON ( comment_type = 'facebook' AND log.object_id = comment_post_ID )   
+            INNER JOIN $wpdb->comments ON ( comment_type = 'facebook' AND log.object_id = comment_post_ID )
             WHERE object_type = 'contacts'
-            AND meta_key = 'seeker_path' 
-            AND ( meta_value = 'met' ) 
-            GROUP BY from_unixtime(hist_time, '%Y-%m-%d')  
+            AND meta_key = 'seeker_path'
+            AND ( meta_value = 'met' )
+            GROUP BY from_unixtime(hist_time, '%Y-%m-%d')
         ", ARRAY_A);
 
         return $results;

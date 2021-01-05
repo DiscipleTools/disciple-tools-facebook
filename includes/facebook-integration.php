@@ -400,9 +400,10 @@ class Disciple_Tools_Facebook_Integration {
      * Display an error message
      *
      * @param $err
+     * @param string $code
      */
-    private function display_error( $err ) {
-        $err = 'Facebook Extension error at ' .  gmdate( "Y-m-d h:i:sa" ) . ': ' . $err; ?>
+    private function display_error( $err, $code = "" ) {
+        $err = 'Facebook Extension error at ' .  gmdate( "Y-m-d h:i:sa" ) . ': ' . $err . " ( $code ) "; ?>
         <div class="notice notice-error is-dismissible">
             <p><?php echo esc_html( $err ); ?></p>
         </div>
@@ -566,7 +567,7 @@ class Disciple_Tools_Facebook_Integration {
 
             $request = wp_remote_get( $url );
             if ( is_wp_error( $request ) ) {
-                $this->display_error( $request->get_error_message() );
+                $this->display_error( $request->get_error_message(), $request->get_error_code() );
 
                 return $request->errors;
             } else {
@@ -671,7 +672,7 @@ class Disciple_Tools_Facebook_Integration {
         $ids_for_pages_uri = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$used_id?fields=name,ids_for_pages&access_token=$access_token&appsecret_proof=$app_secret_proof";
         $response          = wp_remote_get( $ids_for_pages_uri );
         if ( is_wp_error( $response ) ){
-            $this->display_error( $response->get_error_message() );
+            $this->display_error( $response->get_error_message(), $response->get_error_code() );
             dt_write_log( $response );
             return [];
         }
@@ -720,7 +721,7 @@ class Disciple_Tools_Facebook_Integration {
 
         if ( sizeof( $contacts ) > 1 ) {
             foreach ( $contacts as $contact_post ) {
-                $contact = Disciple_Tools_Contacts::get_contact( $contact_post->ID, false, true );
+                $contact = DT_Posts::get_post( "contacts", $contact_post->ID, true, false );
                 if ( isset( $contact["overall_status"]["key"] ) && $contact["overall_status"]["key"] != "closed" ) {
                     $contact_id = $contact["ID"];
                 }
@@ -736,7 +737,7 @@ class Disciple_Tools_Facebook_Integration {
 
         $facebook_url = "https://www.facebook.com/" . $participant["id"];
         if ( $contact_id ) {
-            $contact                          = Disciple_Tools_Contacts::get_contact( $contact_id, false );
+            $contact                          = DT_Posts::get_post( "contacts", $contact_id, true, false );
             $facebook_data                    = maybe_unserialize( $contact["facebook_data"] ) ?? [];
             $initial_facebook_data = $facebook_data;
             $facebook_data["last_message_at"] = $updated_time;
@@ -781,13 +782,12 @@ class Disciple_Tools_Facebook_Integration {
             }
             $update["last_message_received"] = strtotime( $updated_time );
             if ( $facebook_data != $initial_facebook_data ) {
-                Disciple_Tools_Contacts::update_contact( $contact_id, $update, false, true );
+                DT_Posts::update_post( "contacts", $contact_id, $update, true, false );
             }
             return $contact_id;
         } else if ( !$contact_id ) {
             $fields = [
                 "title"            => $participant["name"],
-                "source_details"   => "Facebook Page: " . $page["name"],
                 "contact_facebook" => [ [ "value" => $facebook_url ] ],
                 "sources"          => [
                     "values" => [
@@ -808,14 +808,14 @@ class Disciple_Tools_Facebook_Integration {
             if ( isset( $page["assign_to"] )){
                 $fields["assigned_to"] = $page["assign_to"];
             }
-            $new_contact_id = Disciple_Tools_Contacts::create_contact( $fields, false, true );
+            $new_contact = DT_Posts::create_post( "contacts", $fields, true, false );
             dt_write_log( "Facebook contact creation failure" );
             dt_write_log( $fields );
-            if ( is_wp_error( $new_contact_id ) ){
-                $this->display_error( $new_contact_id->get_error_message() );
+            if ( is_wp_error( $new_contact ) ){
+                $this->display_error( $new_contact->get_error_message(), $new_contact->get_error_code() );
                 $this->dt_facebook_log_email( "Creating a contact failed", "The Facebook integration was not able to create a contact from Facebook. If this persists, please contact support." );
             }
-            return $new_contact_id;
+            return $new_contact["ID"];
         }
     }
 
@@ -919,7 +919,7 @@ class Disciple_Tools_Facebook_Integration {
                  update_option( "dt_facebook_pages", $facebook_pages );
             }
             dt_write_log( $conversations_request );
-            $this->display_error( "Get conversations: " . $conversations_request->get_error_message() );
+            $this->display_error( "Get conversations: " . $conversations_request->get_error_message(), $conversations_request->get_error_code() );
         }
     }
 
@@ -1088,7 +1088,7 @@ class Disciple_Tools_Facebook_Integration {
                         //is the page
                         $image = "https://graph.facebook.com/" . $message['from']['id'] . "/picture?type=square";
                     }
-                    Disciple_Tools_Contacts::add_comment( $contact_id, $comment, "facebook", [
+                    DT_Posts::add_post_comment( "contacts", $contact_id, $comment, "facebook", [
                         "user_id" => 0,
                         "comment_author" => $message["from"]["name"],
                         "comment_date" => $message["created_time"],

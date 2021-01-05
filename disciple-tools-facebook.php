@@ -126,8 +126,8 @@ class DT_Facebook {
         require_once( 'includes/admin/admin-menu-and-tabs.php' );
         require_once( 'includes/async-function.php' );
         require_once( 'includes/shared-functions.php' );
-        require_once( 'includes/facebook-stats.php' );
-        new Disciple_Tools_Facebook_Reports();
+//        require_once( 'includes/facebook-stats.php' );
+//        new Disciple_Tools_Facebook_Reports();
         require_once( 'includes/facebook-tile.php' );
         Disciple_Tools_Facebook_Tile::instance();
         require_once( 'includes/facebook-integration.php' );
