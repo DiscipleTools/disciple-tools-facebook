@@ -193,7 +193,7 @@ class DT_Facebook {
         }
 
         // Internationalize the text strings used.
-        add_action( 'plugins_loaded', array( $this, 'i18n' ), 2 );
+        $this->i18n();
     }
 
     /**
@@ -226,7 +226,7 @@ class DT_Facebook {
      * @return void
      */
     public function i18n() {
-        load_plugin_textdomain( 'dt_facebook', false, trailingslashit( dirname( plugin_basename( __FILE__ ) ) ). 'languages' );
+        load_plugin_textdomain( 'disciple-tools-facebook', false, trailingslashit( dirname( plugin_basename( __FILE__ ) ) ). 'languages' );
     }
 
     /**
@@ -248,7 +248,7 @@ class DT_Facebook {
      * @return void
      */
     public function __clone() {
-        _doing_it_wrong( __FUNCTION__, esc_html__( 'Whoah, partner!', 'dt_facebook' ), '0.1' );
+        _doing_it_wrong( __FUNCTION__, esc_html__( 'Whoah, partner!', 'disciple-tools-facebook' ), '0.1' );
     }
 
     /**
@@ -259,7 +259,7 @@ class DT_Facebook {
      * @return void
      */
     public function __wakeup() {
-        _doing_it_wrong( __FUNCTION__, esc_html__( 'Whoah, partner!', 'dt_facebook' ), '0.1' );
+        _doing_it_wrong( __FUNCTION__, esc_html__( 'Whoah, partner!', 'disciple-tools-facebook' ), '0.1' );
     }
 
     /**
@@ -271,7 +271,7 @@ class DT_Facebook {
      */
     public function __call( $method = '', $args = array() ) {
         // @codingStandardsIgnoreLine
-        _doing_it_wrong( "dt_facebook::{$method}", esc_html__( 'Method does not exist.', 'dt_facebook' ), '0.1' );
+        _doing_it_wrong( "dt_facebook::{$method}", esc_html__( 'Method does not exist.', 'disciple-tools-facebook' ), '0.1' );
         unset( $method, $args );
         return null;
     }
@@ -287,9 +287,9 @@ function dt_facebook_hook_admin_notice() {
     global $dt_facebook_required_dt_theme_version;
     $wp_theme = wp_get_theme();
     $current_version = $wp_theme->version;
-    $message = __( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or make sure it is latest version.", "dt_facebook" );
+    $message = __( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or make sure it is latest version.", 'disciple-tools-facebook' );
     if ( strpos( $wp_theme->get_template(), "disciple-tools-theme" ) !== false || $wp_theme->name === "Disciple Tools" ) {
-        $message .= sprintf( esc_html__( 'Current Disciple Tools version: %1$s, required version: %2$s', 'dt_facebook' ), esc_html( $current_version ), esc_html( $dt_facebook_required_dt_theme_version ) );
+        $message .= sprintf( esc_html__( 'Current Disciple Tools version: %1$s, required version: %2$s', 'disciple-tools-facebook' ), esc_html( $current_version ), esc_html( $dt_facebook_required_dt_theme_version ) );
     }
     // Check if it's been dismissed...
     if ( ! get_option( 'dismissed-dt-facebook', false ) ) { ?>
