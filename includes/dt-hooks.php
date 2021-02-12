@@ -38,12 +38,12 @@ function dt_facebook_fields( array $fields, string $post_type = "" ) {
         if ( !isset( $fields["facebook_data"] ) ) {
             //define the language field
             $fields["facebook_data"] = [
-                "name"    => __( "Facebook Ids", "dt_facebook" ),
+                "name"    => __( "Facebook Ids", 'disciple-tools-facebook' ),
                 "type"    => "array",
                 "default" => []
             ];
             $fields["last_message_received"] = [
-                "name"    => __( "Last Message", "dt_facebook" ),
+                "name"    => __( "Last Message", 'disciple-tools-facebook' ),
                 "type"    => "date",
                 "default" => '',
                 "hidden" => true
@@ -51,10 +51,10 @@ function dt_facebook_fields( array $fields, string $post_type = "" ) {
         }
 
         if ( isset( $fields["reason_closed"] ) && !isset( $fields["reason_closed"]["default"]["closed_from_facebook"] ) ) {
-            $fields["reason_closed"]["default"]["closed_from_facebook"] = __( "Closed from Facebook", "dt_facebook" );
+            $fields["reason_closed"]["default"]["closed_from_facebook"] = __( "Closed from Facebook", 'disciple-tools-facebook' );
         }
         if ( isset( $fields["overall_status"] ) && !isset( $fields["overall_status"]["default"]["from_facebook"] ) ) {
-            $fields["overall_status"]["default"]["from_facebook"] = __( "From Facebook", "dt_facebook" );
+            $fields["overall_status"]["default"]["from_facebook"] = __( "From Facebook", 'disciple-tools-facebook' );
         }
     }
     //don't forget to return the update fields array

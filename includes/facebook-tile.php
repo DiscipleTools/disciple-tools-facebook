@@ -85,7 +85,7 @@ class Disciple_Tools_Facebook_Tile {
             if ( isset( $facebook_data["names"] ) ) {
                 ?>
                 <div class="section-subheader">
-                    <?php esc_html_e( "Names", "dt_facebook" ) ?>
+                    <?php esc_html_e( "Names", 'disciple-tools-facebook' ) ?>
                 </div>
                 <?php
                 if ( is_array( $facebook_data["names"] ) ) {
@@ -100,7 +100,7 @@ class Disciple_Tools_Facebook_Tile {
                 $date = strtotime( $facebook_data["last_message_at"] )
                 ?>
                 <div class="section-subheader">
-                    <?php esc_html_e( "Last message at:", "dt_facebook" ) ?>
+                    <?php esc_html_e( "Last message at:", 'disciple-tools-facebook' ) ?>
                 </div>
                 <p class="last_message_at"><?php echo esc_html( gmdate( "Y-m-d H:m", $date ) ) ?></p>
                 <?php
@@ -109,7 +109,7 @@ class Disciple_Tools_Facebook_Tile {
             if ( isset( $facebook_data["links"] ) ) {
                 ?>
                 <div class="section-subheader">
-                    <?php esc_html_e( "Conversation Links:", "dt_facebook" ) ?>
+                    <?php esc_html_e( "Conversation Links:", 'disciple-tools-facebook' ) ?>
                 </div>
                 <?php
                 foreach ( $facebook_data["links"] as $link ): ?>
@@ -138,7 +138,7 @@ class Disciple_Tools_Facebook_Tile {
         if ( $post_type === "contacts" ){
             $sections[] = [
                 "key" => "facebook",
-                "label" => __( "Facebook", "dt_facebook" )
+                "label" => __( "Facebook", 'disciple-tools-facebook' )
             ];
         }
         return $sections;

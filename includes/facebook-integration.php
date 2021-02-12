@@ -147,7 +147,7 @@ class Disciple_Tools_Facebook_Integration {
         <p> This Facebook integration will provide a link between your Facebook pages and Disciple.Tools</p>
         <p>When a contact messages you page, a record for them will be created automatically. Pretty cool right?</p>
 
-<!--        <h3>--><?php //esc_html_e( "Link Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook pages.", 'dt_facebook' ) ?><!--</h3>-->
+<!--        <h3>--><?php //esc_html_e( "Link Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook pages.", 'disciple-tools-facebook' ) ?><!--</h3>-->
 
         To get started, head over to the instructions tab where we'll help you get a couple things set up:
         <ul style="list-style-type: disc; padding-left:40px">
@@ -169,20 +169,20 @@ class Disciple_Tools_Facebook_Integration {
                             <table class="widefat striped">
                                 <thead>
                                 <tr>
-                                    <th><?php esc_html_e( "Facebook App Settings", 'dt_facebook' ) ?></th>
+                                    <th><?php esc_html_e( "Facebook App Settings", 'disciple-tools-facebook' ) ?></th>
                                     <th></th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td><?php esc_html_e( "Facebook App Id", 'dt_facebook' ) ?></td>
+                                    <td><?php esc_html_e( "Facebook App Id", 'disciple-tools-facebook' ) ?></td>
                                     <td>
                                         <input title="App Id" type="text" class="regular-text" name="app_id"
                                                value="<?php echo esc_attr( get_option( "disciple_tools_facebook_app_id", "" ) ); ?>"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><?php esc_html_e( "Facebook App Secret", 'dt_facebook' ) ?></td>
+                                    <td><?php esc_html_e( "Facebook App Secret", 'disciple-tools-facebook' ) ?></td>
                                     <td>
                                         <?php
                                         $secret = get_option( "disciple_tools_facebook_app_secret", "" );
@@ -196,22 +196,22 @@ class Disciple_Tools_Facebook_Integration {
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><?php esc_html_e( "Access Token", 'dt_facebook' ) ?></td>
+                                    <td><?php esc_html_e( "Access Token", 'disciple-tools-facebook' ) ?></td>
                                     <td>
-                                        <?php echo( !empty( $access_token ) ? esc_html__( 'Access token is saved', 'dt_facebook' ) : esc_html__( 'No Access Token', 'dt_facebook' ) ) ?>
+                                        <?php echo( !empty( $access_token ) ? esc_html__( 'Access token is saved', 'disciple-tools-facebook' ) : esc_html__( 'No Access Token', 'disciple-tools-facebook' ) ) ?>
                                     </td>
                                 </tr>
 
                                 <tr>
-                                    <td><?php esc_html_e( "Save or Refresh", 'dt_facebook' ) ?></td>
+                                    <td><?php esc_html_e( "Save or Refresh", 'disciple-tools-facebook' ) ?></td>
                                     <td><button type="submit" class="button" name="save_app" style="padding:3px">
                                             <img style="height: 25px;vertical-align: middle;" src="<?php echo esc_html( plugin_dir_url( __FILE__ ) . 'assets/flogo_RGB_HEX-72.svg' ) ?>"/>
-                                            <span style="vertical-align: top"><?php esc_html_e( "Login with Facebook", 'dt_facebook' ) ?></span></button>
+                                            <span style="vertical-align: top"><?php esc_html_e( "Login with Facebook", 'disciple-tools-facebook' ) ?></span></button>
 
-                                        <p style="margin-top: 20px"><?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Login with Facebook" button again) if:', 'dt_facebook' ) ?></p>
+                                        <p style="margin-top: 20px"><?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Login with Facebook" button again) if:', 'disciple-tools-facebook' ) ?></p>
                                         <ul style="list-style-type: disc; padding-left:40px">
-                                            <li><?php esc_html_e( "You change your Facebook account password", 'dt_facebook' ) ?></li>
-                                            <li><?php esc_html_e( "You delete or de-authorize your Facebook App", 'dt_facebook' ) ?></li>
+                                            <li><?php esc_html_e( "You change your Facebook account password", 'disciple-tools-facebook' ) ?></li>
+                                            <li><?php esc_html_e( "You delete or de-authorize your Facebook App", 'disciple-tools-facebook' ) ?></li>
                                         </ul>
                                     </td>
                                 </tr>
@@ -280,11 +280,11 @@ class Disciple_Tools_Facebook_Integration {
                             <table id="facebook_pages" class="widefat striped">
                                 <thead>
                                 <tr>
-                                    <th><?php esc_html_e( "Facebook Pages", 'dt_facebook' ) ?></th>
-                                    <th><?php esc_html_e( "Sync Contacts", 'dt_facebook' ) ?></th>
-<!--                                    <th>--><?php //esc_html_e( "Include in Stats", 'dt_facebook' ) ?><!--</th>-->
-                                    <th><?php esc_html_e( "Part of Business Manager", 'dt_facebook' ) ?></th>
-                                    <th><?php esc_html_e( "Digital Responder", 'dt_facebook' ) ?></th>
+                                    <th><?php esc_html_e( "Facebook Pages", 'disciple-tools-facebook' ) ?></th>
+                                    <th><?php esc_html_e( "Sync Contacts", 'disciple-tools-facebook' ) ?></th>
+<!--                                    <th>--><?php //esc_html_e( "Include in Stats", 'disciple-tools-facebook' ) ?><!--</th>-->
+                                    <th><?php esc_html_e( "Part of Business Manager", 'disciple-tools-facebook' ) ?></th>
+                                    <th><?php esc_html_e( "Digital Responder", 'disciple-tools-facebook' ) ?></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -342,7 +342,7 @@ class Disciple_Tools_Facebook_Integration {
                                                    value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
 
                                             <input type="hidden" class="button" name="page_id" value="<?php echo esc_attr( $facebook_page["id"] ); ?>" />
-                                            <button type="submit" name="get_recent_conversations"><?php esc_html_e( "Get all conversations (launches in the background. This might take a while)", 'dt_facebook' ) ?></button>
+                                            <button type="submit" name="get_recent_conversations"><?php esc_html_e( "Get all conversations (launches in the background. This might take a while)", 'disciple-tools-facebook' ) ?></button>
                                         </form>
                                     </td>
                                     <?php endif; ?>
@@ -361,9 +361,9 @@ class Disciple_Tools_Facebook_Integration {
                                 </tbody>
                             </table>
                             <input type="submit" class="button" name="get_pages"
-                                   value="<?php esc_html_e( "Refresh Page List", 'dt_facebook' ) ?>"/>
+                                   value="<?php esc_html_e( "Refresh Page List", 'disciple-tools-facebook' ) ?>"/>
                             <input type="submit" class="button" name="save_pages"
-                                   value="<?php esc_html_e( "Save Pages Settings", 'dt_facebook' ) ?>"/>
+                                   value="<?php esc_html_e( "Save Pages Settings", 'disciple-tools-facebook' ) ?>"/>
                             <br>
 
 
@@ -377,7 +377,7 @@ class Disciple_Tools_Facebook_Integration {
                                        value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
 
                                 <input type="hidden" class="button" name="page_id" />
-                                <button type="submit" class="button" name="delete_duplicates"><?php esc_html_e( "Try deleting duplicates", 'dt_facebook' ) ?></button>
+                                <button type="submit" class="button" name="delete_duplicates"><?php esc_html_e( "Try deleting duplicates", 'disciple-tools-facebook' ) ?></button>
                                 <?php
                                 $dup_number_option = get_option( 'dt_facebook_dups_found', 0 );
                                 if ( !empty( $dup_number_option )){

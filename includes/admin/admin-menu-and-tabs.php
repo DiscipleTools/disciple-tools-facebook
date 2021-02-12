@@ -55,7 +55,7 @@ class DT_Facebook_Menu {
      * @since 0.1
      */
     public function register_menu() {
-        add_submenu_page( 'dt_extensions', __( 'Facebook', 'dt_facebook' ), __( 'Facebook', 'dt_facebook' ), 'manage_dt', $this->token, [
+        add_submenu_page( 'dt_extensions', __( 'Facebook', 'disciple-tools-facebook' ), __( 'Facebook', 'disciple-tools-facebook' ), 'manage_dt', $this->token, [
             $this,
             'content'
         ] );
@@ -87,14 +87,14 @@ class DT_Facebook_Menu {
 
         ?>
         <div class="wrap">
-            <h2><?php esc_attr_e( 'DISCIPLE TOOLS - FACEBOOK', 'dt_facebook' ) ?></h2>
+            <h2><?php esc_attr_e( 'DISCIPLE TOOLS - FACEBOOK', 'disciple-tools-facebook' ) ?></h2>
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_attr( $link ) . 'general' ?>"
-                   class="nav-tab <?php ( $tab == 'general' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'General', 'dt_facebook' ) ?></a>
+                   class="nav-tab <?php ( $tab == 'general' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'disciple-tools-facebook' ) : print ''; ?>"><?php esc_attr_e( 'General', 'disciple-tools-facebook' ) ?></a>
                 <a href="<?php echo esc_attr( $link ) . 'instructions' ?>"
-                   class="nav-tab <?php ( $tab == 'instructions' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Instructions', 'dt_facebook' ) ?></a>
+                   class="nav-tab <?php ( $tab == 'instructions' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'disciple-tools-facebook' ) : print ''; ?>"><?php esc_attr_e( 'Instructions', 'disciple-tools-facebook' ) ?></a>
                 <a href="<?php echo esc_attr( $link ) . 'log' ?>"
-                   class="nav-tab <?php ( $tab == 'log' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'dt_facebook' ) : print ''; ?>"><?php esc_attr_e( 'Log', 'dt_facebook' ) ?></a>
+                   class="nav-tab <?php ( $tab == 'log' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'disciple-tools-facebook' ) : print ''; ?>"><?php esc_attr_e( 'Log', 'disciple-tools-facebook' ) ?></a>
             </h2>
 
             <?php
@@ -127,7 +127,7 @@ class DT_Facebook_Menu {
     public function dt_facebook_no_disciple_tools_theme_found() {
         ?>
         <div class="updated notice notice-error is-dismissible notice-facebook" data-notice="prefix_deprecated">
-            <p><?php esc_html_e( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or deactivate 'Disciple Tools - Facebook' plugin.", "dt_facebook" ); ?></p>
+            <p><?php esc_html_e( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or deactivate 'Disciple Tools - Facebook' plugin.", 'disciple-tools-facebook' ); ?></p>
         </div>
 
         <?php
