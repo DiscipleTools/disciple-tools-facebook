@@ -316,7 +316,12 @@ if ( !function_exists( "dt_hook_ajax_notice_handler" )){
 
 /**
  * Check for plugin updates even when the active theme is not Disciple.Tools
- * This enables updates on multisites where the active theme is not Disciple.Tools
+ *
+ * Below is the publicly hosted .json file that carries the version information. This file can be hosted
+ * anywhere as long as it is publicly accessible. You can download the version file listed below and use it as
+ * a template.
+ * Also, see the instructions for version updating to understand the steps involved.
+ * @see https://github.com/DiscipleTools/disciple-tools-version-control/wiki/How-to-Update-the-Starter-Plugin
  */
 add_action( 'plugins_loaded', function (){
     if ( is_admin() ){
