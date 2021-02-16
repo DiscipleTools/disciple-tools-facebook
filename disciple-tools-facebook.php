@@ -3,7 +3,7 @@
  * Plugin Name: Disciple Tools - Facebook
  * Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Description: Disciple Tools - Facebook plugin extends the Disciple Tools system to collect data and contacts from Facebook.
- * Version:  0.4.1
+ * Version:  0.4.2
  * Author URI: https://github.com/DiscipleTools
  * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Requires at least: 4.7.0
@@ -179,19 +179,6 @@ class DT_Facebook {
      * @return void
      */
     private function setup_actions() {
-
-        if ( is_admin() ){
-            // Check for plugin updates
-            if ( ! class_exists( 'Puc_v4_Factory' ) ) {
-                require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
-            }
-            Puc_v4_Factory::buildUpdateChecker(
-                'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-facebook/master/version-control.json',
-                __FILE__,
-                'disciple-tools-facebook'
-            );
-        }
-
         // Internationalize the text strings used.
         $this->i18n();
     }
@@ -325,3 +312,27 @@ if ( !function_exists( "dt_hook_ajax_notice_handler" )){
         }
     }
 }
+
+
+/**
+ * Check for plugin updates even when the active theme is not Disciple.Tools
+ * This enables updates on multisites where the active theme is not Disciple.Tools
+ */
+add_action( 'plugins_loaded', function (){
+    if ( is_admin() ){
+        // Check for plugin updates
+        if ( ! class_exists( 'Puc_v4_Factory' ) ) {
+            if ( file_exists( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' )){
+                require( get_template_directory() . '/dt-core/libraries/plugin-update-checker/plugin-update-checker.php' );
+            }
+        }
+        if ( class_exists( 'Puc_v4_Factory' ) ){
+            Puc_v4_Factory::buildUpdateChecker(
+                'https://raw.githubusercontent.com/DiscipleTools/disciple-tools-facebook/master/version-control.json',
+                __FILE__,
+                'disciple-tools-facebook'
+            );
+
+        }
+    }
+} );
