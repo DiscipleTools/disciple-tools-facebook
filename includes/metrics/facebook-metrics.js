@@ -30,7 +30,7 @@ jQuery(document).ready(function() {
       <p>Filters to just show facebook contacts created during:</p>
       <div class="date_range_picker">
           <i class="fi-calendar"></i>&nbsp;
-          <span>${_.escape(window.wp_json_object.translations.all_time)}</span>
+          <span>${window.lodash.escape(window.wp_json_object.translations.all_time)}</span>
           <i class="dt_caret down"></i>
       </div>
       <div style="display: inline-block" class="loading-spinner"></div>
@@ -235,16 +235,16 @@ jQuery(document).ready(function() {
       chart.paddingRight = 20;
 
       let data = optional_data || window.wp_json_object.stats.message_to_meeting
-      let total = _.sumBy( data, 'occ' );
+      let total = window.lodash.sumBy( data, 'occ' );
       $('#first_meeting_total').html(total)
 
-      let highest = _.get(_.last( data ), 'd')
+      let highest = window.lodash.get(window.lodash.last( data ), 'd')
       for ( let i = 0; i<highest; i++){
-        if ( !_.find( data, {d:i})){
+        if ( !window.lodash.find( data, {d:i})){
           data.push({d:i,occ:0})
         }
       }
-      data = _.orderBy( data, "d")
+      data = window.lodash.orderBy( data, "d")
       chart.data = data;
 
       let durationAxis = chart.xAxes.push(new am4charts.DurationAxis());
