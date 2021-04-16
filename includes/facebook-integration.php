@@ -863,6 +863,9 @@ class Disciple_Tools_Facebook_Integration {
                     // if we haven't yet caught up on conversations.
                     if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation && !$limit_to_one ){
                         $facebook_pages = get_option( "dt_facebook_pages", [] );
+                        if ( !isset( $facebook_pages[$id]["saved_latest"] ) || empty( $facebook_pages[$id]["saved_latest"] ) ){
+                            $facebook_pages[$id]["saved_latest"] = $new_latest_conversation;
+                        }
                         $depth = $facebook_pages[$id]["depth"] ?? 0;
                         $facebook_pages[$id]["depth"] = ++$depth;
                         //save the next page if the process get interrupted.
@@ -874,6 +877,10 @@ class Disciple_Tools_Facebook_Integration {
                         $facebook_pages = get_option( "dt_facebook_pages", [] );
                         $facebook_pages[$id]["next_page"] = null;
                         $facebook_pages[ $id ]["depth"] = 0;
+                        if ( isset( $facebook_pages[$id]["saved_latest"] ) && !empty( $facebook_pages[$id]["saved_latest"] ) ){
+                            $new_latest_conversation = max( intval( $new_latest_conversation ), intval( $facebook_pages[$id]["saved_latest"] ) );
+                        }
+                        $facebook_pages[$id]["saved_latest"] = null;
                         $facebook_pages[$id]["latest_conversation"] = $new_latest_conversation;
                         update_option( "dt_facebook_pages", $facebook_pages );
                     }
