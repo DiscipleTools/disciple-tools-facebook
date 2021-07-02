@@ -54,7 +54,7 @@ class Disciple_Tools_Facebook_Tile {
         if ( $post_type === "contacts" ){
             //check if content is there before adding empty tile
             $contact_id    = get_the_ID();
-            if ( $contact_id ){
+            if ( $contact_id && "contacts" === get_post_type( $contact_id ) ){
                 $contact = DT_Posts::get_post( "contacts", $contact_id, true, true );
                 if ( !is_wp_error( $contact ) && isset( $contact["facebook_data"] ) ) {
                     $contact_fields = DT_Posts::get_post_field_settings( $post_type );
