@@ -66,30 +66,35 @@ class Disciple_Tools_Facebook_Integration {
             [
                 'methods'  => 'POST',
                 'callback' => [ $this, 'update_from_facebook' ],
+                'permission_callback' => '__return_true',
             ]
         );
         register_rest_route(
-            $this->namespace, "auth", [
+            $this->namespace, "/auth", [
                 'methods'  => "GET",
                 'callback' => [ $this, 'authenticate_app' ],
+                'permission_callback' => '__return_true',
             ]
         );
         register_rest_route(
-            $this->namespace, "add-app", [
+            $this->namespace, "/add-app", [
                 'methods'  => "POST",
                 'callback' => [ $this, 'add_app' ],
+                'permission_callback' => '__return_true',
             ]
         );
         register_rest_route(
             $this->namespace ."/dt-public", "cron", [
                 'methods'  => "GET",
                 'callback' => [ $this, 'cron_hook' ],
+                'permission_callback' => '__return_true',
             ]
         );
         register_rest_route(
             $this->namespace ."/dt-public", "cron", [
                 'methods'  => "POST",
                 'callback' => [ $this, 'cron_hook' ],
+                'permission_callback' => '__return_true',
             ]
         );
     }

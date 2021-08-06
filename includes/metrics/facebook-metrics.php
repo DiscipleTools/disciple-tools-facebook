@@ -76,6 +76,7 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
             $namespace, '/time_to_meeting', [
                 'methods'  => 'GET',
                 'callback' => [ $this, 'time_to_meeting_endpoint' ],
+                'permission_callback' => '__return_true',
             ]
         );
     }
