@@ -416,6 +416,7 @@ class DT_Facebook_Tab_Instructions {
         <p><strong>Option 2. Use a service like Update Robot to ping the D.T Facebook plugin to check for updates</strong></p>
 
         <ul style="list-style-type: disc; padding-left:40px">
+            <li>Do this first: Check the "Disable wp-cron for Facebook" checkbox on the Facebook plugin settings page. And click update.</li>
             <li><a href="https://uptimerobot.com/">Sign up for a Uptime Robot Account</a></li>
             <li>Once logged in. Click <strong>Add New Monitor</strong></li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/ur_add_new.png" ) ?>" />
@@ -426,7 +427,6 @@ class DT_Facebook_Tab_Instructions {
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/ur_fields.png" ) ?>" height="250px" />
             <li>Click <strong>Create Monitor</strong></li>
             <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/ur_save.png" ) ?>" =/>
-            <li>Check the "Disable wp-cron for Facebook" checkbox on the Facebook plugin settings page. And click update.</li>
         </ul>
 
 
