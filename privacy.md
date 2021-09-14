@@ -4,10 +4,13 @@ Contact Info: info@disciple.tools
 This privacy policy has been compiled to better serve those who are concerned with how their 'Personally Identifiable Information' (PII) is being used online. PII, as described in US privacy law and information security, is information that can be used on its own or with other information to identify, contact, or locate a single person, or to identify an individual in context. Please read our privacy policy carefully to get a clear understanding of how we collect, use, protect or otherwise handle your Personally Identifiable Information in accordance with our website.
 
 #### What permissions does this app ask for?
+
 - public_profile. This includes certain User’s Data such as id, name, picture, gender, and their locale.
-- email.
-- manage_pages. This is to provide access to your pages for stats and integrations.
 - read_insights. This is to provide timely and useful information about your page performance.
+- pages_messaging. Read your page conversations.
+- pages_show_list. Show a list of your pages to choose which ones to sync
+- pages_read_engagement. Insights into your page's posts
+- pages_manage_metadata. Receive update via webhooks
 - read_page_mailboxes. This is to provide stats on your Facebook conversations
 - business_management. To help link contacts across apps and messenger bots.
 
