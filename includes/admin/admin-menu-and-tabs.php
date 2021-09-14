@@ -332,37 +332,111 @@ class DT_Facebook_Tab_Instructions {
             The user who will sign in needs to be the app creator or an admin added to the app.
 
         <p>Being in development mode has it's own limitations, but at the current time this works for the contact synchronisation. Unfortunately Facebook can at any time change their api or limit access.</p>
-        <ul style="list-style-type: disc; padding-left:40px">
-            <li>Let start the creation progress: go to:
-                <a href="https://developers.facebook.com/apps">https://developers.facebook.com/apps</a>
-            </li>
-            <li>Click the <strong>Add new app</strong> button</li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/add_new_app.png" ) ?>" />
-            <li>You can name the app "Disciple.Tools integration"</li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/create_app_name.png" ) ?>" height="200px" />
-            <li>You should be on the "Add a Product screen." Click <strong>Set Up</strong> on the "Facebook Login" box</li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/products.png" ) ?>" height="200px" />
-            <li>Choose the <strong>Other</strong> option</li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/login_type.png" ) ?>" height="200px" />
-            <li>On the left click <strong>settings</strong> under <strong>Facebook Login</strong></li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/other_type.png" ) ?>" height="250px" />
-            <li>In the <strong>Valid OAuth Redirect URIs</strong> field add: <strong><?php echo esc_url( $rest_url. "/auth" ); ?></strong></li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/oauth_redirect.png" ) ?>" height="400px" />
-            <li>Save Changes</li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_changes.png" ) ?>" />
-            <li>Click <strong>Settings</strong> on the left (right under Dashboard) and then <strong>Basic</strong>. In the <strong>App Domains</strong> box put: <strong><?php echo esc_url( get_site_url() ); ?></strong></li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/app_domain.png" ) ?>" height="250px" />
-            <li>Scroll down. Click <strong>Add Platform</strong>.</li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/add_platform.png" ) ?>" width="500px" />
-            <li> Choose <strong>Website</strong>. </li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/platforms.png" ) ?>" height="250px" />
-            <li>In "Site URL" put: <strong><?php echo esc_url( get_site_url() ); ?></strong></li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/site_url.png" ) ?>" width="500px" />
-            <li>Save Changes</li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_changes.png" ) ?>" />
-            <li>In Settings > Basic: Get the <strong>APP ID</strong> and the <strong>APP SECRET</strong></li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/app_ids.png" ) ?>" height="250px"/>
-        </ul>
+
+        <style>
+            .instructions-table td {
+                padding: 1em;
+                border-bottom: 1px solid #a7a7a79c;
+            }
+        </style>
+        <table class="instructions-table">
+            <tr>
+                <td>
+                    1. Let start the creation progress: go to:
+                    <a href="https://developers.facebook.com/apps" target="_blank">https://developers.facebook.com/apps</a>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>
+                    2. Click the <strong>Add new app</strong> button
+                </td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/add_new_app.png" ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>
+                    3. Select Business Integration
+                </td>
+                <td>
+                    <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/select_business.png" ) ?>" height="300px" />
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    4. You can name the app "Disciple.Tools integration"
+                    <br>
+                    Add your business manage account if you have one already.
+                </td>
+                <td>
+                    <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/create_app_name.png" ) ?>" height="500px" />
+                </td>
+            </tr>
+            <tr>
+                <td>5. You should be on the "Add a Product screen." Click <strong>Set Up</strong> on the "Facebook Login" box</td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/products.png" ) ?>" height="400px" /></td>
+            </tr>
+            <tr>
+                <td>6. Choose the <strong>Other</strong> option</td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/login_type.png" ) ?>" height="200px" /></td>
+            </tr>
+            <tr>
+                <td>7. On the left click <strong>settings</strong> under <strong>Facebook Login</strong></td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/other_type.png" ) ?>" height="400px" /></td>
+            </tr>
+            <tr>
+                <td>8. In the <strong>Valid OAuth Redirect URIs</strong> field add:
+                    <br>
+                    <br>
+                    <strong><?php echo esc_url( $rest_url. "/auth" ); ?></strong>
+                </td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/oauth_redirect.png" ) ?>" height="400px" /></td>
+            </tr>
+            <tr>
+                <td>9. Save Changes</td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_changes.png" ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>
+                    10. Click <strong>Settings</strong> on the left (right under Dashboard) and then <strong>Basic</strong>. In the <strong>App Domains</strong> box put:
+                    <br>
+                    <br>
+                    <strong><?php echo esc_url( get_site_url() ); ?></strong>
+
+                </td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/app_domain.png" ) ?>" height="250px" /></td>
+            </tr>
+            <tr>
+                <td>
+                    11. Under <strong>Privacy Policy URL</strong> add:
+                    <br>
+                    <br>
+                    https://raw.githubusercontent.com/DiscipleTools/disciple-tools-facebook/master/privacy.md
+                </td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/privacy_policy.png" ) ?>" height="250px" /></td>
+            </tr>
+            <tr>
+                <td>12. Scroll down. Click <strong>Add Platform</strong>.</td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/add_platform.png" ) ?>" width="500px" /></td>
+            </tr>
+            <tr>
+                <td>13. Choose <strong>Website</strong>. </td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/platforms.png" ) ?>" height="250px" /></td>
+            </tr>
+            <tr>
+                <td>14. In "Site URL" put: <br><br> <strong><?php echo esc_url( get_site_url() ); ?></strong></td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/site_url.png" ) ?>" width="500px" /></td>
+            </tr>
+            <tr>
+                <td>15. Save Changes</td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/save_changes.png" ) ?>" /></td>
+            </tr>
+            <tr>
+                <td>16. In Settings > Basic: Get the <strong>APP ID</strong> and the <strong>APP SECRET</strong></td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/app_ids.png" ) ?>" height="250px"/></td>
+            </tr>
+
+        </table>
 
 
         <br>
