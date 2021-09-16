@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.com/DiscipleTools/disciple-tools-facebook.svg?branch=master)](https://travis-ci.com/DiscipleTools/disciple-tools-facebook)
 
-![Facebook](https://raw.githubusercontent.com/DiscipleTools/disciple-tools-facebook/master/includes/assets/facebook-banner.png)
+![Facebook](https://raw.githubusercontent.com/DiscipleTools/disciple-tools-facebook/154258468f5bff204a09bd3397116167ffef5dca/includes/assets/facebook-banner.png)
 # Disciple Tools - Facebook
 
 Integrate your Facebook pages with Disciple Tools and allow the online conversation to continue offline.
