@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Disciple Tools - Facebook
+ *Plugin Name: Disciple.Tools - Facebook
  * Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Description: Disciple Tools - Facebook plugin extends the Disciple Tools system to collect data and contacts from Facebook.
  * Version:  0.5.4
