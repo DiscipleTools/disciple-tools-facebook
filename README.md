@@ -1,9 +1,9 @@
 [![Build Status](https://travis-ci.com/DiscipleTools/disciple-tools-facebook.svg?branch=master)](https://travis-ci.com/DiscipleTools/disciple-tools-facebook)
 
 ![Facebook](https://raw.githubusercontent.com/DiscipleTools/disciple-tools-facebook/154258468f5bff204a09bd3397116167ffef5dca/includes/assets/facebook-banner.png)
-# Disciple Tools - Facebook
+# Disciple.Tools - Facebook
 
-Integrate your Facebook pages with Disciple Tools and allow the online conversation to continue offline.
+Integrate your Facebook pages with Disciple.Tools and allow the online conversation to continue offline.
 
 ## Purpose
 Teams using Facebook or ManyChat to connect with people for spiritual conversations and who want to
@@ -46,7 +46,7 @@ Install the plugin on your instance. [Instructions](https://disciple.tools/user-
 
 ## Setup
 
-A full step-by-step guide for linking Disciple Tools to your Facebook page is included in the admin area of the plugin.
+A full step-by-step guide for linking Disciple.Tools to your Facebook page is included in the admin area of the plugin.
 
 - Install the plugin. (You must be an administrator)
 - Activate the plugin.

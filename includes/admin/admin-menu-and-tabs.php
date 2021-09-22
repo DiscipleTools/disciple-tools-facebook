@@ -62,7 +62,7 @@ class DT_Facebook_Menu {
     }
 
     /**
-     * Menu stub. Replaced when Disciple Tools Theme fully loads.
+     * Menu stub. Replaced when Disciple.Tools Theme fully loads.
      */
     public function extensions_menu() {
     }
@@ -87,7 +87,7 @@ class DT_Facebook_Menu {
 
         ?>
         <div class="wrap">
-            <h2><?php esc_attr_e( 'DISCIPLE TOOLS - FACEBOOK', 'disciple-tools-facebook' ) ?></h2>
+            <h2><?php esc_attr_e( 'Disciple.Tools - FACEBOOK', 'disciple-tools-facebook' ) ?></h2>
             <h2 class="nav-tab-wrapper">
                 <a href="<?php echo esc_attr( $link ) . 'general' ?>"
                    class="nav-tab <?php ( $tab == 'general' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'disciple-tools-facebook' ) : print ''; ?>"><?php esc_attr_e( 'General', 'disciple-tools-facebook' ) ?></a>
@@ -122,12 +122,12 @@ class DT_Facebook_Menu {
     }
 
     /**
-     * Admin alert for when Disciple Tools Theme is not available
+     * Admin alert for when Disciple.Tools Theme is not available
      */
     public function dt_facebook_no_disciple_tools_theme_found() {
         ?>
         <div class="updated notice notice-error is-dismissible notice-facebook" data-notice="prefix_deprecated">
-            <p><?php esc_html_e( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or deactivate 'Disciple Tools - Facebook' plugin.", 'disciple-tools-facebook' ); ?></p>
+            <p><?php esc_html_e( "'Disciple.Tools - Facebook' plugin requires 'Disciple.Tools' theme to work. Please activate 'Disciple.Tools' theme or deactivate 'Disciple.Tools - Facebook' plugin.", 'disciple-tools-facebook' ); ?></p>
         </div>
 
         <?php

@@ -152,7 +152,7 @@ class Disciple_Tools_Facebook_Integration {
         <p> This Facebook integration will provide a link between your Facebook pages and Disciple.Tools</p>
         <p>When a contact messages you page, a record for them will be created automatically. Pretty cool right?</p>
 
-<!--        <h3>--><?php //esc_html_e( "Link Disciple tools to a Facebook app in order to get contacts or useful stats from your Facebook pages.", 'disciple-tools-facebook' ) ?><!--</h3>-->
+<!--        <h3>--><?php //esc_html_e( "Link Disciple.Tools to a Facebook app in order to get contacts or useful stats from your Facebook pages.", 'disciple-tools-facebook' ) ?><!--</h3>-->
 
         To get started, head over to the instructions tab where we'll help you get a couple things set up:
         <ul style="list-style-type: disc; padding-left:40px">

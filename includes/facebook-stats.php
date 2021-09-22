@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Disciple Tools
+ * Disciple.Tools
  *
  * @class   Disciple_Tools_Reports_Integrations
  * @version 0.1.0

@@ -2,7 +2,7 @@
 /**
  *Plugin Name: Disciple.Tools - Facebook
  * Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
- * Description: Disciple Tools - Facebook plugin extends the Disciple Tools system to collect data and contacts from Facebook.
+ * Description: Disciple.Tools - Facebook plugin extends the Disciple.Tools system to collect data and contacts from Facebook.
  * Version:  0.5.4
  * Author URI: https://github.com/DiscipleTools
  * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
@@ -274,9 +274,9 @@ function dt_facebook_hook_admin_notice() {
     global $dt_facebook_required_dt_theme_version;
     $wp_theme = wp_get_theme();
     $current_version = $wp_theme->version;
-    $message = __( "'Disciple Tools - Facebook' plugin requires 'Disciple Tools' theme to work. Please activate 'Disciple Tools' theme or make sure it is latest version.", 'disciple-tools-facebook' );
-    if ( strpos( $wp_theme->get_template(), "disciple-tools-theme" ) !== false || $wp_theme->name === "Disciple Tools" ) {
-        $message .= sprintf( esc_html__( 'Current Disciple Tools version: %1$s, required version: %2$s', 'disciple-tools-facebook' ), esc_html( $current_version ), esc_html( $dt_facebook_required_dt_theme_version ) );
+    $message = __( "'Disciple.Tools - Facebook' plugin requires 'Disciple.Tools' theme to work. Please activate 'Disciple.Tools' theme or make sure it is latest version.", 'disciple-tools-facebook' );
+    if ( strpos( $wp_theme->get_template(), "disciple-tools-theme" ) !== false || $wp_theme->name === "Disciple.Tools" ) {
+        $message .= sprintf( esc_html__( 'Current Disciple.Tools version: %1$s, required version: %2$s', 'disciple-tools-facebook' ), esc_html( $current_version ), esc_html( $dt_facebook_required_dt_theme_version ) );
     }
     // Check if it's been dismissed...
     if ( ! get_option( 'dismissed-dt-facebook', false ) ) { ?>
