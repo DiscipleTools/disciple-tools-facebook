@@ -1079,9 +1079,9 @@ class Disciple_Tools_Facebook_Integration {
         $id = $params["page"] ?? null;
 
         //disable facebook plugin relying on wp-cron if url cron is being used.
-        if ( !wp_doing_cron() && empty( get_option( 'dt_facebook_disable_cron', false ) ) ){
-            update_option( "dt_facebook_disable_cron", true );
-        }
+//        if ( !wp_doing_cron() && empty( get_option( 'dt_facebook_disable_cron', false ) ) ){
+//            update_option( "dt_facebook_disable_cron", true );
+//        }
 
         $this->get_recent_conversations( $id );
         return time();
