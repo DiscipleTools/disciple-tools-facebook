@@ -3,7 +3,7 @@
  *Plugin Name: Disciple.Tools - Facebook
  * Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Description: Disciple.Tools - Facebook plugin extends the Disciple.Tools system to collect data and contacts from Facebook.
- * Version:  0.5.4
+ * Version:  0.5.5
  * Author URI: https://github.com/DiscipleTools
  * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Requires at least: 4.7.0
