@@ -536,8 +536,10 @@ class Disciple_Tools_Facebook_Integration {
         $facebook_pages_url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/me/accounts?fields=access_token,id,name,business&access_token=" . $access_token;
         $pages_data = $this->get_all_with_pagination( $facebook_pages_url );
         if ( !empty( $pages_data ) ) {
+            $page_ids = [];
             $pages = get_option( "dt_facebook_pages", [] );
             foreach ( $pages_data as $page ) {
+                $page_ids[] = $page["id"];
                 if ( !isset( $pages[ $page["id"] ] ) ) {
                     $pages[ $page["id"] ] = $page;
                 } else {
@@ -546,6 +548,11 @@ class Disciple_Tools_Facebook_Integration {
                     if ( isset( $page["business"] ) ) {
                         $pages[ $page["id"] ]["business"] = $page["business"];
                     }
+                }
+            }
+            foreach ( $pages as $page_id => $page ){
+                if ( !in_array( $page_id, $page_ids, true ) ){
+                    unset( $pages[$page_id] );
                 }
             }
             update_option( "dt_facebook_pages", $pages );
@@ -903,8 +910,11 @@ class Disciple_Tools_Facebook_Integration {
                      update_option( "dt_facebook_pages", $facebook_pages );
                 }
                 dt_write_log( $conversations_page );
-                $this->display_error( "Conversations page: " . $conversations_page["error"]["message"] );
+                $this->display_error( "Conversations page: " . $conversations_page["error"]["message"] . " (page_id: $id)", $conversations_page["error"]["code"] ?? "" );
                 if ( isset( $conversations_page["error"]["code"] ) && $conversations_page["error"]["code"] == 190 ){
+                    if ( "The access token could not be decrypted" === $conversations_page["error"]["message"] ){
+                        $facebook_pages[$id]["integrate"] = 0;
+                    }
                     // this error sometimes triggers even if all is ok.
                     $message = "Hey, \nThe Facebook integration is no longer authorized with Facebook. Please click 'Login with Facebook' to fix the issue or 'Log out' to stop getting this email: \n";
 //                    $dt_facebook_log_settings = get_option( "dt_facebook_log_settings", [] );
