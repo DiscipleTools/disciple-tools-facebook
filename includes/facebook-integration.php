@@ -539,7 +539,7 @@ class Disciple_Tools_Facebook_Integration {
             $page_ids = [];
             $pages = get_option( "dt_facebook_pages", [] );
             foreach ( $pages_data as $page ) {
-                $page_ids[] = $page["id"];
+                $page_ids[] = (int) $page["id"];
                 if ( !isset( $pages[ $page["id"] ] ) ) {
                     $pages[ $page["id"] ] = $page;
                 } else {
@@ -551,7 +551,7 @@ class Disciple_Tools_Facebook_Integration {
                 }
             }
             foreach ( $pages as $page_id => $page ){
-                if ( !in_array( $page_id, $page_ids, true ) ){
+                if ( !in_array( (int) $page_id, $page_ids, true ) ){
                     unset( $pages[$page_id] );
                 }
             }
