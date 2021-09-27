@@ -308,12 +308,17 @@ class Disciple_Tools_Facebook_Integration {
                                 <tr>
                                     <td><?php echo esc_html( $facebook_page["name"] ); ?>
                                         (<?php echo esc_html( $facebook_page["id"] ); ?>)
+                                        <?php if ( empty($facebook_page["access_token"])) : ?>
+                                            <img class="dt-icon" src="<?php echo esc_html( get_template_directory_uri() . '/dt-assets/images/broken.svg' ) ?>"/>
+                                            <span>You do not have access to this page</span>
+                                        <?php endif; ?>
                                     </td>
                                     <td>
                                         <input title="Integrate"
                                                name="<?php echo esc_attr( $facebook_page["id"] ) . "-integrate"; ?>"
                                                type="checkbox"
-                                               value="<?php echo esc_attr( $facebook_page["id"] ); ?>" <?php echo checked( 1, isset( $facebook_page["integrate"] ) ? $facebook_page["integrate"] : false, false ); ?> />
+                                               <?php disabled( empty( $facebook_page["access_token"] ) ); ?>
+                                               value="<?php echo esc_attr( $facebook_page["id"] ); ?>" <?php echo checked( 1, ( isset( $facebook_page["integrate"] ) && !empty( $facebook_page["access_token"] ) ) ? $facebook_page["integrate"] : false, false ); ?> />
                                     </td>
 <!--                                    <td>-->
 <!--                                        <input title="Report"-->
@@ -552,7 +557,7 @@ class Disciple_Tools_Facebook_Integration {
             }
             foreach ( $pages as $page_id => $page ){
                 if ( !in_array( (int) $page_id, $page_ids, true ) ){
-                    unset( $pages[$page_id] );
+                    unset( $pages[$page_id]["access_token"] );
                 }
             }
             update_option( "dt_facebook_pages", $pages );
