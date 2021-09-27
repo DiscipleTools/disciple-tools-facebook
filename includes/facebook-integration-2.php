@@ -48,6 +48,9 @@ class Disciple_Tools_Facebook_Integration {
         add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
         add_action( 'admin_notices', [ $this, 'dt_admin_notice' ] );
         add_action( 'wp_ajax_dt-facebook-notice-dismiss', [ $this, 'dismiss_error' ] );
+        add_action( "dt_async_dt_conversation_update", [ $this, "get_conversation_update" ], 10, 2 );
+        add_action( "dt_async_dt_facebook_all_conversations", [ $this, "get_conversations_with_pagination" ], 10, 4 );
+        add_action( 'updated_recent_conversations', [ $this, 'get_recent_conversations' ] );
 
     } // End __construct()
 
@@ -57,15 +60,15 @@ class Disciple_Tools_Facebook_Integration {
      * @since  0.1.0
      */
     public function add_api_routes() {
-//        register_rest_route(
-//            $this->namespace . "/dt-public",
-//            'webhook',
-//            [
-//                'methods'  => 'POST',
-//                'callback' => [ $this, 'update_from_facebook' ],
-//                'permission_callback' => '__return_true',
-//            ]
-//        );
+        register_rest_route(
+            $this->namespace . "/dt-public",
+            'webhook',
+            [
+                'methods'  => 'POST',
+                'callback' => [ $this, 'update_from_facebook' ],
+                'permission_callback' => '__return_true',
+            ]
+        );
         register_rest_route(
             $this->namespace, "/auth", [
                 'methods'  => "GET",
@@ -80,25 +83,17 @@ class Disciple_Tools_Facebook_Integration {
                 'permission_callback' => '__return_true',
             ]
         );
-//        register_rest_route(
-//            $this->namespace ."/dt-public", "cron", [
-//                'methods'  => "GET",
-//                'callback' => [ $this, 'cron_hook' ],
-//                'permission_callback' => '__return_true',
-//            ]
-//        );
-//        register_rest_route(
-//            $this->namespace ."/dt-public", "cron", [
-//                'methods'  => "POST",
-//                'callback' => [ $this, 'cron_hook' ],
-//                'permission_callback' => '__return_true',
-//            ]
-//        );
-
         register_rest_route(
-            $this->namespace, "/sync", [
+            $this->namespace ."/dt-public", "cron", [
                 'methods'  => "GET",
-                'callback' => [ $this, 'sync' ],
+                'callback' => [ $this, 'cron_hook' ],
+                'permission_callback' => '__return_true',
+            ]
+        );
+        register_rest_route(
+            $this->namespace ."/dt-public", "cron", [
+                'methods'  => "POST",
+                'callback' => [ $this, 'cron_hook' ],
                 'permission_callback' => '__return_true',
             ]
         );
@@ -319,8 +314,6 @@ class Disciple_Tools_Facebook_Integration {
                                                name="<?php echo esc_attr( $facebook_page["id"] ) . "-integrate"; ?>"
                                                type="checkbox"
                                                value="<?php echo esc_attr( $facebook_page["id"] ); ?>" <?php echo checked( 1, isset( $facebook_page["integrate"] ) ? $facebook_page["integrate"] : false, false ); ?> />
-                                        <button type="button" data-id="<?php echo esc_attr( $facebook_page["id"] ); ?>" class="start_sync">Start Sync</button>
-                                        <span id="<?php echo esc_attr( $facebook_page["id"] ); ?>-spinner" style="display: inline-block" class="loading-spinner"></span>
                                     </td>
 <!--                                    <td>-->
 <!--                                        <input title="Report"-->
@@ -372,43 +365,6 @@ class Disciple_Tools_Facebook_Integration {
                                 <?php endif; ?>
                                 </tbody>
                             </table>
-                            <script>
-                                function makeApiRequest(type, url, data, base = "dt_facebook/v1/") {
-                                    const options = {
-                                        type: type,
-                                        contentType: "application/json; charset=utf-8",
-                                        dataType: "json",
-                                        url: url.startsWith("http") ? url : `<?php echo esc_url_raw( rest_url() )?>${base}${url}`,
-                                        beforeSend: (xhr) => {
-                                            xhr.setRequestHeader("X-WP-Nonce", "<?php echo esc_html( wp_create_nonce( 'wp_rest' ) )?>");
-                                        },
-                                    };
-
-                                    if (data) {
-                                        options.data = type === "GET" ? data : JSON.stringify(data);
-                                    }
-
-                                    return jQuery.ajax(options);
-                                }
-                                function sync( page_id, next = '' ){
-
-                                    makeApiRequest('GET', 'sync', {page:page_id, next:next}).then(response=>{
-                                        if ( response.next ){
-                                            sync()
-                                        } else {
-                                            jQuery(`#${page_id}-spinner`).removeClass("active")
-                                        }
-                                    })
-                                }
-                                jQuery(document).ready(function ($){
-
-                                    $('.start_sync').on('click', function (){
-                                        let page_id = $(this).data('id')
-                                        $(`#${page_id}-spinner`).addClass("active")
-                                        sync( page_id );
-                                    })
-                                })
-                            </script>
                             <input type="submit" class="button" name="get_pages"
                                    value="<?php esc_html_e( "Refresh Page List", 'disciple-tools-facebook' ) ?>"/>
                             <input type="submit" class="button" name="save_pages"
@@ -434,11 +390,6 @@ class Disciple_Tools_Facebook_Integration {
                                 }
                                 ?>
                             </form>
-
-                            <h3>Settings</h3>
-                            <?php $pages = get_option( "dt_facebook_pages", [] );
-                            var_dump( $pages );
-                            ?>
 
                         </form>
                     </div><!-- end post-body-content -->
@@ -582,7 +533,6 @@ class Disciple_Tools_Facebook_Integration {
 
     private function get_or_refresh_pages( $access_token ) {
 
-
         $facebook_pages_url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/me/accounts?fields=access_token,id,name,business&access_token=" . $access_token;
         $pages_data = $this->get_all_with_pagination( $facebook_pages_url );
         if ( !empty( $pages_data ) ) {
@@ -631,7 +581,7 @@ class Disciple_Tools_Facebook_Integration {
                 if ( !empty( $data ) ) {
                     if ( isset( $data["access_token"] ) ) {
                         update_option( 'disciple_tools_facebook_access_token', $data["access_token"] );
-//                        $this->get_or_refresh_pages( $data["access_token"] );
+                        $this->get_or_refresh_pages( $data["access_token"] );
                     }
                     if ( isset( $data["error"] ) ) {
                         $this->display_error( $data["error"]["message"] );
@@ -722,6 +672,25 @@ class Disciple_Tools_Facebook_Integration {
         return $app_secret_proof;
     }
 
+    public function get_page_scoped_ids( $used_id, $access_token ) {
+        $app_secret_proof  = $this->get_app_secret_proof( $access_token );
+        $ids_for_pages_uri = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$used_id?fields=name,ids_for_pages&access_token=$access_token&appsecret_proof=$app_secret_proof";
+        $response          = wp_remote_get( $ids_for_pages_uri );
+        if ( is_wp_error( $response ) ){
+            $this->display_error( $response->get_error_message(), $response->get_error_code() );
+            dt_write_log( $response );
+            return [];
+        }
+        $ids               = json_decode( $response["body"], true );
+        $ids_for_pages     = [];
+        if ( isset( $ids["ids_for_pages"] ) && isset( $ids["ids_for_pages"]["data"] ) ) {
+            foreach ( $ids["ids_for_pages"]["data"] as $user ) {
+                $ids_for_pages[] = $user["id"];
+            }
+        }
+
+        return $ids_for_pages;
+    }
 
     /**
      * Find the Facebook id in contacts and update or create the record. Then retrieve any missing messages
@@ -987,26 +956,6 @@ class Disciple_Tools_Facebook_Integration {
         }
     }
 
-    public function get_next_page( $page_id ){
-        $facebook_pages      = get_option( "dt_facebook_pages", [] );
-
-        //abort if running cron job and getting conversations by cron job is disabled
-        if ( wp_doing_cron() && !empty( get_option( 'dt_facebook_disable_cron', false ) ) ){
-            return;
-        }
-        if ( empty( $page_id ) || !isset( $facebook_pages[$page_id] ) ){
-            return;
-        }
-        $facebook_page = $facebook_pages[$page_id];
-        if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && !empty( $facebook_page["access_token"] ) ){
-            $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
-            $facebook_conversations_url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$page_id/conversations?limit=10&fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_page["access_token"];
-            if ( !empty( $facebook_page["next_page"] ) ){
-                $facebook_conversations_url = $facebook_page["next_page"];
-            }
-        }
-    }
-
     public function get_recent_conversations( $page_id = null ){
         $facebook_pages      = get_option( "dt_facebook_pages", [] );
 
@@ -1118,18 +1067,7 @@ class Disciple_Tools_Facebook_Integration {
     public function cron_hook( WP_REST_Request $request ){
         $params = $request->get_params();
         $id = $params["page"] ?? null;
-//        $this->get_recent_conversations( $id );
-        return time();
-    }
-
-    public function sync( WP_REST_Request $request ){
-        $params = $request->get_params();
-        return $params;
-        $id = $params["page"] ?? null;
-        if ( empty( $id ) ){
-            return;
-        }
-        $this->get_pages( $id );
+        $this->get_recent_conversations( $id );
         return time();
     }
 
