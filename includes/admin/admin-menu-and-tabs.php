@@ -486,7 +486,7 @@ class DT_Facebook_Tab_Instructions {
         <h1 style="margin-top: 40px"><a id="uptime_robot"></a>4. Set up cron to get contacts every 5 minutes.</h1>
         <p>Getting Disciple.Tools to look for new facebook contacts every 5 minutes</p>
         <p><strong>Option 1. Setting up a cron job (Recommended)</strong></p>
-        <p>We recommend setting up a proper cron job for your instance. See <a href="https://disciple.tools/dev-docs/hosting/cron/">CRON Documentation</a></p>
+        <p>We recommend setting up a proper cron job for your instance. See <a href="https://developers.disciple.tools/hosting/cron/">CRON Documentation</a></p>
         <p><strong>Option 2. Use a service like Update Robot to ping the D.T Facebook plugin to check for updates</strong></p>
 
         <ul style="list-style-type: disc; padding-left:40px">
