@@ -144,7 +144,7 @@ class Disciple_Tools_Facebook_Integration {
                 $sync_enabled = true;
             }
         }
-        if ( $sync_enabled && !wp_next_scheduled( 'updated_recent_conversations' )){
+        if ( $sync_enabled && !wp_next_scheduled( 'updated_recent_conversations' ) ){
             wp_schedule_event( time(), '5min', 'updated_recent_conversations' );
         }
 
@@ -308,7 +308,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <tr>
                                     <td><?php echo esc_html( $facebook_page["name"] ); ?>
                                         (<?php echo esc_html( $facebook_page["id"] ); ?>)
-                                        <?php if ( empty($facebook_page["access_token"])) : ?>
+                                        <?php if ( empty( $facebook_page["access_token"] ) ) : ?>
                                             <img class="dt-icon" src="<?php echo esc_html( get_template_directory_uri() . '/dt-assets/images/broken.svg' ) ?>"/>
                                             <span>You do not have access to this page</span>
                                         <?php endif; ?>
@@ -333,7 +333,7 @@ class Disciple_Tools_Facebook_Integration {
                                     </td>
                                     <td>
                                         <?php
-                                        if ( isset( $facebook_page["assign_to"] )){
+                                        if ( isset( $facebook_page["assign_to"] ) ){
                                             $user_for_page = get_user_by( "ID", $facebook_page["assign_to"] );
                                         }
                                         ?>
@@ -390,7 +390,7 @@ class Disciple_Tools_Facebook_Integration {
                                 <button type="submit" class="button" name="delete_duplicates"><?php esc_html_e( "Try deleting duplicates", 'disciple-tools-facebook' ) ?></button>
                                 <?php
                                 $dup_number_option = get_option( 'dt_facebook_dups_found', 0 );
-                                if ( !empty( $dup_number_option )){
+                                if ( !empty( $dup_number_option ) ){
                                     echo 'Remaining potential duplicates to process: ' . esc_html( $dup_number_option );
                                 }
                                 ?>
@@ -635,25 +635,25 @@ class Disciple_Tools_Facebook_Integration {
                 delete_option( "disciple_tools_facebook_app_id" );
                 delete_option( "dt_facebook_pages" );
                 delete_option( "disciple_tools_facebook_access_token" );
-                if ( isset( $_SERVER["HTTP_REFERER"] )){
+                if ( isset( $_SERVER["HTTP_REFERER"] ) ){
                     wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
                     exit;
                 }
             } elseif ( isset( $_POST["save_email"], $_POST["contact_email_address"] ) ){
                 $email = sanitize_text_field( wp_unslash( $_POST["contact_email_address"] ) );
-                if ( !empty( $email )){
+                if ( !empty( $email ) ){
                     update_option( "dt_facebook_contact_email", $email );
                 }
-                if ( isset( $_SERVER["HTTP_REFERER"] )){
+                if ( isset( $_SERVER["HTTP_REFERER"] ) ){
                     wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
                     exit;
                 }
             } elseif ( isset( $_POST["save_close_after_months"], $_POST["close_after_months"] ) ){
                 $months = sanitize_text_field( wp_unslash( $_POST["close_after_months"] ) );
-                if ( isset( $months )){
+                if ( isset( $months ) ){
                     update_option( "dt_facebook_close_after_months", $months );
                 }
-                if ( isset( $_SERVER["HTTP_REFERER"] )){
+                if ( isset( $_SERVER["HTTP_REFERER"] ) ){
                     wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
                     exit;
                 }
@@ -663,7 +663,7 @@ class Disciple_Tools_Facebook_Integration {
                 } else {
                     update_option( "dt_facebook_disable_cron", false );
                 }
-                if ( isset( $_SERVER["HTTP_REFERER"] )){
+                if ( isset( $_SERVER["HTTP_REFERER"] ) ){
                     wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
                     exit;
                 }
@@ -822,7 +822,7 @@ class Disciple_Tools_Facebook_Integration {
                 ],
                 "last_message_received" => strtotime( $updated_time )
             ];
-            if ( isset( $page["assign_to"] )){
+            if ( isset( $page["assign_to"] ) ){
                 $fields["assigned_to"] = $page["assign_to"];
             }
             $new_contact = DT_Posts::create_post( "contacts", $fields, true, false );
@@ -844,7 +844,7 @@ class Disciple_Tools_Facebook_Integration {
         }
 
         $page_id = $page_id ?: $facebook_data["page_ids"][0];
-        if ( ! isset( $facebook_pages[ $page_id ] )){
+        if ( ! isset( $facebook_pages[ $page_id ] ) ){
             return false;
         }
         $page = $facebook_pages[ $page_id ];
@@ -910,7 +910,7 @@ class Disciple_Tools_Facebook_Integration {
                 }
             } else {
                 $facebook_pages = get_option( "dt_facebook_pages", [] );
-                if ( isset( $facebook_pages[$id]["next_page"] ) && !empty( $facebook_pages[$id]["next_page"] )){
+                if ( isset( $facebook_pages[$id]["next_page"] ) && !empty( $facebook_pages[$id]["next_page"] ) ){
                      $facebook_pages[$id]["next_page"] = null;
                      update_option( "dt_facebook_pages", $facebook_pages );
                 }
@@ -941,7 +941,7 @@ class Disciple_Tools_Facebook_Integration {
             }
         } else {
             $facebook_pages = get_option( "dt_facebook_pages", [] );
-            if ( isset( $facebook_pages[$id]["next_page"] ) && !empty( $facebook_pages[$id]["next_page"] )){
+            if ( isset( $facebook_pages[$id]["next_page"] ) && !empty( $facebook_pages[$id]["next_page"] ) ){
                  $facebook_pages[$id]["next_page"] = null;
                  update_option( "dt_facebook_pages", $facebook_pages );
             }
@@ -979,7 +979,7 @@ class Disciple_Tools_Facebook_Integration {
             return;
         }
         foreach ( $facebook_pages as $id => $facebook_page ) {
-            if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && !empty( $facebook_page["access_token"] )){
+            if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && !empty( $facebook_page["access_token"] ) ){
                 if ( !$page_id ){
                     //get conversations
                     wp_remote_post( $this->get_rest_url() . "/dt-public/cron?page=" . $id );
@@ -1100,13 +1100,13 @@ class Disciple_Tools_Facebook_Integration {
         $saved_number = $facebook_data["message_count"] ?? 0;
         $messages = $conversation["messages"]["data"];
         $saved_ids = $facebook_data["message_ids"] ?? [];
-        if ( $message_count != $saved_number && $message_count > $number_of_messages && isset( $conversation["messages"]["paging"]["next"] )){
+        if ( $message_count != $saved_number && $message_count > $number_of_messages && isset( $conversation["messages"]["paging"]["next"] ) ){
             $all_convs = $this->get_all_with_pagination( $conversation["messages"]["paging"]["next"] );
             $messages = array_merge( $all_convs, $messages );
         }
         if ( $message_count != $saved_number ){
             foreach ( $messages as  $message ){
-                if ( !in_array( $message["id"], $saved_ids )){
+                if ( !in_array( $message["id"], $saved_ids ) ){
                     $comment = $message["message"];
                     if ( empty( $comment ) ){
                         $comment = "[picture, sticker or emoji]";

@@ -43,16 +43,16 @@ class Disciple_Tools_Facebook_Reports {
         if ( !is_wp_error( $request ) ) {
             $body = wp_remote_retrieve_body( $request );
             $data = json_decode( $body );
-            if ( !empty( $data )) {
-                if (isset( $data->error )) {
+            if ( !empty( $data ) ) {
+                if ( isset( $data->error ) ) {
                     return $data->error->message;
-                } elseif (isset( $data->data )) {
+                } elseif ( isset( $data->data ) ) {
                     //create reports for each day in the month
                     $first_value = $data->data[0]->values[0];
                     $has_value = isset( $first_value->value );
                     $earliest = gmdate( 'Y-m-d', strtotime( $first_value->end_time ) );
 
-                    if ($since <= $earliest && isset( $data->paging->previous ) && $has_value){
+                    if ( $since <= $earliest && isset( $data->paging->previous ) && $has_value ){
                         $next_page = self::get_facebook_insights_with_paging( $data->paging->previous, $since, $page_id );
                         return array_merge( $data->data, $next_page );
                     } else {
@@ -77,16 +77,16 @@ class Disciple_Tools_Facebook_Reports {
     public static function get_and_save_stats_data( $date_of_last_record, $facebook_page ) {
         $date_of_last_record = gmdate( 'Y-m-d', strtotime( $date_of_last_record ) );
         $since = gmdate( 'Y-m-d', strtotime( '-60 days' ) );
-        if ($date_of_last_record > $since){
+        if ( $date_of_last_record > $since ){
             $since = $date_of_last_record;
         }
-        if (isset( $facebook_page["rebuild"] ) && $facebook_page["rebuild"] == true){
+        if ( isset( $facebook_page["rebuild"] ) && $facebook_page["rebuild"] == true ){
             $since = gmdate( 'Y-m-d', strtotime( '-90 days' ) );
             $date_of_last_record = gmdate( 'Y-m-d', strtotime( '-1 years' ) );
         }
         $page_reports = [];
 
-        if (isset( $facebook_page["report"] ) && $facebook_page["report"] == 1){
+        if ( isset( $facebook_page["report"] ) && $facebook_page["report"] == 1 ){
             $access_token = $facebook_page["access_token"];
             $url = "https://graph.facebook.com/v2.12/" . $facebook_page["id"] . "/insights?metric=";
             $url .= "page_fans";
@@ -99,24 +99,24 @@ class Disciple_Tools_Facebook_Reports {
             $all_page_data = self::get_facebook_insights_with_paging( $url, $date_of_last_record, $facebook_page["id"] );
 
             $month_metrics = [];
-            foreach ($all_page_data as $metric){
-                if ($metric->name === "page_engaged_users" && $metric->period === "day"){
-                    foreach ($metric->values as $day){
+            foreach ( $all_page_data as $metric ){
+                if ( $metric->name === "page_engaged_users" && $metric->period === "day" ){
+                    foreach ( $metric->values as $day ){
                         $month_metrics[ $day->end_time ]['page_engagement'] = isset( $day->value ) ? $day->value : 0;
                     }
                 }
-                if ($metric->name === "page_fans"){
-                    foreach ($metric->values as $day){
+                if ( $metric->name === "page_fans" ){
+                    foreach ( $metric->values as $day ){
                         $month_metrics[ $day->end_time ]['page_likes_count'] = isset( $day->value ) ? $day->value : 0;
                     }
                 }
-                if ($metric->name === "page_admin_num_posts" && $metric->period === "day"){
-                    foreach ($metric->values as $day){
+                if ( $metric->name === "page_admin_num_posts" && $metric->period === "day" ){
+                    foreach ( $metric->values as $day ){
                         $month_metrics[ $day->end_time ]['page_post_count'] = isset( $day->value ) ? $day->value : 0;
                     }
                 }
             }
-            foreach ($month_metrics as $day => $value){
+            foreach ( $month_metrics as $day => $value ){
                 array_push(
                     $page_reports, [
                         'report_date' => gmdate( 'Y-m-d h:m:s', strtotime( $day ) ),
@@ -127,7 +127,7 @@ class Disciple_Tools_Facebook_Reports {
                 );
             }
 
-            if ($facebook_page["rebuild"]){
+            if ( $facebook_page["rebuild"] ){
                 self::disable_rebuild_flag_on_facebook_page( $facebook_page["id"] );
             }
         }

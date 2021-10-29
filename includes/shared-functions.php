@@ -57,7 +57,7 @@ function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app
         $facebook_data = get_post_meta( $post->ID, "facebook_data", true );
         foreach ( $page_scoped_ids as $page_scoped_id ){
             if ( isset( $facebook_data["page_scoped_ids"] ) && in_array( $page_scoped_id, $facebook_data["page_scoped_ids"] ) ){
-                if ( !in_array( $post->ID, $matching_ids )){
+                if ( !in_array( $post->ID, $matching_ids ) ){
                     $matching[] = $post;
                     $matching_ids[] = $post->ID;
                 }
@@ -65,7 +65,7 @@ function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app
         }
         if ( isset( $facebook_data["app_scoped_ids"] ) && !empty( $app_scoped_id ) && !empty( $app_id ) ){
             if ( ( isset( $facebook_data["app_scoped_ids"][$app_id] ) && $facebook_data["app_scoped_ids"][$app_id] == $app_scoped_id ) ){
-                if ( !in_array( $post->ID, $matching_ids )){
+                if ( !in_array( $post->ID, $matching_ids ) ){
                     $matching[] = $post;
                     $matching_ids[] = $post->ID;
                 }
