@@ -53,8 +53,13 @@ function dt_facebook_fields( array $fields, string $post_type = "" ) {
         if ( isset( $fields["reason_closed"] ) && !isset( $fields["reason_closed"]["default"]["closed_from_facebook"] ) ) {
             $fields["reason_closed"]["default"]["closed_from_facebook"] = __( "Closed from Facebook", 'disciple-tools-facebook' );
         }
-        if ( isset( $fields["overall_status"] ) && !isset( $fields["overall_status"]["default"]["from_facebook"] ) ) {
-            $fields["overall_status"]["default"]["from_facebook"] = __( "From Facebook", 'disciple-tools-facebook' );
+        if ( isset( $fields["overall_status"] ) && !isset( $fields["overall_status"]["default"]["from_facebook"] ) ){
+            $fields["overall_status"]["default"] = array_merge( [
+                "from_facebook" => [
+                    "label" => __( "From Facebook", 'disciple-tools-facebook' )
+                ]
+            ],
+            $fields["overall_status"]["default"] );
         }
     }
     //don't forget to return the update fields array
