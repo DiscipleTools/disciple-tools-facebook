@@ -1111,7 +1111,11 @@ class Disciple_Tools_Facebook_Integration {
 //            update_option( "dt_facebook_disable_cron", true );
 //        }
 
-        $this->save_log_message( "Sync hook triggered", 'log' );
+        $msg = "Sync hook triggered";
+        if ( $id ){
+            $msg .= " for page $id";
+        }
+        $this->save_log_message( $msg, 'log' );
         $this->get_recent_conversations( $id );
         return time();
     }
