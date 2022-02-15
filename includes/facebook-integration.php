@@ -35,7 +35,7 @@ class Disciple_Tools_Facebook_Integration {
     private $version = 1.0;
     private $context = "dt_facebook";
     private $namespace;
-    private $facebook_api_version = '7.0';
+    private $facebook_api_version = '13.0';
 
     /**
      * Constructor function.
