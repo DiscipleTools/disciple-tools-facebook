@@ -151,7 +151,7 @@ class Disciple_Tools_Facebook_Integration {
         }
         $schedule_error = null;
         if ( $sync_enabled && !wp_next_scheduled( 'updated_recent_conversations' ) ){
-            $schedule_error = wp_schedule_event( time(), '5min', 'updated_recent_conversations' );
+            $schedule_error = wp_schedule_event( time(), '5min', 'updated_recent_conversations', [], true );
         }
 
         ?>
