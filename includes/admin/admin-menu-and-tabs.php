@@ -249,21 +249,30 @@ class DT_Facebook_Tab_Log {
         <!-- Box -->
 
 
+        <h1><?php esc_html_e( "Recent Logs", 'disciple_tools' ) ?></h1>
         <table class="widefat striped">
             <thead>
             <tr>
-                <th><?php esc_html_e( "Recent Error Logs", 'disciple_tools' ) ?></th>
+                <th>Time</th>
+                <th>Type</th>
+                <th>Message</th>
             </tr>
             </thead>
             <tbody>
-                <?php $log = array_reverse( get_option( "dt_facebook_error_logs", [] ) );
-                foreach ( $log as $l ): ?>
+            <?php $log = array_reverse( get_option( "dt_facebook_error_logs", [] ) );
+            foreach ( $log as $l ): ?>
                 <tr>
                     <td>
-                        <?php echo esc_html( dt_format_date( $l["time"] ) . ': ' . $l["message"] ); ?>
+                        <?php echo esc_html( dt_format_date( $l["time"], "long" ) ) ?>
+                    </td>
+                    <td>
+                        <?php echo esc_html( $l["type"] ?? "Error" ); ?>
+                    </td>
+                    <td>
+                        <?php echo esc_html( $l["message"] ); ?>
                     </td>
                 </tr>
-                <?php endforeach; ?>
+            <?php endforeach; ?>
             </tbody>
         </table>
         <br>

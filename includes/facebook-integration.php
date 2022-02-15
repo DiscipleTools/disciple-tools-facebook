@@ -269,6 +269,14 @@ class Disciple_Tools_Facebook_Integration {
 
                                     </td>
                                 </tr>
+                                <tr>
+                                    <td>
+                                        Next scheduled sync
+                                    </td>
+                                    <td>
+                                        <?php echo esc_html( dt_format_date( wp_next_scheduled( 'updated_recent_conversations', ), 'long' ) ); ?>
+                                    </td>
+                                </tr>
 
                                 </tbody>
                             </table>
@@ -413,19 +421,23 @@ class Disciple_Tools_Facebook_Integration {
      * @param string $code
      */
     private function display_error( $err, $code = "" ) {
-        $err = 'Facebook Extension error at ' .  gmdate( "Y-m-d h:i:sa" ) . ': ' . $err . " ( $code ) "; ?>
+        $err = $err . " ( $code ) "; ?>
         <div class="notice notice-error is-dismissible">
-            <p><?php echo esc_html( $err ); ?></p>
+            <p>Facebook Extension error at <?php echo esc_html( gmdate( "Y-m-d h:i:sa" ) . ': ' . $err ); ?></p>
         </div>
         <?php
-        dt_write_log( $err );
-//        update_option( 'dt_facebook_error', $err );
+        $this->save_log_message( $err, "error" );
+    }
+
+    private function save_log_message( $message, $type ){
+        dt_write_log( $message );
         $log = get_option( "dt_facebook_error_logs", [] );
         $log[] = [
+            "type" => $type,
             "time" => time(),
-            "message" => $err,
+            "message" => $message,
         ];
-        if ( sizeof( $log ) > 50 ){
+        if ( sizeof( $log ) > 100 ){
             array_shift( $log );
         }
         update_option( "dt_facebook_error_logs", $log );
@@ -868,6 +880,9 @@ class Disciple_Tools_Facebook_Integration {
     }
 
     public function get_conversations_with_pagination( $url, $id, $latest_conversation = 0, $limit_to_one = false ) {
+        $facebook_pages = get_option( "dt_facebook_pages", [] );
+        $name = isset( $facebook_pages[$id]["name"] ) ? $facebook_pages[$id]["name"] : "Uknown Page";
+        $this->save_log_message( "Getting conversations for page: " . $name, 'log' );
         $conversations_request = wp_remote_get( $url, [ "timeout" => 15 ] );
         if ( !is_wp_error( $conversations_request ) ) {
             $conversations_body = wp_remote_retrieve_body( $conversations_request );
@@ -875,11 +890,11 @@ class Disciple_Tools_Facebook_Integration {
             if ( !empty( $conversations_page ) && isset( $conversations_page["data"] ) ) {
                 $this->save_conversation_page( $conversations_page["data"], $id, $latest_conversation );
                 $new_latest_conversation = isset( $conversations_page["data"][0]["updated_time"] ) ? strtotime( $conversations_page["data"][0]["updated_time"] ) : 0;
+                $facebook_pages = get_option( "dt_facebook_pages", [] );
                 if ( isset( $conversations_page["paging"]["next"] ) ){
                     $oldest_conversation = end( $conversations_page["data"] );
                     // if we haven't yet caught up on conversations.
                     if ( strtotime( $oldest_conversation["updated_time"] ) >= $latest_conversation && !$limit_to_one ){
-                        $facebook_pages = get_option( "dt_facebook_pages", [] );
                         if ( !isset( $facebook_pages[$id]["saved_latest"] ) || empty( $facebook_pages[$id]["saved_latest"] ) ){
                             $facebook_pages[$id]["saved_latest"] = $new_latest_conversation;
                         }
@@ -891,7 +906,6 @@ class Disciple_Tools_Facebook_Integration {
                         wp_remote_post( $this->get_rest_url() . "/dt-public/cron?page=" . $id );
                     } else {
                         //if has finished all the way we have a new recent conversation.
-                        $facebook_pages = get_option( "dt_facebook_pages", [] );
                         $facebook_pages[$id]["next_page"] = null;
                         $facebook_pages[ $id ]["depth"] = 0;
                         if ( isset( $facebook_pages[$id]["saved_latest"] ) && !empty( $facebook_pages[$id]["saved_latest"] ) ){
@@ -902,7 +916,6 @@ class Disciple_Tools_Facebook_Integration {
                         update_option( "dt_facebook_pages", $facebook_pages );
                     }
                 } else {
-                    $facebook_pages = get_option( "dt_facebook_pages", [] );
                     $facebook_pages[$id]["reached_the_end"] = time();
                     $facebook_pages[$id]["next_page"] = null;
                     $facebook_pages[ $id ]["depth"] = 0;
@@ -973,6 +986,7 @@ class Disciple_Tools_Facebook_Integration {
 
     public function get_recent_conversations( $page_id = null ){
         $facebook_pages      = get_option( "dt_facebook_pages", [] );
+        $this->save_log_message( "Checking for pages to sync", 'log' );
 
         //abort if running cron job and getting conversations by cron job is disabled
         if ( wp_doing_cron() && !empty( get_option( 'dt_facebook_disable_cron', false ) ) ){
@@ -1088,6 +1102,7 @@ class Disciple_Tools_Facebook_Integration {
 //            update_option( "dt_facebook_disable_cron", true );
 //        }
 
+        $this->save_log_message( "Starting sync from cron hook", 'log' );
         $this->get_recent_conversations( $id );
         return time();
     }
