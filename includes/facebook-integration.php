@@ -274,7 +274,16 @@ class Disciple_Tools_Facebook_Integration {
                                         Next scheduled sync
                                     </td>
                                     <td>
-                                        <?php echo esc_html( dt_format_date( wp_next_scheduled( 'updated_recent_conversations', ), 'long' ) ); ?>
+                                        <?php
+                                        $next_time = wp_next_scheduled( 'updated_recent_conversations' );
+                                        if ( !empty( $next_time ) ){
+                                            if ( $next_time - time() >= 0 ){
+                                                echo esc_html( "In " . round( ( $next_time - time() ) / 60 ) . " minutes" );
+                                            } else {
+                                                echo esc_html( round( ( $next_time - time() ) / 60 ) . " minutes ago" );
+                                            }
+                                        }
+                                        ?>
                                     </td>
                                 </tr>
 
@@ -1102,7 +1111,7 @@ class Disciple_Tools_Facebook_Integration {
 //            update_option( "dt_facebook_disable_cron", true );
 //        }
 
-        $this->save_log_message( "Starting sync from cron hook", 'log' );
+        $this->save_log_message( "Sync hook triggered", 'log' );
         $this->get_recent_conversations( $id );
         return time();
     }
