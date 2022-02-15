@@ -366,7 +366,7 @@ class Disciple_Tools_Facebook_Integration {
                                         }
                                         ?>
                                         <select name="<?php echo esc_attr( $facebook_page["id"] ); ?>-assign_new_contacts_to">
-                                            <option value="<?php echo esc_attr( $user_for_page->ID ) ?>"><?php echo esc_attr( $user_for_page->display_name ) ?></option>
+                                            <option value="<?php echo esc_attr( $user_for_page->ID ?? "unknown" ) ?>"><?php echo esc_attr( $user_for_page->display_name ?? "Unknown User" ) ?></option>
                                             <option disabled>---</option>
                                             <?php foreach ( $potential_user_list as $potential_user ) : ?>
                                                 <option value="<?php echo esc_attr( $potential_user->ID ) ?>"><?php echo esc_attr( $potential_user->display_name ) ?></option>
