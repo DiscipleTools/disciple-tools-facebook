@@ -134,6 +134,8 @@ class Disciple_Tools_Facebook_Integration {
      */
     public function facebook_settings_page() {
 
+        $this->facebook_settings_functions();
+
         $access_token = get_option( "disciple_tools_facebook_access_token", "" );
 
         // make sure cron is running if a page is set to sync
@@ -144,8 +146,12 @@ class Disciple_Tools_Facebook_Integration {
                 $sync_enabled = true;
             }
         }
+        if ( !$sync_enabled ){
+            wp_clear_scheduled_hook( 'updated_recent_conversations' );
+        }
+        $schedule_error = null;
         if ( $sync_enabled && !wp_next_scheduled( 'updated_recent_conversations' ) ){
-            wp_schedule_event( time(), '5min', 'updated_recent_conversations' );
+            $schedule_error = wp_schedule_event( time(), '5min', 'updated_recent_conversations' );
         }
 
         ?>
@@ -283,6 +289,12 @@ class Disciple_Tools_Facebook_Integration {
                                                 echo esc_html( round( ( $next_time - time() ) / 60 ) . " minutes ago" );
                                             }
                                         }
+                                        if ( !$sync_enabled ){
+                                            echo "Sync is disabled";
+                                        }
+                                        if ( is_wp_error( $schedule_error ) ){
+                                            echo esc_html( $schedule_error->get_error_message() );
+                                        }
                                         ?>
                                     </td>
                                 </tr>
@@ -298,7 +310,6 @@ class Disciple_Tools_Facebook_Integration {
                         <form action="" method="post">
                             <input type="hidden" name="_wpnonce" id="_wpnonce"
                                    value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
-                            <?php $this->facebook_settings_functions(); ?>
                             <table id="facebook_pages" class="widefat striped">
                                 <thead>
                                 <tr>
