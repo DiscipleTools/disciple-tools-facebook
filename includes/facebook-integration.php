@@ -995,7 +995,9 @@ class Disciple_Tools_Facebook_Integration {
 
     public function get_recent_conversations( $page_id = null ){
         $facebook_pages      = get_option( "dt_facebook_pages", [] );
-        $this->save_log_message( "Checking for pages to sync", 'log' );
+        if ( empty( $page_id ) ){
+            $this->save_log_message( "Checking for pages to sync", 'log' );
+        }
 
         //abort if running cron job and getting conversations by cron job is disabled
         if ( wp_doing_cron() && !empty( get_option( 'dt_facebook_disable_cron', false ) ) ){
@@ -1005,7 +1007,10 @@ class Disciple_Tools_Facebook_Integration {
             if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && !empty( $facebook_page["access_token"] ) ){
                 if ( !$page_id ){
                     //get conversations
-                    wp_remote_post( $this->get_rest_url() . "/dt-public/cron?page=" . $id );
+                    $err = wp_remote_post( $this->get_rest_url() . "/dt-public/cron?page=" . $id );
+                    if ( is_wp_error( $err ) ){
+                        $this->save_log_message( $err->get_error_message(), 'error' );
+                    }
                 } else if ( $id == $page_id ) {
                     $latest_conversation = $facebook_page["latest_conversation"] ?? 0;
                     $facebook_conversations_url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$id/conversations?limit=10&fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $facebook_page["access_token"];
@@ -1111,11 +1116,10 @@ class Disciple_Tools_Facebook_Integration {
 //            update_option( "dt_facebook_disable_cron", true );
 //        }
 
-        $msg = "Sync hook triggered";
-        if ( $id ){
-            $msg .= " for page $id";
+
+        if ( !$id ){
+            $this->save_log_message( "Cron Hook Triggered", 'log' );
         }
-        $this->save_log_message( $msg, 'log' );
         $this->get_recent_conversations( $id );
         return time();
     }
