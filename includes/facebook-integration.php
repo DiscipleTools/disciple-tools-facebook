@@ -1148,7 +1148,7 @@ class Disciple_Tools_Facebook_Integration {
             $messages = array_merge( $all_convs, $messages );
         }
         if ( $message_count != $saved_number ){
-            foreach ( $messages as  $message ){
+            foreach ( $messages as $message ){
                 if ( !in_array( $message["id"], $saved_ids ) ){
                     $comment = $message["message"];
                     if ( empty( $comment ) ){
@@ -1164,13 +1164,15 @@ class Disciple_Tools_Facebook_Integration {
                         //is the page
                         $image = "https://graph.facebook.com/" . $message['from']['id'] . "/picture?type=square";
                     }
-                    DT_Posts::add_post_comment( "contacts", $contact_id, $comment, "facebook", [
+                    $add_comment = DT_Posts::add_post_comment( "contacts", $contact_id, $comment, "facebook", [
                         "user_id" => 0,
                         "comment_author" => $message["from"]["name"],
-                        "comment_date" => $message["created_time"],
+                        "comment_date" => dt_format_date( $message["created_time"], 'Y-m-d H:i:s' ),
                         "comment_author_url" => $image
                     ], false, true );
-                    $saved_ids[] = $message["id"];
+                    if ( !is_wp_error( $add_comment ) ){
+                        $saved_ids[] = $message["id"];
+                    }
                 }
             }
             $facebook_data["message_count"] = $message_count;
