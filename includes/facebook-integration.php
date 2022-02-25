@@ -858,9 +858,9 @@ class Disciple_Tools_Facebook_Integration {
                 $fields["assigned_to"] = $page["assign_to"];
             }
             $new_contact = DT_Posts::create_post( "contacts", $fields, true, false );
-            dt_write_log( "Facebook contact creation failure" );
-            dt_write_log( $fields );
             if ( is_wp_error( $new_contact ) ){
+                dt_write_log( "Facebook contact creation failure" );
+                dt_write_log( $fields );
                 $this->display_error( $new_contact->get_error_message(), $new_contact->get_error_code() );
                 $this->dt_facebook_log_email( "Creating a contact failed", "The Facebook integration was not able to create a contact from Facebook. If this persists, please contact support." );
             }
@@ -1088,7 +1088,7 @@ class Disciple_Tools_Facebook_Integration {
                 }
             }
             foreach ( $to_delete as $row ){
-                DT_Posts::delete_post( $row["post_id"], "contacts" );
+                DT_Posts::delete_post( "contacts", $row["post_id"], false );
                 dt_write_log( $row );
             }
         }
@@ -1142,13 +1142,15 @@ class Disciple_Tools_Facebook_Integration {
         $number_of_messages = sizeof( $conversation["messages"]["data"] );
         $saved_number = $facebook_data["message_count"] ?? 0;
         $messages = $conversation["messages"]["data"];
-        $saved_ids = $facebook_data["message_ids"] ?? [];
+
         if ( $message_count != $saved_number && $message_count > $number_of_messages && isset( $conversation["messages"]["paging"]["next"] ) ){
             $all_convs = $this->get_all_with_pagination( $conversation["messages"]["paging"]["next"] );
             $messages = array_merge( $all_convs, $messages );
         }
         if ( $message_count != $saved_number ){
             foreach ( $messages as $message ){
+                $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
+                $saved_ids = $facebook_data["message_ids"] ?? [];
                 if ( !in_array( $message["id"], $saved_ids ) ){
                     $comment = $message["message"];
                     if ( empty( $comment ) ){
@@ -1158,6 +1160,7 @@ class Disciple_Tools_Facebook_Integration {
                         //is the contact
                         if ( !isset( $facebook_data["profile_pic"] ) ){
                             $facebook_data["profile_pic"] = $this->get_participant_profile_pic( $participant_id, $facebook_data, $contact_id );
+                            update_post_meta( $contact_id, "facebook_data", $facebook_data );
                         }
                         $image = $facebook_data["profile_pic"] !== false ? $facebook_data["profile_pic"] : "";
                     } else {
@@ -1172,11 +1175,14 @@ class Disciple_Tools_Facebook_Integration {
                     ], false, true );
                     if ( !is_wp_error( $add_comment ) ){
                         $saved_ids[] = $message["id"];
+                        $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
+                        $facebook_data["message_ids"][] = $message["id"];
+                        update_post_meta( $contact_id, "facebook_data", $facebook_data );
                     }
                 }
             }
+            $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
             $facebook_data["message_count"] = $message_count;
-            $facebook_data["message_ids"] = $saved_ids;
             update_post_meta( $contact_id, "facebook_data", $facebook_data );
         }
     }
