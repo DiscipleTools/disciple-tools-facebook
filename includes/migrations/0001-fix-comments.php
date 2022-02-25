@@ -27,7 +27,7 @@ class DT_Facebook_Migration_0001 extends DT_Facebook_Migration {
 
             $facebook_data = get_post_meta( $res["post_id"], "facebook_data", true );
             if ( empty( $facebook_data ) ){
-                return;
+                continue;
             }
             $facebook_data = maybe_unserialize( $facebook_data );
             global $wpdb;
