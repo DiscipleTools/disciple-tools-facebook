@@ -144,6 +144,13 @@ class DT_Facebook {
             dt_write_log( __CLASS__ . __METHOD__ );
             dt_write_log( $e );
         }
+        try {
+            require_once( plugin_dir_path( __FILE__ ) . '/includes/class-migration-engine.php' );
+            DT_Facebook_Migration_Engine::migrate( DT_Facebook_Migration_Engine::$migration_number );
+        } catch ( Throwable $e ) {
+            new WP_Error( 'migration_error', 'Migration engine failed to migrate.' );
+        }
+        DT_Facebook_Migration_Engine::display_migration_and_lock();
 
     }
 
