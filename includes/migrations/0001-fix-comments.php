@@ -16,9 +16,13 @@ class DT_Facebook_Migration_0001 extends DT_Facebook_Migration {
         $query_res = $wpdb->get_results( "
             SELECT post_id
             FROM $wpdb->postmeta pm
+            LEFT JOIN $wpdb->posts p ON ( p.post_type = 'contacts' AND pm.post_ID = p.ID )
             WHERE pm.meta_key = 'last_message_received'
-            AND pm.meta_value > 1641054023
-            AND pm.meta_value < 1648488044
+            AND (
+                ( pm.meta_value > 1641054023 AND pm.meta_value < 1648488044 )
+                OR
+                ( p.post_date > '2022-01-01' AND p.post_date < '2022-04-01' )
+            )
         ", ARRAY_A );
 
         $missmatch_detected = false;
