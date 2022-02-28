@@ -30,7 +30,6 @@ class DT_Facebook_Migration_0001 extends DT_Facebook_Migration {
                 continue;
             }
             $facebook_data = maybe_unserialize( $facebook_data );
-            global $wpdb;
             $facebook_comment_count = $wpdb->get_var( $wpdb->prepare( "
                 SELECT COUNT(comment_ID)
                 FROM $wpdb->comments c
@@ -38,7 +37,7 @@ class DT_Facebook_Migration_0001 extends DT_Facebook_Migration {
             ", $res["post_id"] ) );
             if ( (int) $facebook_data["message_count"] !== (int) $facebook_comment_count ){
                 $facebook_data["message_count"] = $facebook_comment_count;
-                $facebook_data["message_ids"] = array_slice( $facebook_data["message_ids"], 0, $facebook_comment_count );
+                $facebook_data["message_ids"] = array_slice( $facebook_data["message_ids"], 0, (int) $facebook_comment_count );
                 $missmatch_detected = true;
             }
             update_post_meta( $res["post_id"], 'facebook_data', $facebook_data );

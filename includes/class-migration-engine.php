@@ -144,12 +144,14 @@ class DT_Facebook_Migration_Engine
         }
     }
 
-
+    public static function get_current_db_migration(){
+        return get_option( 'dt_facebook_migration_number', 0 );
+    }
     public static function display_migration_and_lock(){
         add_action( "dt_utilities_system_details", function () {
             $lock = get_option( 'dt_facebook_migration_lock', 0 ); ?>
             <tr>
-                <td>Facebook Migration version: <?php echo esc_html( self::$migration_number ) ?>. Lock: <?php echo esc_html( $lock ); ?>  </td>
+                <td><?php echo esc_html( sprintf( __( 'Facebook migration version: %1$s of %2$s' ), self::get_current_db_migration(), self::$migration_number ) ); ?>. Lock: <?php echo esc_html( $lock ); ?>  </td>
                 <td> <button name="reset_lock" value="dt_facebook_migration_lock">Reset Lock</button></td>
             </tr>
         <?php });
