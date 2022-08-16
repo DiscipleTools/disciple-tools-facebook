@@ -86,6 +86,7 @@ class Disciple_Tools_Facebook_Sync {
         if ( !isset( $facebook_pages[$page_id] ) ){
             return;
         }
+        Disciple_Tools_Facebook_Api::save_log_message( "Getting conversations for page: " . $facebook_pages[$page_id]["name"] );
         $access_token = $facebook_pages[$page_id]["access_token"];
         $number_to_sync = $first_sync ? 50 : 10;
         $facebook_conversations_url = "https://graph.facebook.com/v14.0/$page_id/conversations?limit=$number_to_sync&fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $access_token;
