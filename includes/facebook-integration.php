@@ -155,7 +155,7 @@ class Disciple_Tools_Facebook_Integration {
                             url: `<?php echo esc_url_raw( rest_url() ) ?>dt_facebook/v1/${url_end}`,
                             data: {page_id:'<?php echo esc_html( $sync_needed['id'] ); ?>'},
                             beforeSend: (xhr) => {
-                                xhr.setRequestHeader("X-WP-Nonce", '<?php echo wp_create_nonce( 'wp_rest' ) ?>');
+                                xhr.setRequestHeader("X-WP-Nonce", '<?php echo esc_html( wp_create_nonce( 'wp_rest' ) ) ?>');
                             },
                         };
                         return jQuery.ajax(options)
@@ -205,7 +205,7 @@ class Disciple_Tools_Facebook_Integration {
                                 dataType: "json",
                                 url: `<?php echo esc_url_raw( rest_url() ) ?>dt_facebook/v1/${url_end}`,
                                 beforeSend: (xhr) => {
-                                    xhr.setRequestHeader("X-WP-Nonce", '<?php echo wp_create_nonce( 'wp_rest' ) ?>');
+                                    xhr.setRequestHeader("X-WP-Nonce", '<?php echo esc_html( wp_create_nonce( 'wp_rest' ) ) ?>');
                                 },
                             };
 
