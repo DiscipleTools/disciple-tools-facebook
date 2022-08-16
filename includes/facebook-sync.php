@@ -41,7 +41,7 @@ class Disciple_Tools_Facebook_Sync {
 
     public function facebook_check_for_new_conversations_cron(){
         $last_call = get_option( "dt_facebook_last_call", 0 );
-        if( !empty( $last_call ) && time() - $last_call < 2 * MINUTE_IN_SECONDS ){
+        if ( !empty( $last_call ) && time() - $last_call < 2 * MINUTE_IN_SECONDS ){
             //another process is running
             return;
         }
@@ -70,12 +70,12 @@ class Disciple_Tools_Facebook_Sync {
     public function process_conversations_job( WP_REST_Request $request ){
         wp_queue()->cron()->cron_worker();
         return [
-            "count" =>  wp_queue_count_jobs( 'facebook_conversation' )
+            "count" => wp_queue_count_jobs( 'facebook_conversation' )
         ];
     }
     public function count_remaining_conversations_save( WP_REST_Request $request ){
         return [
-            "count" =>  wp_queue_count_jobs( 'facebook_conversation' )
+            "count" => wp_queue_count_jobs( 'facebook_conversation' )
         ];
     }
 
@@ -170,7 +170,7 @@ class Disciple_Tools_Facebook_Sync {
 
         $app_id = get_option( "disciple_tools_facebook_app_id", null );
         if ( empty( $app_id ) ){
-            Disciple_Tools_Facebook_Api::save_log_message("missing app_id");
+            Disciple_Tools_Facebook_Api::save_log_message( "missing app_id" );
             return new WP_Error( "app_id", "missing app_id" );
         }
 
@@ -279,7 +279,7 @@ class Disciple_Tools_Facebook_Sync {
         }
     }
 
-     public static function dt_facebook_log_email( $subject, $text ){
+    public static function dt_facebook_log_email( $subject, $text ){
         $email_address = get_option( "dt_facebook_contact_email" );
         if ( !empty( $email_address ) ){
             dt_send_email( $email_address, $subject, $text );
@@ -295,7 +295,7 @@ class Disciple_Tools_Facebook_Sync {
         $messages = $conversation["messages"]["data"];
 
         if ( $message_count != $saved_number && $message_count > $number_of_messages && isset( $conversation["messages"]["paging"]["next"] ) ){
-            dt_write_log("GETTING ALL FACEBOOK MESSAGES");
+            dt_write_log( "GETTING ALL FACEBOOK MESSAGES" );
             $all_convs = Disciple_Tools_Facebook_Api::get_all_with_pagination( $conversation["messages"]["paging"]["next"] );
             $messages = array_merge( $all_convs, $messages );
         }

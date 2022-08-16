@@ -74,7 +74,6 @@ class Disciple_Tools_Facebook_Api {
 //                dt_send_email( "dev@disciple.tools", "Facebook plugin error", get_site_url() . ' ' . serialize( $error ) );
 //            }
 //        }
-
     }
     public static function save_log_message( $message, $type = "error" ){
         dt_write_log( $message );
