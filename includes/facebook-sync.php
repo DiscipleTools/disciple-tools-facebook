@@ -37,11 +37,22 @@ class Disciple_Tools_Facebook_Sync {
                 'permission_callback' => '__return_true',
             ]
         );
+        register_rest_route(
+            $namespace, "dt-public/cron", [
+                'methods'  => "GET",
+                'callback' => [ $this, 'cron_trigger' ],
+                'permission_callback' => '__return_true',
+            ]
+        );
+    }
+
+    public function cron_trigger(){
+        $this->facebook_check_for_new_conversations_cron();
     }
 
     public function facebook_check_for_new_conversations_cron(){
         $last_call = get_option( "dt_facebook_last_call", 0 );
-        if ( !empty( $last_call ) && time() - $last_call < 2 * MINUTE_IN_SECONDS ){
+        if ( !empty( $last_call ) && time() - intval( $last_call ) < 2 * MINUTE_IN_SECONDS ){
             //another process is running
             return;
         }
@@ -80,13 +91,13 @@ class Disciple_Tools_Facebook_Sync {
     }
 
     public static function get_conversations( $page_id, $first_sync ){
-        dt_write_log( "getting_conversations_for_page: " . $page_id );
         // get conversations until most recent
         $facebook_pages = get_option( "dt_facebook_pages", [] );
         if ( !isset( $facebook_pages[$page_id] ) ){
             return;
         }
-        Disciple_Tools_Facebook_Api::save_log_message( "Getting conversations for page: " . $facebook_pages[$page_id]["name"] );
+        dt_write_log( "getting_conversations_for_page: " . $page_id );
+        Disciple_Tools_Facebook_Api::save_log_message( "Getting conversations for page: " . $facebook_pages[$page_id]["name"], "log" );
         $access_token = $facebook_pages[$page_id]["access_token"];
         $number_to_sync = $first_sync ? 50 : 10;
         $facebook_conversations_url = "https://graph.facebook.com/v14.0/$page_id/conversations?limit=$number_to_sync&fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $access_token;

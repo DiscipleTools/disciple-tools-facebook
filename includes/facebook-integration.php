@@ -344,22 +344,22 @@ class Disciple_Tools_Facebook_Integration {
 
                                     </td>
                                 </tr>
-                                <tr>
-                                    <?php $disable_wp_cron = get_option( 'dt_facebook_disable_cron', false ); ?>
-                                    <td>
-                                        Disable getting updates with the wordpress scheduler.
-                                        <br>Check if using the 'wp-json/dt_facebook/v1/dt-public/cron' endpoint with service like "Uptime Robot".
-                                        <br>And if you are getting duplicate contacts or comments from Facebook
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <input type="checkbox" name="dt_facebook_disable_cron" value="<?php echo esc_html( $disable_wp_cron ); ?>" <?php checked( $disable_wp_cron ) ?> />
-                                            Disable wp-cron for Facebook
-                                        </label>
-                                       <button class="button" name="save_disable_cron" type="submit">Update</button>
-
-                                    </td>
-                                </tr>
+<!--                                <tr>-->
+<!--                                    --><?php //$disable_wp_cron = get_option( 'dt_facebook_disable_cron', false ); ?>
+<!--                                    <td>-->
+<!--                                        Disable getting updates with the wordpress scheduler.-->
+<!--                                        <br>Check if using the 'wp-json/dt_facebook/v1/dt-public/cron' endpoint with service like "Uptime Robot".-->
+<!--                                        <br>And if you are getting duplicate contacts or comments from Facebook-->
+<!--                                    </td>-->
+<!--                                    <td>-->
+<!--                                        <label>-->
+<!--                                            <input type="checkbox" name="dt_facebook_disable_cron" value="--><?php //echo esc_html( $disable_wp_cron ); ?><!--" --><?php //checked( $disable_wp_cron ) ?><!-- />-->
+<!--                                            Disable wp-cron for Facebook-->
+<!--                                        </label>-->
+<!--                                       <button class="button" name="save_disable_cron" type="submit">Update</button>-->
+<!---->
+<!--                                    </td>-->
+<!--                                </tr>-->
                                 <tr>
                                     <td>
                                         Next scheduled sync
@@ -403,6 +403,7 @@ class Disciple_Tools_Facebook_Integration {
 <!--                                    <th>--><?php //esc_html_e( "Include in Stats", 'disciple-tools-facebook' ) ?><!--</th>-->
                                     <th><?php esc_html_e( "Part of Business Manager", 'disciple-tools-facebook' ) ?></th>
                                     <th><?php esc_html_e( "Digital Responder", 'disciple-tools-facebook' ) ?></th>
+                                    <th><?php esc_html_e( "Finished sync", 'disciple-tools-facebook' ) ?></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -458,17 +459,18 @@ class Disciple_Tools_Facebook_Integration {
                                             <?php endforeach; ?>
                                         </select>
                                     </td>
-                                    <?php if ( !isset( $facebook_page["reached_the_end"] ) && isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] ) ) : ?>
                                     <td>
-                                        <form action="" method="post">
-                                            <input type="hidden" name="_wpnonce" id="_wpnonce"
-                                                   value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
-
-                                            <input type="hidden" class="button" name="page_id" value="<?php echo esc_attr( $facebook_page["id"] ); ?>" />
-                                            <button type="submit" name="get_recent_conversations"><?php esc_html_e( "Get all conversations (launches in the background. This might take a while)", 'disciple-tools-facebook' ) ?></button>
-                                        </form>
-                                    </td>
+                                    <?php if ( isset( $facebook_page["reached_the_end"] ) && isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] ) ) : ?>
+                                        Finished full sync on <?php echo esc_html( dt_format_date( $facebook_page["reached_the_end"] ) ); ?>
+<!--                                        <form action="" method="post">-->
+<!--                                            <input type="hidden" name="_wpnonce" id="_wpnonce"-->
+<!--                                                   value="--><?php //echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?><!--"/>-->
+<!---->
+<!--                                            <input type="hidden" class="button" name="page_id" value="--><?php //echo esc_attr( $facebook_page["id"] ); ?><!--" />-->
+<!--                                            <button type="submit" name="get_recent_conversations">--><?php //esc_html_e( "Get all conversations (launches in the background. This might take a while)", 'disciple-tools-facebook' ) ?><!--</button>-->
+<!--                                        </form>-->
                                     <?php endif; ?>
+                                    </td>
                                 </tr>
                                 <?php } ?>
                                 <?php if ( empty( $access_token ) ) :?>
@@ -523,7 +525,7 @@ class Disciple_Tools_Facebook_Integration {
      * Display an error message
      *
      * @param $err
-     * @param string $code
+     * @param $code
      */
     private function display_error( $err, $code = "" ) {
         $err = $err . " ( $code ) "; ?>
@@ -615,22 +617,19 @@ class Disciple_Tools_Facebook_Integration {
         }
 
 
-        if ( isset( $_POST["get_recent_conversations"], $_POST["page_id"] ) ){
-            $id = sanitize_text_field( wp_unslash( $_POST["page_id"] ) );
-            $facebook_pages = get_option( "dt_facebook_pages", [] );
-            $facebook_pages[$id]["last_contact_id"] = null;
-            $facebook_pages[$id]["last_paging_cursor"] = null;
-            $facebook_pages[$id]["latest_conversation"] = null;
-            $facebook_pages[$id]["reached_the_end"] = null;
-            update_option( "dt_facebook_pages", $facebook_pages );
-
-            $this->get_recent_conversations( $id );
-        }
+//        if ( isset( $_POST["get_recent_conversations"], $_POST["page_id"] ) ){
+//            $id = sanitize_text_field( wp_unslash( $_POST["page_id"] ) );
+//            $facebook_pages = get_option( "dt_facebook_pages", [] );
+//            $facebook_pages[$id]["last_contact_id"] = null;
+//            $facebook_pages[$id]["last_paging_cursor"] = null;
+//            $facebook_pages[$id]["latest_conversation"] = null;
+//            $facebook_pages[$id]["reached_the_end"] = null;
+//            update_option( "dt_facebook_pages", $facebook_pages );
+//
+//            $this->get_recent_conversations( $id );
+//        }
         if ( isset( $_POST["delete_duplicates"] ) ){
-//            self::delete_obvious_duplicates();
-            Disciple_Tools_Facebook_Sync::get_conversations( "1121212781240615" );
-
-//            wp_queue()->worker(3)->process();
+            self::delete_obvious_duplicates();
         }
     }
 
@@ -659,6 +658,10 @@ class Disciple_Tools_Facebook_Integration {
     private function get_or_refresh_pages( $access_token ) {
 
         $pages_data = Disciple_Tools_Facebook_Api::get_facebook_pages( $access_token );
+        if ( is_wp_error( $pages_data ) ){
+            $this->display_error( $pages_data->get_error_message(), $pages_data->get_error_code() );
+            return;
+        }
         if ( !empty( $pages_data ) ) {
             $page_ids = [];
             $pages = get_option( "dt_facebook_pages", [] );

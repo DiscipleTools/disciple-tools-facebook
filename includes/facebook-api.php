@@ -5,7 +5,7 @@ if ( !defined( 'ABSPATH' ) ) {
 
 class Disciple_Tools_Facebook_Api {
 
-    public static $facebook_api_version = 14;
+    public static $facebook_api_version = "14.0";
 
     //The app secret proof is a sha256 hash of your access token, using the app secret as the key.
     public static function get_app_secret_proof( $access_token ) {
@@ -23,6 +23,10 @@ class Disciple_Tools_Facebook_Api {
         } else {
             $body = wp_remote_retrieve_body( $request );
             $page = json_decode( $body, true );
+            if ( isset( $page["error"] ) ){
+                self::api_error( $page["error"] );
+                return new WP_Error( $page["error"]["code"], $page["error"]["message"], $page["error"] );
+            }
             if ( !empty( $page ) ) {
                 if ( !isset( $page["paging"]["next"] ) ){
                     return $page["data"];
