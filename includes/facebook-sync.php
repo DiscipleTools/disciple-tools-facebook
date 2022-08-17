@@ -72,7 +72,7 @@ class Disciple_Tools_Facebook_Sync {
     public function get_conversations_endpoint( WP_REST_Request $request ){
         $params = $request->get_params();
         if ( isset( $params["page_id"] ) ){
-            $data = self::get_conversations( $params["page_id"] );
+            $data = self::get_conversations( $params["page_id"], true );
             $data['jobs'] = wp_queue_count_jobs( 'facebook_conversation' );
             return $data;
         }
@@ -90,7 +90,7 @@ class Disciple_Tools_Facebook_Sync {
         ];
     }
 
-    public static function get_conversations( $page_id, $first_sync ){
+    public static function get_conversations( $page_id, $first_sync = false ){
         // get conversations until most recent
         $facebook_pages = get_option( "dt_facebook_pages", [] );
         if ( !isset( $facebook_pages[$page_id] ) ){

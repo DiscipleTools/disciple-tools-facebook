@@ -138,12 +138,15 @@ class Disciple_Tools_Facebook_Integration {
             }
         }
         if ( $sync_needed ) : ?>
-        <div id="facebook_sync_section" style="min-height:300px; margin: 20px; padding: 20px; background-color: #ffcfcf">
-            <p>Discovering Conversations for page: <span id="page_name"><?php echo esc_html( $sync_needed["name"] ); ?></span></p>
+        <div id="facebook_sync_section" style="min-height:200px; margin: 20px; padding: 20px; background-color: #ffcfcf;border-radius: 5px; border: solid red 2px;">
+            <p>
+                <img class="dt-icon" src="<?php echo esc_html( get_template_directory_uri() . '/dt-assets/images/broken.svg' ) ?>"/>
+                Discovering Conversations for page: <span id="page_name"><?php echo esc_html( $sync_needed["name"] ); ?></span>
+            </p>
             <p>
                 Discovered <span id="conversation_count">0</span> conversations <span id="discover_spinner"><img src="<?php echo esc_url( trailingslashit( get_stylesheet_directory_uri() ) ) ?>spinner.svg" width="22px" alt="spinner "/></span><br>
             </p>
-            <p>Please do not close this page until the process is done.</p>
+            <p>Please do <strong>not close</strong> this page until the process is done.</p>
 
             <script>
                 jQuery(document).ready(function ($) {
@@ -164,7 +167,6 @@ class Disciple_Tools_Facebook_Integration {
                     let conversation_count = 0;
                     function discover_conversations() {
                         make_api_call('get_conversations_endpoint').then(resp=>{
-                            console.log(resp);
                             if ( resp.conversations_saved ){
                                 conversation_count += resp.conversations_saved
                             }
@@ -189,9 +191,10 @@ class Disciple_Tools_Facebook_Integration {
 
         $conversations_to_sync = wp_queue_count_jobs( 'facebook_conversation' );
         if ( empty( $sync_needed ) && !empty( $conversations_to_sync ) ) : ?>
-            <div id="facebook_sync_section" style="min-height:300px; margin: 20px; padding: 20px; background-color: #ffcfcf">
+            <div id="facebook_sync_section" style="min-height:200px; margin: 20px; padding: 20px; background-color: #ffcfcf;border-radius: 5px; border: solid red 2px;">
                 <p>
-                    Saving Conversations: <span id="job_count">0</span> <span id="saving_convs_spinner"><img src="<?php echo esc_url( trailingslashit( get_stylesheet_directory_uri() ) ) ?>spinner.svg" width="22px" alt="spinner "/></span><br>
+                    <img class="dt-icon" src="<?php echo esc_html( get_template_directory_uri() . '/dt-assets/images/broken.svg' ) ?>"/>
+                    Saving Conversations: <span id="job_count"><?php echo esc_html( $conversations_to_sync ); ?></span> <span id="saving_convs_spinner"><img src="<?php echo esc_url( trailingslashit( get_stylesheet_directory_uri() ) ) ?>spinner.svg" width="22px" alt="spinner "/></span><br>
                 </p>
                 <p>Please do not close this page until the process is done.</p>
 
@@ -212,6 +215,7 @@ class Disciple_Tools_Facebook_Integration {
                             return jQuery.ajax(options)
                         }
 
+                        let timeout = undefined;
                         function save_conversations(){
                             make_api_call( 'count_remaining_conversations_save' ).then(resp=>{
                                 if ( resp.count && resp.count > 0 ){
@@ -221,10 +225,14 @@ class Disciple_Tools_Facebook_Integration {
                                         if ( process_resp.count && ( process_resp.count === 0 || process_resp.count === "0" ) ){
                                             window.location.reload();
                                         }
+                                        if ( process_resp.count && process_resp.count > 0 ){
+                                            clearTimeout(timeout)
+                                            save_conversations();
+                                        }
                                     }).catch(err=>{
                                         console.log(err);
                                     })
-                                    setTimeout( ()=>{
+                                    timeout = setTimeout( ()=>{
                                         save_conversations();
                                     }, 25*1000 )
                                 } else {
