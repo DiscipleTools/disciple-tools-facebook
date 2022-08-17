@@ -3,7 +3,7 @@
  *Plugin Name: Disciple.Tools - Facebook
  * Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Description: Disciple.Tools - Facebook plugin extends the Disciple.Tools system to collect data and contacts from Facebook.
- * Version:  0.6.0
+ * Version:  1.0
  * Author URI: https://github.com/DiscipleTools
  * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Requires at least: 4.7.0
@@ -124,25 +124,18 @@ class DT_Facebook {
     private function includes() {
         require_once( 'includes/wp-async-request.php' );
         require_once( 'includes/admin/admin-menu-and-tabs.php' );
-        require_once( 'includes/async-function.php' );
         require_once( 'includes/shared-functions.php' );
 //        require_once( 'includes/facebook-stats.php' );
 //        new Disciple_Tools_Facebook_Reports();
         require_once( 'includes/facebook-tile.php' );
+        require_once( 'includes/facebook-sync.php' );
+        require_once( 'includes/facebook-api.php' );
         Disciple_Tools_Facebook_Tile::instance();
         require_once( 'includes/facebook-integration.php' );
         Disciple_Tools_Facebook_Integration::instance();
         if ( file_exists( trailingslashit( get_template_directory() ) . 'dt-metrics/charts-base.php' ) ) {
             require_once trailingslashit( get_template_directory() ) . 'dt-metrics/charts-base.php';
             require_once( 'includes/metrics/facebook-metrics.php' );
-        }
-        try {
-            new DT_Facebook_Conversation_Update( 3 );
-            new DT_Facebook_Stats( 3 );
-            new DT_Facebook_All_Conversations( 3 );
-        } catch ( Exception $e ) {
-            dt_write_log( __CLASS__ . __METHOD__ );
-            dt_write_log( $e );
         }
         try {
             require_once( plugin_dir_path( __FILE__ ) . '/includes/class-migration-engine.php' );
