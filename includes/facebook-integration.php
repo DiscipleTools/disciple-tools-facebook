@@ -190,7 +190,7 @@ class Disciple_Tools_Facebook_Integration {
         <?php endif;
 
         $conversations_to_sync = wp_queue_count_jobs( 'facebook_conversation' );
-        if ( empty( $sync_needed ) && !empty( $conversations_to_sync ) ) : ?>
+        if ( empty( $sync_needed ) && !empty( $conversations_to_sync ) && $conversations_to_sync >= 5 ) : ?>
             <div id="facebook_sync_section" style="min-height:200px; margin: 20px; padding: 20px; background-color: #ffcfcf;border-radius: 5px; border: solid red 2px;">
                 <p>
                     <img class="dt-icon" src="<?php echo esc_html( get_template_directory_uri() . '/dt-assets/images/broken.svg' ) ?>"/>
@@ -222,7 +222,7 @@ class Disciple_Tools_Facebook_Integration {
                                     $('#job_count').text(resp.count)
                                     make_api_call( 'process_conversations_job' ).then(process_resp=>{
                                         $('#job_count').text(process_resp.count)
-                                        if ( process_resp.count && ( process_resp.count === 0 || process_resp.count === "0" ) ){
+                                        if ( process_resp.count && parseInt( process_resp.count ) < 5 ){
                                             window.location.reload();
                                         }
                                         if ( process_resp.count && process_resp.count > 0 ){
@@ -234,7 +234,7 @@ class Disciple_Tools_Facebook_Integration {
                                     })
                                     timeout = setTimeout( ()=>{
                                         save_conversations();
-                                    }, 25*1000 )
+                                    }, 31*1000 )
                                 } else {
                                     window.location.reload();
                                 }

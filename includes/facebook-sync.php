@@ -48,6 +48,7 @@ class Disciple_Tools_Facebook_Sync {
 
     public function cron_trigger(){
         $this->facebook_check_for_new_conversations_cron();
+        wp_queue()->cron()->cron_worker();
     }
 
     public function facebook_check_for_new_conversations_cron(){
@@ -101,7 +102,7 @@ class Disciple_Tools_Facebook_Sync {
         $access_token = $facebook_pages[$page_id]["access_token"];
         $number_to_sync = $first_sync ? 50 : 10;
         $facebook_conversations_url = "https://graph.facebook.com/v14.0/$page_id/conversations?limit=$number_to_sync&fields=link,message_count,messages.limit(500){from,created_time,message},participants,updated_time&access_token=" . $access_token;
-        if ( $facebook_pages[$page_id]["next_page"] ){
+        if ( !empty( $facebook_pages[$page_id]["next_page"] ) ){
             $facebook_conversations_url = $facebook_pages[$page_id]["next_page"];
         }
         $conversations_page = Disciple_Tools_Facebook_Api::get_page( $facebook_conversations_url );
@@ -114,24 +115,34 @@ class Disciple_Tools_Facebook_Sync {
             return;
         }
 
+        $latest_conversation = $facebook_pages[$page_id]["latest_conversation"] ?? 0;
         foreach ( $conversations_page["data"] as $conv ){
-            wp_queue()->push( new DT_Save_Facebook_Conversation( $conv, $page_id ), 0, "facebook_conversation" );
+            if ( isset( $conv["updated_time"] ) && strtotime( $conv["updated_time"] ) >= $latest_conversation ){
+                wp_queue()->push( new DT_Save_Facebook_Conversation( $conv, $page_id ), 0, "facebook_conversation" );
+            }
         }
 
+        $oldest_conversation = end( $conversations_page["data"] );
+        $oldest_updated_time = strtotime( $oldest_conversation["updated_time"] );
         $facebook_pages[$page_id]["next_page"] = null;
+        $new_latest_conversation = isset( $conversations_page["data"][0]["updated_time"] ) ? strtotime( $conversations_page["data"][0]["updated_time"] ) : 0;
         if ( empty( $facebook_pages[$page_id]["reached_the_end"] ) ){
+            if ( empty( $facebook_pages[$page_id]["saved_latest"] ) ){
+                $facebook_pages[$page_id]["saved_latest"] = $new_latest_conversation;
+            }
             if ( !empty( $conversations_page["paging"]["next"] ) ){
                 $facebook_pages[$page_id]["next_page"] = $conversations_page["paging"]["next"];
-
             } else {
                 $facebook_pages[$page_id]["reached_the_end"] = time();
+                $facebook_pages[$page_id]["latest_conversation"] = $facebook_pages[$page_id]["saved_latest"];
+                $facebook_pages[$page_id]["saved_latest"] = null;
             }
         } else {
-            $oldest_conversation = end( $conversations_page["data"] );
-            $oldest_updated_time = strtotime( $oldest_conversation["updated_time"] );
-            $latest_conversation = isset( $facebook_pages[$page_id]["latest_conversation"] ) ? $facebook_pages[$page_id]["latest_conversation"] : 0;
+
             if ( $oldest_updated_time > intval( $latest_conversation ) ) {
                 $facebook_pages[$page_id]["next_page"] = $conversations_page["paging"]["next"];
+            } else {
+                $facebook_pages[$page_id]["latest_conversation"] = $latest_conversation;
             }
         }
 
@@ -145,18 +156,14 @@ class Disciple_Tools_Facebook_Sync {
 
     public static function save_conversation( $page_id, $conversation ){
         $facebook_pages = get_option( "dt_facebook_pages", [] );
-
-        $latest_conversation = isset( $facebook_pages[$page_id]["latest_conversation"] ) ? $facebook_pages[$page_id]["latest_conversation"] : 0;
-        if ( strtotime( $conversation["updated_time"] ) >= $latest_conversation ){
-            foreach ( $conversation["participants"]["data"] as $participant ) {
-                if ( (string) $participant["id"] != $page_id ) {
-                    $contact_id = self::update_or_create_contact( $participant, $conversation["updated_time"], $facebook_pages[$page_id], $conversation );
-                    if ( $contact_id ){
-                        $facebook_pages = get_option( "dt_facebook_pages", [] );
-                        $facebook_pages[$page_id]["last_contact_id"] = $contact_id;
-                        update_option( "dt_facebook_pages", $facebook_pages );
-                        self::update_facebook_messages_on_contact( $contact_id, $conversation, $participant["id"] );
-                    }
+        foreach ( $conversation["participants"]["data"] as $participant ) {
+            if ( (string) $participant["id"] != $page_id ) {
+                $contact_id = self::update_or_create_contact( $participant, $conversation["updated_time"], $facebook_pages[$page_id], $conversation );
+                if ( $contact_id ){
+                    $facebook_pages = get_option( "dt_facebook_pages", [] );
+                    $facebook_pages[$page_id]["last_contact_id"] = $contact_id;
+                    update_option( "dt_facebook_pages", $facebook_pages );
+                    self::update_facebook_messages_on_contact( $contact_id, $conversation, $participant["id"] );
                 }
             }
         }
@@ -298,6 +305,15 @@ class Disciple_Tools_Facebook_Sync {
         }
     }
 
+    public static $allowable_comment_tags = array(
+        'a' => array(
+            'href' => array(),
+            'title' => array()
+        ),
+        'br' => array(),
+        'em' => array(),
+        'strong' => array(),
+    );
 
     public static function update_facebook_messages_on_contact( $contact_id, $conversation, $participant_id ){
         $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
@@ -312,40 +328,47 @@ class Disciple_Tools_Facebook_Sync {
             $messages = array_merge( $all_convs, $messages );
         }
         $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
+        global $wpdb;
+        $sql = "INSERT INTO $wpdb->comments (comment_post_ID, comment_author, comment_date, comment_date_gmt, comment_content, comment_approved, comment_type, comment_parent, user_id) VALUES ";
+        $comments_to_add = '';
         if ( $message_count != $saved_number ){
             foreach ( $messages as $message ){
                 $saved_ids = $facebook_data["message_ids"] ?? [];
                 if ( !in_array( $message["id"], $saved_ids ) ){
-                    $comment = $message["message"];
+                    $comment = wp_kses( $message["message"], self::$allowable_comment_tags );
                     if ( empty( $comment ) ){
                         $comment = "[picture, sticker or emoji]";
                     }
-//                    if ( $participant_id == $message["from"]["id"] ){
-//                        //is the contact
-//                        if ( !isset( $facebook_data["profile_pic"] ) ){
-////                            $facebook_data["profile_pic"] = $this->get_participant_profile_pic( $participant_id, $facebook_data, $contact_id );
-//                            update_post_meta( $contact_id, "facebook_data", $facebook_data );
-//                        }
-//                        $image = $facebook_data["profile_pic"] !== false ? $facebook_data["profile_pic"] : "";
-//                    } else {
-//                        //is the page
-//                        $image = "https://graph.facebook.com/" . $message['from']['id'] . "/picture?type=square";
-//                    }
-                    $add_comment = DT_Posts::add_post_comment( "contacts", $contact_id, $comment, "facebook", [
-                        "user_id" => 0,
-                        "comment_author" => $message["from"]["name"],
-                        "comment_date" => dt_format_date( $message["created_time"], 'Y-m-d H:i:s' ),
-                    ], false, true );
-                    if ( !is_wp_error( $add_comment ) ){
-                        $saved_ids[] = $message["id"];
-                        $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
-                        $facebook_data["message_ids"][] = $message["id"];
-                        update_post_meta( $contact_id, "facebook_data", $facebook_data );
-                    }
+                    $date = dt_format_date( $message["created_time"], 'Y-m-d H:i:s' );
+                    $comments_to_add .= $wpdb->prepare( "( %d, %s, %s, %s, %s, %d, %s, %d, %d ),",
+                        $contact_id,
+                        $message["from"]["name"],
+                        $date,
+                        $date,
+                        $comment,
+                        1,
+                        'facebook',
+                        0,
+                        0
+                    );
+                    $saved_ids[] = $message["id"];
+                    $facebook_data["message_ids"][] = $message["id"];
                 }
             }
+            if ( !empty( $comments_to_add ) ){
+                $sql .= $comments_to_add;
+                $sql .= ";";
+                $sql = str_replace( ",;", ";", $sql ); // remove last comma
+            }
+            $insert_comments = $wpdb->query( $sql ); // @phpcs:ignore
+            if ( empty( $insert_comments ) || is_wp_error( $insert_comments ) ) {
+                return new WP_Error( __FUNCTION__, 'Failed to insert comments' );
+            }
+
+            $message_ids = $facebook_data["message_ids"];
             $facebook_data = maybe_unserialize( get_post_meta( $contact_id, "facebook_data", true ) ) ?? [];
             $facebook_data["message_count"] = $message_count;
+            $facebook_data["message_ids"] = $message_ids;
             update_post_meta( $contact_id, "facebook_data", $facebook_data );
         }
     }
