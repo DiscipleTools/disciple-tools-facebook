@@ -139,7 +139,7 @@ class Disciple_Tools_Facebook_Sync {
             }
         } else {
 
-            if ( $oldest_updated_time > intval( $latest_conversation ) ) {
+            if ( $oldest_updated_time > intval( $latest_conversation ) && !empty( $conversations_page["paging"]["next"] ) ) {
                 $facebook_pages[$page_id]["next_page"] = $conversations_page["paging"]["next"];
             } else {
                 $facebook_pages[$page_id]["latest_conversation"] = $latest_conversation;
