@@ -120,11 +120,16 @@ class Disciple_Tools_Facebook_Integration {
             }
         }
         if ( !$sync_enabled ){
-            wp_clear_scheduled_hook( 'updated_recent_conversations' );
+            wp_clear_scheduled_hook( 'facebook_check_for_new_conversations_cron' );
         }
         $schedule_error = null;
-        if ( $sync_enabled && !wp_next_scheduled( 'updated_recent_conversations' ) ){
-            $schedule_error = wp_schedule_event( time(), '5min', 'updated_recent_conversations', [], true );
+        if ( $sync_enabled && !wp_next_scheduled( 'facebook_check_for_new_conversations_cron' ) ){
+            $schedule_error = wp_schedule_event( time(), '5min', 'facebook_check_for_new_conversations_cron' );
+             wp_schedule_event( time(), '5min', 'facebook_check_for_new_conversations_cron', [], true );
+        }
+
+        if ( !defined( 'DISABLE_WP_CRON' ) || DISABLE_WP_CRON === false ){
+            $this->display_error( "It appears that CRON jobs are not set up correctly.", '', false );
         }
 
 
@@ -225,7 +230,7 @@ class Disciple_Tools_Facebook_Integration {
                                         if ( process_resp.count && parseInt( process_resp.count ) < 5 ){
                                             window.location.reload();
                                         }
-                                        if ( process_resp.count && process_resp.count > 0 ){
+                                        if ( process_resp.count && process_resp.count > 0 && !process_resp.cron_stuck ){
                                             clearTimeout(timeout)
                                             save_conversations();
                                         }
@@ -374,7 +379,7 @@ class Disciple_Tools_Facebook_Integration {
                                     </td>
                                     <td>
                                         <?php
-                                        $next_time = wp_next_scheduled( 'updated_recent_conversations' );
+                                        $next_time = wp_next_scheduled( 'facebook_check_for_new_conversations_cron' );
                                         if ( !empty( $next_time ) ){
                                             if ( $next_time - time() >= 0 ){
                                                 echo esc_html( "In " . round( ( $next_time - time() ) / 60 ) . " minutes" );
@@ -535,13 +540,15 @@ class Disciple_Tools_Facebook_Integration {
      * @param $err
      * @param $code
      */
-    private function display_error( $err, $code = "" ) {
-        $err = $err . " ( $code ) "; ?>
+    private function display_error( $err, $code = "", $log = true ) {
+        $err = $err . ( empty( $code ) ? '' : " ( $code ) " ); ?>
         <div class="notice notice-error is-dismissible">
-            <p>Facebook Extension error at <?php echo esc_html( gmdate( "Y-m-d h:i:sa" ) . ': ' . $err ); ?></p>
+            <p>Facebook Extension: <?php echo esc_html( $err ); ?></p>
         </div>
         <?php
-        $this->save_log_message( $err, "error" );
+        if ( $log ){
+            $this->save_log_message( $err, "error" );
+        }
     }
 
     private function save_log_message( $message, $type ){
@@ -594,8 +601,8 @@ class Disciple_Tools_Facebook_Integration {
                         ];
                         update_option( "dt_site_custom_lists", $dt_custom_lists );
                     }
-                    if ( !wp_next_scheduled( 'updated_recent_conversations' ) ) {
-                        wp_schedule_event( time(), '5min', 'updated_recent_conversations' );
+                    if ( !wp_next_scheduled( 'facebook_check_for_new_conversations_cron' ) ) {
+                        wp_schedule_event( time(), '5min', 'facebook_check_for_new_conversations_cron' );
                     }
                 } else {
                     $facebook_pages[ $id ]["integrate"] = 0;

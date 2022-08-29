@@ -509,6 +509,10 @@ class DT_Facebook_Tab_Instructions {
         <h3>CRON Instructions</h3>
         <p>How to set up cron jobs for your instance: <a href="https://developers.disciple.tools/hosting/cron/">CRON Documentation</a></p>
 
+        <p>
+            Note: You might have previously been using  Uptime Robot to call <?php echo esc_html( $rest_url . "/dt-public/cron" ); ?>. <br>
+            You can change it to point to the wp-cron.php hook. But we recommend using the system cron instead.
+        </p>
 
         <h1>Well done. You are all set!</h1>
 
@@ -543,7 +547,7 @@ class DT_Facebook_Tab_Instructions {
             </tr>
             <tr>
                 <td>
-                    <a href="#uptime_robot">4. Set up Uptime Robot</a>
+                    <a href="#uptime_robot">4. Set CRON jobs</a>
                 </td>
             </tr>
             </tbody>

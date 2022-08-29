@@ -7,9 +7,7 @@ class Disciple_Tools_Facebook_Sync {
     public function __construct(){
         add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
 
-        if ( ! wp_next_scheduled( 'facebook_check_for_new_conversations_cron' ) ) {
-            wp_schedule_event( time(), '5min', 'facebook_check_for_new_conversations_cron' );
-        }
+
         add_action( 'facebook_check_for_new_conversations_cron', [ $this, 'facebook_check_for_new_conversations_cron' ] );
     }
 
@@ -80,9 +78,12 @@ class Disciple_Tools_Facebook_Sync {
         return false;
     }
     public function process_conversations_job( WP_REST_Request $request ){
+        $count = wp_queue_count_jobs( 'facebook_conversation' );
         wp_queue()->cron()->cron_worker();
+        $count_after = wp_queue_count_jobs( 'facebook_conversation' );
         return [
-            "count" => wp_queue_count_jobs( 'facebook_conversation' )
+            "count" => $count_after,
+            "cron_stuck" => $count === $count_after
         ];
     }
     public function count_remaining_conversations_save( WP_REST_Request $request ){
@@ -108,9 +109,11 @@ class Disciple_Tools_Facebook_Sync {
         $conversations_page = Disciple_Tools_Facebook_Api::get_page( $facebook_conversations_url );
         $facebook_pages = get_option( "dt_facebook_pages", [] );
         if ( is_wp_error( $conversations_page ) ){
-            if ( $conversations_page->get_error_code() === 190 ){
-                 $facebook_pages[$page_id]["integrate"] = 0;
-                 update_option( "dt_facebook_pages", $facebook_pages );
+            if ( $conversations_page->get_error_code() !== 190 ){
+                if ( "The access token could not be decrypted" === $conversations_page["error"]["message"] ){
+                    $facebook_pages[$page_id]["integrate"] = 0;
+                    update_option( "dt_facebook_pages", $facebook_pages );
+                }
             }
             return;
         }
