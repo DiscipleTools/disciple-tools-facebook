@@ -493,24 +493,21 @@ class DT_Facebook_Tab_Instructions {
         <br>
         <br>
         <h1 style="margin-top: 40px"><a id="uptime_robot"></a>4. Set up cron to get contacts every 5 minutes.</h1>
-        <p>Getting Disciple.Tools to look for new facebook contacts every 5 minutes</p>
-        <p><strong>Option 1. Setting up a cron job (Recommended)</strong></p>
-        <p>We recommend setting up a proper cron job for your instance. See <a href="https://developers.disciple.tools/hosting/cron/">CRON Documentation</a></p>
-        <p><strong>Option 2. Use a service like Update Robot to ping the D.T Facebook plugin to check for updates</strong></p>
+        <p>Disciple.Tools uses CRON to look to run automated tasks. Wordpress does not come with this set up correctly out of the box.</p>
+        <p>This Facebook plugin needs CRON to be set up correctly to check for new contacts to sync to Disciple.Tools.</p>
 
-        <ul style="list-style-type: disc; padding-left:40px">
-            <li>Do this first: Check the "Disable wp-cron for Facebook" checkbox on the Facebook plugin settings page. And click update.</li>
-            <li><a href="https://uptimerobot.com/">Sign up for a Uptime Robot Account</a></li>
-            <li>Once logged in. Click <strong>Add New Monitor</strong></li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/ur_add_new.png" ) ?>" />
-            <li>Monitor type: HTTP(s)</li>
-            <li>Friendly Name: Facebook Cron</li>
-            <li>Url: <strong><?php echo esc_html( $rest_url . "/dt-public/cron" ); ?></strong></li>
-            <li>Monitoring Interval: 5 mins</li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/ur_fields.png" ) ?>" height="250px" />
-            <li>Click <strong>Create Monitor</strong></li>
-            <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . "assets/ur_save.png" ) ?>" =/>
-        </ul>
+        <p>
+            Status:
+            <?php if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON === true ): ?>
+                <strong>Cron Enabled.</strong>
+                It looks like you have CRON already set set up correctly.
+            <?php else : ?>
+                <strong>Cron Disabled.</strong> Cron jobs appear to not be set up. The constant <code>DISABLE_WP_CRON</code> is not set. See the Cron Documentation.
+            <?php endif; ?>
+        </p>
+
+        <h3>CRON Instructions</h3>
+        <p>How to set up cron jobs for your instance: <a href="https://developers.disciple.tools/hosting/cron/">CRON Documentation</a></p>
 
 
         <h1>Well done. You are all set!</h1>
