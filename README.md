@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/DiscipleTools/disciple-tools-facebook.svg?branch=master)](https://travis-ci.com/DiscipleTools/disciple-tools-facebook)
+![Build Status](https://github.com/DiscipleTools/disciple-tools-facebook/actions/workflows/ci.yml/badge.svg?branch=master)
 
 ![Plugin Banner](https://raw.githubusercontent.com/DiscipleTools/disciple-tools-facebook/154258468f5bff204a09bd3397116167ffef5dca/includes/assets/facebook-banner.png)
 # Disciple.Tools - Facebook
