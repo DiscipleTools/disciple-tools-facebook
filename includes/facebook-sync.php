@@ -151,9 +151,9 @@ class Disciple_Tools_Facebook_Sync {
         } else {
             if ( $oldest_updated_time > intval( $latest_conversation ) && !empty( $conversations_page['paging']['next'] ) ) {
                 $facebook_pages[$page_id]['next_page'] = $conversations_page['paging']['next'];
-                $facebook_pages[$page_id]['saved_latest'] = max( $new_latest_conversation, $facebook_pages[$page_id]['saved_latest'] ?? 0 ) ;
+                $facebook_pages[$page_id]['saved_latest'] = max( $new_latest_conversation, $facebook_pages[$page_id]['saved_latest'] ?? 0 );
             } else {
-                $facebook_pages[$page_id]['latest_conversation'] = max( $new_latest_conversation, $facebook_pages[$page_id]['saved_latest'] ?? 0 ) ;
+                $facebook_pages[$page_id]['latest_conversation'] = max( $new_latest_conversation, $facebook_pages[$page_id]['saved_latest'] ?? 0 );
                 $facebook_pages[$page_id]['new_latest_conversation_id'] = $new_latest_conversation_id;
                 $facebook_pages[$page_id]['saved_latest'] = null;
             }
