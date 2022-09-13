@@ -76,7 +76,7 @@ class Disciple_Tools_Facebook_Sync {
     public function get_conversations_endpoint( WP_REST_Request $request ){
         $params = $request->get_params();
         if ( isset( $params['page_id'] ) ){
-            $data = self::get_conversations( $params['page_id'], true );
+            $data = self::get_conversations( $params['page_id'], true, true );
             $data['jobs'] = wp_queue_count_jobs( 'facebook_conversation' );
             return $data;
         }
@@ -97,7 +97,7 @@ class Disciple_Tools_Facebook_Sync {
         ];
     }
 
-    public static function get_conversations( $page_id, $first_sync = false ){
+    public static function get_conversations( $page_id, $first_sync = false, $skip_save = false ){
         // get conversations until most recent
         $facebook_pages = get_option( 'dt_facebook_pages', [] );
         if ( !isset( $facebook_pages[$page_id] ) ){
@@ -124,17 +124,19 @@ class Disciple_Tools_Facebook_Sync {
         }
 
         $latest_conversation = $facebook_pages[$page_id]['latest_conversation'] ?? 0;
+        $number_of_convs_to_save = 0;
         foreach ( $conversations_page['data'] as $conv ){
-            if ( isset( $conv['updated_time'] ) && strtotime( $conv['updated_time'] ) >= $latest_conversation ){
+            if ( isset( $conv['updated_time'] ) && strtotime( $conv['updated_time'] ) >= $latest_conversation && ( empty( $facebook_pages[$page_id]['new_latest_conversation_id'] ) || $conv['messages']['data'][0]['id'] !== $facebook_pages[$page_id]['new_latest_conversation_id'] ) ){
+                $number_of_convs_to_save++;
                 wp_queue()->push( new DT_Save_Facebook_Conversation( $conv, $page_id ), 0, 'facebook_conversation' );
             }
         }
-        //@todo if new convs added and not reached the end, then call the sync.
 
         $oldest_conversation = end( $conversations_page['data'] );
         $oldest_updated_time = strtotime( $oldest_conversation['updated_time'] );
         $facebook_pages[$page_id]['next_page'] = null;
         $new_latest_conversation = isset( $conversations_page['data'][0]['updated_time'] ) ? strtotime( $conversations_page['data'][0]['updated_time'] ) : 0;
+        $new_latest_conversation_id = isset( $conversations_page['data'][0]['messages']['data'][0]['id'] ) ? $conversations_page['data'][0]['messages']['data'][0]['id'] : 0;
         if ( empty( $facebook_pages[$page_id]['reached_the_end'] ) ){
             if ( empty( $facebook_pages[$page_id]['saved_latest'] ) ){
                 $facebook_pages[$page_id]['saved_latest'] = $new_latest_conversation;
@@ -147,16 +149,23 @@ class Disciple_Tools_Facebook_Sync {
                 $facebook_pages[$page_id]['saved_latest'] = null;
             }
         } else {
-
             if ( $oldest_updated_time > intval( $latest_conversation ) && !empty( $conversations_page['paging']['next'] ) ) {
                 $facebook_pages[$page_id]['next_page'] = $conversations_page['paging']['next'];
+                $facebook_pages[$page_id]['saved_latest'] = max( $new_latest_conversation, $facebook_pages[$page_id]['saved_latest'] ?? 0 ) ;
             } else {
-                $facebook_pages[$page_id]['latest_conversation'] = $latest_conversation;
+                $facebook_pages[$page_id]['latest_conversation'] = max( $new_latest_conversation, $facebook_pages[$page_id]['saved_latest'] ?? 0 ) ;
+                $facebook_pages[$page_id]['new_latest_conversation_id'] = $new_latest_conversation_id;
+                $facebook_pages[$page_id]['saved_latest'] = null;
             }
         }
 
         $facebook_pages[$page_id]['last_api_call'] = time();
         update_option( 'dt_facebook_pages', $facebook_pages );
+        if ( !$skip_save && !empty( $facebook_pages[$page_id]['next_page'] ) ){
+            return self::get_conversations( $page_id );
+        } elseif ( !$skip_save && $number_of_convs_to_save > 0 ) {
+            wp_queue()->cron()->cron_worker();
+        }
         return [
             'conversations_saved' => sizeof( $conversations_page['data'] ),
             'next' => !empty( $facebook_pages[$page_id]['next_page'] )
