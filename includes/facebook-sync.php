@@ -58,13 +58,18 @@ class Disciple_Tools_Facebook_Sync {
         update_option( "dt_facebook_last_call", time() );
 
         $facebook_pages = get_option( "dt_facebook_pages", [] );
+        $sync = false;
         foreach ( $facebook_pages as $page_id => $facebook_page ){
             if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && !empty( $facebook_page["access_token"] ) ){
+                $sync = true;
                 self::get_conversations( $page_id, empty( $facebook_page["reached_the_end"] ) );
                 if ( empty( $facebook_page["reached_the_end"] ) ){
                     break;
                 }
             }
+        }
+        if ( ( empty( $facebook_pages ) || $sync === false ) && wp_next_scheduled( 'facebook_check_for_new_conversations_cron' ) ){
+            wp_clear_scheduled_hook( 'facebook_check_for_new_conversations_cron' );
         }
     }
 
@@ -379,7 +384,7 @@ class Disciple_Tools_Facebook_Sync {
 
 use WP_Queue\Job;
 class DT_Save_Facebook_Conversation extends Job {
-     /**
+    /**
      * @var int
      */
     public $conversation;
