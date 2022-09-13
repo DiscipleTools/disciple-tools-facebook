@@ -27,9 +27,9 @@ class DT_Facebook_Migration_0001 extends DT_Facebook_Migration {
 
         $missmatch_detected = false;
         foreach ( $query_res as $res ){
-            dt_write_log( "DT_Facebook_Comments_Fix " . $res["post_id"] );
+            dt_write_log( 'DT_Facebook_Comments_Fix ' . $res['post_id'] );
 
-            $facebook_data = get_post_meta( $res["post_id"], "facebook_data", true );
+            $facebook_data = get_post_meta( $res['post_id'], 'facebook_data', true );
             if ( empty( $facebook_data ) ){
                 continue;
             }
@@ -38,24 +38,24 @@ class DT_Facebook_Migration_0001 extends DT_Facebook_Migration {
                 SELECT COUNT(comment_ID)
                 FROM $wpdb->comments c
                 WHERE c.comment_post_ID = %s
-            ", $res["post_id"] ) );
-            if ( (int) $facebook_data["message_count"] !== (int) $facebook_comment_count ){
-                $facebook_data["message_count"] = $facebook_comment_count;
-                $facebook_data["message_ids"] = array_slice( $facebook_data["message_ids"], 0, (int) $facebook_comment_count );
+            ", $res['post_id'] ) );
+            if ( (int) $facebook_data['message_count'] !== (int) $facebook_comment_count ){
+                $facebook_data['message_count'] = $facebook_comment_count;
+                $facebook_data['message_ids'] = array_slice( $facebook_data['message_ids'], 0, (int) $facebook_comment_count );
                 $missmatch_detected = true;
             }
-            update_post_meta( $res["post_id"], 'facebook_data', $facebook_data );
+            update_post_meta( $res['post_id'], 'facebook_data', $facebook_data );
         }
         if ( $missmatch_detected ){
-            dt_write_log( "DT_Facebook_Reset_Sync " . 1641054023 );
-            $facebook_pages = get_option( "dt_facebook_pages", [] );
+            dt_write_log( 'DT_Facebook_Reset_Sync ' . 1641054023 );
+            $facebook_pages = get_option( 'dt_facebook_pages', [] );
 
             foreach ( $facebook_pages as $id => $facebook_page ){
-                if ( isset( $facebook_page["latest_conversation"] ) && $facebook_page["latest_conversation"] > 1641054023 ){
-                    $facebook_pages[$id]["latest_conversation"] = 1641054023;
+                if ( isset( $facebook_page['latest_conversation'] ) && $facebook_page['latest_conversation'] > 1641054023 ){
+                    $facebook_pages[$id]['latest_conversation'] = 1641054023;
                 }
             }
-            update_option( "dt_facebook_pages", $facebook_pages );
+            update_option( 'dt_facebook_pages', $facebook_pages );
 
         }
     }

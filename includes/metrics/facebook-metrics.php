@@ -7,7 +7,7 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
 {
 
     public $base_slug = 'contacts'; // lowercase
-    public $base_title = "Contacts";
+    public $base_title = 'Contacts';
 
     public $title = 'Facebook metrics';
     public $slug = 'facebook'; // lowercase
@@ -62,9 +62,9 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
                     'facebook_meetings' => $this->facebook_meetings(),
                 ],
                 'translations' => [
-                    "title" => $this->title,
-                    'all_time' => __( "All time", 'disciple_tools' ),
-                    'filter_to_date_range' => __( "Filter Contact created in date range", 'disciple_tools' )
+                    'title' => $this->title,
+                    'all_time' => __( 'All time', 'disciple_tools' ),
+                    'filter_to_date_range' => __( 'Filter Contact created in date range', 'disciple_tools' )
                 ]
             ]
         );
@@ -83,10 +83,10 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
 
     public function time_to_meeting_endpoint( WP_REST_Request $request ) {
         if ( !$this->has_permission() ){
-            return new WP_Error( __FUNCTION__, "Permission required", [ 'status' => 403 ] );
+            return new WP_Error( __FUNCTION__, 'Permission required', [ 'status' => 403 ] );
         }
         $params = $request->get_params();
-        return $this->time_from_1st_message_to_meeting( $params["start"] ?? 0, $params["end"] ?? 0 );
+        return $this->time_from_1st_message_to_meeting( $params['start'] ?? 0, $params['end'] ?? 0 );
 
     }
 

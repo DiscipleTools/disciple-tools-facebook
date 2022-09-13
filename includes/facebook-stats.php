@@ -30,7 +30,7 @@ class Disciple_Tools_Facebook_Reports {
 
 
     public function register_stats_cron(){
-        do_action( "dt_facebook_stats" );
+        do_action( 'dt_facebook_stats' );
     }
     /**
      * @param $url, the facebook url to query for the next stats
@@ -80,37 +80,37 @@ class Disciple_Tools_Facebook_Reports {
         if ( $date_of_last_record > $since ){
             $since = $date_of_last_record;
         }
-        if ( isset( $facebook_page["rebuild"] ) && $facebook_page["rebuild"] == true ){
+        if ( isset( $facebook_page['rebuild'] ) && $facebook_page['rebuild'] == true ){
             $since = gmdate( 'Y-m-d', strtotime( '-90 days' ) );
             $date_of_last_record = gmdate( 'Y-m-d', strtotime( '-1 years' ) );
         }
         $page_reports = [];
 
-        if ( isset( $facebook_page["report"] ) && $facebook_page["report"] == 1 ){
-            $access_token = $facebook_page["access_token"];
-            $url = "https://graph.facebook.com/v2.12/" . $facebook_page["id"] . "/insights?metric=";
-            $url .= "page_fans";
-            $url .= ",page_engaged_users";
-            $url .= ",page_admin_num_posts";
-            $url .= "&since=" . $since;
-            $url .= "&until=" . gmdate( 'Y-m-d', strtotime( 'tomorrow' ) );
-            $url .= "&access_token=" . $access_token;
+        if ( isset( $facebook_page['report'] ) && $facebook_page['report'] == 1 ){
+            $access_token = $facebook_page['access_token'];
+            $url = 'https://graph.facebook.com/v2.12/' . $facebook_page['id'] . '/insights?metric=';
+            $url .= 'page_fans';
+            $url .= ',page_engaged_users';
+            $url .= ',page_admin_num_posts';
+            $url .= '&since=' . $since;
+            $url .= '&until=' . gmdate( 'Y-m-d', strtotime( 'tomorrow' ) );
+            $url .= '&access_token=' . $access_token;
 
-            $all_page_data = self::get_facebook_insights_with_paging( $url, $date_of_last_record, $facebook_page["id"] );
+            $all_page_data = self::get_facebook_insights_with_paging( $url, $date_of_last_record, $facebook_page['id'] );
 
             $month_metrics = [];
             foreach ( $all_page_data as $metric ){
-                if ( $metric->name === "page_engaged_users" && $metric->period === "day" ){
+                if ( $metric->name === 'page_engaged_users' && $metric->period === 'day' ){
                     foreach ( $metric->values as $day ){
                         $month_metrics[ $day->end_time ]['page_engagement'] = isset( $day->value ) ? $day->value : 0;
                     }
                 }
-                if ( $metric->name === "page_fans" ){
+                if ( $metric->name === 'page_fans' ){
                     foreach ( $metric->values as $day ){
                         $month_metrics[ $day->end_time ]['page_likes_count'] = isset( $day->value ) ? $day->value : 0;
                     }
                 }
-                if ( $metric->name === "page_admin_num_posts" && $metric->period === "day" ){
+                if ( $metric->name === 'page_admin_num_posts' && $metric->period === 'day' ){
                     foreach ( $metric->values as $day ){
                         $month_metrics[ $day->end_time ]['page_post_count'] = isset( $day->value ) ? $day->value : 0;
                     }
@@ -120,15 +120,15 @@ class Disciple_Tools_Facebook_Reports {
                 array_push(
                     $page_reports, [
                         'report_date' => gmdate( 'Y-m-d h:m:s', strtotime( $day ) ),
-                        'report_source' => "Facebook",
-                        'report_subsource' => $facebook_page["id"],
+                        'report_source' => 'Facebook',
+                        'report_subsource' => $facebook_page['id'],
                         'meta_input' => $value,
                     ]
                 );
             }
 
-            if ( $facebook_page["rebuild"] ){
-                self::disable_rebuild_flag_on_facebook_page( $facebook_page["id"] );
+            if ( $facebook_page['rebuild'] ){
+                self::disable_rebuild_flag_on_facebook_page( $facebook_page['id'] );
             }
         }
 
@@ -146,9 +146,9 @@ class Disciple_Tools_Facebook_Reports {
      * @param $page_id
      */
     public static function disable_rebuild_flag_on_facebook_page( $page_id ){
-        $facebook_pages = get_option( "dt_facebook_pages", [] );
-        $facebook_pages[ $page_id ]["rebuild"] = false;
-        update_option( "dt_facebook_pages", $facebook_pages );
+        $facebook_pages = get_option( 'dt_facebook_pages', [] );
+        $facebook_pages[ $page_id ]['rebuild'] = false;
+        update_option( 'dt_facebook_pages', $facebook_pages );
     }
 
         /**
@@ -159,7 +159,7 @@ class Disciple_Tools_Facebook_Reports {
      */
     public function build_all_facebook_reports_async() {
         //get the facebook pages and access tokens from the settings
-        $facebook_pages = get_option( "dt_facebook_pages", [] );
+        $facebook_pages = get_option( 'dt_facebook_pages', [] );
 //        foreach ( $facebook_pages as $page_id => $facebook_page ) {
 //            $last_facebook_report = Disciple_Tools_Reports_API::get_last_record_of_source_and_subsource( 'Facebook', $page_id );
 //            if ( $last_facebook_report && isset( $last_facebook_report->report_date ) ) {

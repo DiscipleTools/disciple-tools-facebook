@@ -33,7 +33,7 @@ class Disciple_Tools_Facebook_Integration {
     } // End instance()
 
     private $version = 1.0;
-    private $context = "dt_facebook";
+    private $context = 'dt_facebook';
     private $namespace;
     private $facebook_api_version = '14.0';
 
@@ -44,7 +44,7 @@ class Disciple_Tools_Facebook_Integration {
      * @since  0.1.0
      */
     public function __construct() {
-        $this->namespace = $this->context . "/v" . intval( $this->version );
+        $this->namespace = $this->context . '/v' . intval( $this->version );
         add_action( 'rest_api_init', [ $this, 'add_api_routes' ] );
         add_action( 'admin_notices', [ $this, 'dt_admin_notice' ] );
         add_action( 'wp_ajax_dt-facebook-notice-dismiss', [ $this, 'dismiss_error' ] );
@@ -57,15 +57,15 @@ class Disciple_Tools_Facebook_Integration {
      */
     public function add_api_routes() {
         register_rest_route(
-            $this->namespace, "/auth", [
-                'methods'  => "GET",
+            $this->namespace, '/auth', [
+                'methods'  => 'GET',
                 'callback' => [ $this, 'authenticate_app' ],
                 'permission_callback' => '__return_true',
             ]
         );
         register_rest_route(
-            $this->namespace, "/add-app", [
-                'methods'  => "POST",
+            $this->namespace, '/add-app', [
+                'methods'  => 'POST',
                 'callback' => [ $this, 'add_app' ],
                 'permission_callback' => '__return_true',
             ]
@@ -76,7 +76,7 @@ class Disciple_Tools_Facebook_Integration {
      * Admin notice
      */
     public function dt_admin_notice() {
-        $error = get_option( 'dt_facebook_error', "" );
+        $error = get_option( 'dt_facebook_error', '' );
         if ( $error ) { ?>
             <div class="notice notice-error dt-facebook-notice is-dismissible">
                 <p><?php echo esc_html( $error ); ?></p>
@@ -99,7 +99,7 @@ class Disciple_Tools_Facebook_Integration {
     }
 
     public function dismiss_error() {
-        update_option( 'dt_facebook_error', "" );
+        update_option( 'dt_facebook_error', '' );
     }
 
     /**
@@ -109,13 +109,13 @@ class Disciple_Tools_Facebook_Integration {
 
         $this->facebook_settings_functions();
 
-        $access_token = get_option( "disciple_tools_facebook_access_token", "" );
+        $access_token = get_option( 'disciple_tools_facebook_access_token', '' );
 
         // make sure cron is running if a page is set to sync
-        $facebook_pages = get_option( "dt_facebook_pages", [] );
+        $facebook_pages = get_option( 'dt_facebook_pages', [] );
         $sync_enabled = false;
         foreach ( $facebook_pages as $id => $facebook_page ){
-            if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && !empty( $facebook_page["access_token"] ) ){
+            if ( isset( $facebook_page['integrate'] ) && $facebook_page['integrate'] === 1 && !empty( $facebook_page['access_token'] ) ){
                 $sync_enabled = true;
             }
         }
@@ -129,14 +129,14 @@ class Disciple_Tools_Facebook_Integration {
         }
 
         if ( !defined( 'DISABLE_WP_CRON' ) || DISABLE_WP_CRON === false ){
-            $this->display_error( "It appears that CRON jobs are not set up correctly.", '', false );
+            $this->display_error( 'It appears that CRON jobs are not set up correctly.', '', false );
         }
 
 
         $sync_needed = false;
         foreach ( $facebook_pages as $page_id => $facebook_page ){
-            if ( isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && !empty( $facebook_page["access_token"] ) ){
-                if ( empty( $facebook_page["reached_the_end"] ) ){
+            if ( isset( $facebook_page['integrate'] ) && $facebook_page['integrate'] === 1 && !empty( $facebook_page['access_token'] ) ){
+                if ( empty( $facebook_page['reached_the_end'] ) ){
                     $sync_needed = $facebook_page;
                 }
                 break;
@@ -146,7 +146,7 @@ class Disciple_Tools_Facebook_Integration {
         <div id="facebook_sync_section" style="min-height:200px; margin: 20px; padding: 20px; background-color: #ffcfcf;border-radius: 5px; border: solid red 2px;">
             <p>
                 <img class="dt-icon" src="<?php echo esc_html( get_template_directory_uri() . '/dt-assets/images/broken.svg' ) ?>"/>
-                Discovering Conversations for page: <span id="page_name"><?php echo esc_html( $sync_needed["name"] ); ?></span>
+                Discovering Conversations for page: <span id="page_name"><?php echo esc_html( $sync_needed['name'] ); ?></span>
             </p>
             <p>
                 Discovered <span id="conversation_count">0</span> conversations <span id="discover_spinner"><img src="<?php echo esc_url( trailingslashit( get_stylesheet_directory_uri() ) ) ?>spinner.svg" width="22px" alt="spinner "/></span><br>
@@ -278,53 +278,53 @@ class Disciple_Tools_Facebook_Integration {
                             <table class="widefat striped">
                                 <thead>
                                 <tr>
-                                    <th><?php esc_html_e( "Facebook App Settings", 'disciple-tools-facebook' ) ?></th>
+                                    <th><?php esc_html_e( 'Facebook App Settings', 'disciple-tools-facebook' ) ?></th>
                                     <th></th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td><?php esc_html_e( "Facebook App Id", 'disciple-tools-facebook' ) ?></td>
+                                    <td><?php esc_html_e( 'Facebook App Id', 'disciple-tools-facebook' ) ?></td>
                                     <td>
                                         <input title="App Id" type="text" class="regular-text" name="app_id"
-                                               value="<?php echo esc_attr( get_option( "disciple_tools_facebook_app_id", "" ) ); ?>"/>
+                                               value="<?php echo esc_attr( get_option( 'disciple_tools_facebook_app_id', '' ) ); ?>"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><?php esc_html_e( "Facebook App Secret", 'disciple-tools-facebook' ) ?></td>
+                                    <td><?php esc_html_e( 'Facebook App Secret', 'disciple-tools-facebook' ) ?></td>
                                     <td>
                                         <?php
-                                        $secret = get_option( "disciple_tools_facebook_app_secret", "" );
-                                        if ( $secret != "" ) {
-                                            $secret = "app_secret";
+                                        $secret = get_option( 'disciple_tools_facebook_app_secret', '' );
+                                        if ( $secret != '' ) {
+                                            $secret = 'app_secret';
                                         }
                                         ?>
-                                        <input title="App Secret" type="<?php echo $secret ? "password" : "text" ?>"
+                                        <input title="App Secret" type="<?php echo $secret ? 'password' : 'text' ?>"
                                                class="regular-text" name="app_secret"
                                                value="<?php echo esc_attr( $secret ); ?>"/>
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><?php esc_html_e( "Access Token", 'disciple-tools-facebook' ) ?></td>
+                                    <td><?php esc_html_e( 'Access Token', 'disciple-tools-facebook' ) ?></td>
                                     <td>
                                         <?php echo( !empty( $access_token ) ? esc_html__( 'Access token is saved', 'disciple-tools-facebook' ) : esc_html__( 'No Access Token', 'disciple-tools-facebook' ) ) ?>
                                     </td>
                                 </tr>
 
                                 <tr>
-                                    <td><?php esc_html_e( "Save or Refresh", 'disciple-tools-facebook' ) ?></td>
+                                    <td><?php esc_html_e( 'Save or Refresh', 'disciple-tools-facebook' ) ?></td>
                                     <td><button type="submit" class="button" name="save_app" style="padding:3px">
                                             <img style="height: 25px;vertical-align: middle;" src="<?php echo esc_html( plugin_dir_url( __FILE__ ) . 'assets/flogo_RGB_HEX-72.svg' ) ?>"/>
-                                            <span style="vertical-align: top"><?php esc_html_e( "Login with Facebook", 'disciple-tools-facebook' ) ?></span></button>
+                                            <span style="vertical-align: top"><?php esc_html_e( 'Login with Facebook', 'disciple-tools-facebook' ) ?></span></button>
 
                                         <p style="margin-top: 20px"><?php esc_html_e( 'Note: You will need to re-authenticate (by clicking the "Login with Facebook" button again) if:', 'disciple-tools-facebook' ) ?></p>
                                         <ul style="list-style-type: disc; padding-left:40px">
-                                            <li><?php esc_html_e( "You change your Facebook account password", 'disciple-tools-facebook' ) ?></li>
-                                            <li><?php esc_html_e( "You delete or de-authorize your Facebook App", 'disciple-tools-facebook' ) ?></li>
+                                            <li><?php esc_html_e( 'You change your Facebook account password', 'disciple-tools-facebook' ) ?></li>
+                                            <li><?php esc_html_e( 'You delete or de-authorize your Facebook App', 'disciple-tools-facebook' ) ?></li>
                                         </ul>
                                     </td>
                                 </tr>
-                                <?php if ( !empty( $access_token ) || !empty( get_option( "dt_facebook_pages", [] ) ) ) :?>
+                                <?php if ( !empty( $access_token ) || !empty( get_option( 'dt_facebook_pages', [] ) ) ) :?>
                                 <tr>
                                     <td>
                                         Completely log out and delete Facebook settings and the page list below
@@ -340,7 +340,7 @@ class Disciple_Tools_Facebook_Integration {
                                         Email Address to contact if the Disciple.Tools to Facebook link breaks
                                     </td>
                                     <td>
-                                        <input name="contact_email_address" type="email" value="<?php echo esc_html( get_option( "dt_facebook_contact_email", "" ) ) ?>">
+                                        <input name="contact_email_address" type="email" value="<?php echo esc_html( get_option( 'dt_facebook_contact_email', '' ) ) ?>">
                                         <button class="button" name="save_email" type="submit">Save Email</button>
 
                                     </td>
@@ -352,7 +352,7 @@ class Disciple_Tools_Facebook_Integration {
                                     </td>
                                     <td>
                                         Months:
-                                        <input name="close_after_months" type="number"  min="0" style="width: 70px" value="<?php echo esc_html( get_option( "dt_facebook_close_after_months", "3" ) ) ?>">
+                                        <input name="close_after_months" type="number"  min="0" style="width: 70px" value="<?php echo esc_html( get_option( 'dt_facebook_close_after_months', '3' ) ) ?>">
                                         <button class="button" name="save_close_after_months" type="submit">Update</button>
 
                                     </td>
@@ -382,13 +382,13 @@ class Disciple_Tools_Facebook_Integration {
                                         $next_time = wp_next_scheduled( 'facebook_check_for_new_conversations_cron' );
                                         if ( !empty( $next_time ) ){
                                             if ( $next_time - time() >= 0 ){
-                                                echo esc_html( "In " . round( ( $next_time - time() ) / 60 ) . " minutes" );
+                                                echo esc_html( 'In ' . round( ( $next_time - time() ) / 60 ) . ' minutes' );
                                             } else {
-                                                echo esc_html( round( ( $next_time - time() ) / 60 ) . " minutes ago" );
+                                                echo esc_html( round( ( $next_time - time() ) / 60 ) . ' minutes ago' );
                                             }
                                         }
                                         if ( !$sync_enabled ){
-                                            echo "Sync is disabled";
+                                            echo 'Sync is disabled';
                                         }
                                         if ( is_wp_error( $schedule_error ) ){
                                             echo esc_html( $schedule_error->get_error_message() );
@@ -411,12 +411,12 @@ class Disciple_Tools_Facebook_Integration {
                             <table id="facebook_pages" class="widefat striped">
                                 <thead>
                                 <tr>
-                                    <th><?php esc_html_e( "Facebook Pages", 'disciple-tools-facebook' ) ?></th>
-                                    <th><?php esc_html_e( "Sync Contacts", 'disciple-tools-facebook' ) ?></th>
+                                    <th><?php esc_html_e( 'Facebook Pages', 'disciple-tools-facebook' ) ?></th>
+                                    <th><?php esc_html_e( 'Sync Contacts', 'disciple-tools-facebook' ) ?></th>
 <!--                                    <th>--><?php //esc_html_e( "Include in Stats", 'disciple-tools-facebook' ) ?><!--</th>-->
-                                    <th><?php esc_html_e( "Part of Business Manager", 'disciple-tools-facebook' ) ?></th>
-                                    <th><?php esc_html_e( "Digital Responder", 'disciple-tools-facebook' ) ?></th>
-                                    <th><?php esc_html_e( "Finished sync", 'disciple-tools-facebook' ) ?></th>
+                                    <th><?php esc_html_e( 'Part of Business Manager', 'disciple-tools-facebook' ) ?></th>
+                                    <th><?php esc_html_e( 'Digital Responder', 'disciple-tools-facebook' ) ?></th>
+                                    <th><?php esc_html_e( 'Finished sync', 'disciple-tools-facebook' ) ?></th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -429,23 +429,23 @@ class Disciple_Tools_Facebook_Integration {
                                         'orderby'  => 'display_name',
                                     ]
                                 );
-                                $facebook_pages = get_option( "dt_facebook_pages", [] );
+                                $facebook_pages = get_option( 'dt_facebook_pages', [] );
 
                                 foreach ( $facebook_pages as $id => $facebook_page ){ ?>
                                 <tr>
-                                    <td><?php echo esc_html( $facebook_page["name"] ); ?>
-                                        (<?php echo esc_html( $facebook_page["id"] ); ?>)
-                                        <?php if ( empty( $facebook_page["access_token"] ) ) : ?>
+                                    <td><?php echo esc_html( $facebook_page['name'] ); ?>
+                                        (<?php echo esc_html( $facebook_page['id'] ); ?>)
+                                        <?php if ( empty( $facebook_page['access_token'] ) ) : ?>
                                             <img class="dt-icon" src="<?php echo esc_html( get_template_directory_uri() . '/dt-assets/images/broken.svg' ) ?>"/>
                                             <span>You do not have access to this page</span>
                                         <?php endif; ?>
                                     </td>
                                     <td>
                                         <input title="Integrate"
-                                               name="<?php echo esc_attr( $facebook_page["id"] ) . "-integrate"; ?>"
+                                               name="<?php echo esc_attr( $facebook_page['id'] ) . '-integrate'; ?>"
                                                type="checkbox"
-                                               <?php disabled( empty( $facebook_page["access_token"] ) ); ?>
-                                               value="<?php echo esc_attr( $facebook_page["id"] ); ?>" <?php echo checked( 1, ( isset( $facebook_page["integrate"] ) && !empty( $facebook_page["access_token"] ) ) ? $facebook_page["integrate"] : false, false ); ?> />
+                                               <?php disabled( empty( $facebook_page['access_token'] ) ); ?>
+                                               value="<?php echo esc_attr( $facebook_page['id'] ); ?>" <?php echo checked( 1, ( isset( $facebook_page['integrate'] ) && !empty( $facebook_page['access_token'] ) ) ? $facebook_page['integrate'] : false, false ); ?> />
                                     </td>
 <!--                                    <td>-->
 <!--                                        <input title="Report"-->
@@ -456,16 +456,16 @@ class Disciple_Tools_Facebook_Integration {
                                     <td>
                                         <input title="In Business Manager" disabled
                                                type="checkbox"
-                                            <?php echo checked( 1, isset( $facebook_page["business"] ), false ); ?> />
+                                            <?php echo checked( 1, isset( $facebook_page['business'] ), false ); ?> />
                                     </td>
                                     <td>
                                         <?php
-                                        if ( isset( $facebook_page["assign_to"] ) ){
-                                            $user_for_page = get_user_by( "ID", $facebook_page["assign_to"] );
+                                        if ( isset( $facebook_page['assign_to'] ) ){
+                                            $user_for_page = get_user_by( 'ID', $facebook_page['assign_to'] );
                                         }
                                         ?>
-                                        <select name="<?php echo esc_attr( $facebook_page["id"] ); ?>-assign_new_contacts_to">
-                                            <option value="<?php echo esc_attr( $user_for_page->ID ?? "unknown" ) ?>"><?php echo esc_attr( $user_for_page->display_name ?? "Unknown User" ) ?></option>
+                                        <select name="<?php echo esc_attr( $facebook_page['id'] ); ?>-assign_new_contacts_to">
+                                            <option value="<?php echo esc_attr( $user_for_page->ID ?? 'unknown' ) ?>"><?php echo esc_attr( $user_for_page->display_name ?? 'Unknown User' ) ?></option>
                                             <option disabled>---</option>
                                             <?php foreach ( $potential_user_list as $potential_user ) : ?>
                                                 <option value="<?php echo esc_attr( $potential_user->ID ) ?>"><?php echo esc_attr( $potential_user->display_name ) ?></option>
@@ -473,8 +473,8 @@ class Disciple_Tools_Facebook_Integration {
                                         </select>
                                     </td>
                                     <td>
-                                    <?php if ( isset( $facebook_page["reached_the_end"] ) && isset( $facebook_page["integrate"] ) && $facebook_page["integrate"] === 1 && isset( $facebook_page["access_token"] ) ) : ?>
-                                        Finished full sync on <?php echo esc_html( dt_format_date( $facebook_page["reached_the_end"] ) ); ?>
+                                    <?php if ( isset( $facebook_page['reached_the_end'] ) && isset( $facebook_page['integrate'] ) && $facebook_page['integrate'] === 1 && isset( $facebook_page['access_token'] ) ) : ?>
+                                        Finished full sync on <?php echo esc_html( dt_format_date( $facebook_page['reached_the_end'] ) ); ?>
 <!--                                        <form action="" method="post">-->
 <!--                                            <input type="hidden" name="_wpnonce" id="_wpnonce"-->
 <!--                                                   value="--><?php //echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?><!--"/>-->
@@ -499,9 +499,9 @@ class Disciple_Tools_Facebook_Integration {
                                 </tbody>
                             </table>
                             <input type="submit" class="button" name="get_pages"
-                                   value="<?php esc_html_e( "Refresh Page List", 'disciple-tools-facebook' ) ?>"/>
+                                   value="<?php esc_html_e( 'Refresh Page List', 'disciple-tools-facebook' ) ?>"/>
                             <input type="submit" class="button" name="save_pages"
-                                   value="<?php esc_html_e( "Save Pages Settings", 'disciple-tools-facebook' ) ?>"/>
+                                   value="<?php esc_html_e( 'Save Pages Settings', 'disciple-tools-facebook' ) ?>"/>
                             <br>
 
 
@@ -515,7 +515,7 @@ class Disciple_Tools_Facebook_Integration {
                                        value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
 
                                 <input type="hidden" class="button" name="page_id" />
-                                <button type="submit" class="button" name="delete_duplicates"><?php esc_html_e( "Try deleting duplicates", 'disciple-tools-facebook' ) ?></button>
+                                <button type="submit" class="button" name="delete_duplicates"><?php esc_html_e( 'Try deleting duplicates', 'disciple-tools-facebook' ) ?></button>
                                 <?php
                                 $dup_number_option = get_option( 'dt_facebook_dups_found', 0 );
                                 if ( !empty( $dup_number_option ) ){
@@ -540,29 +540,29 @@ class Disciple_Tools_Facebook_Integration {
      * @param $err
      * @param $code
      */
-    private function display_error( $err, $code = "", $log = true ) {
+    private function display_error( $err, $code = '', $log = true ) {
         $err = $err . ( empty( $code ) ? '' : " ( $code ) " ); ?>
         <div class="notice notice-error is-dismissible">
             <p>Facebook Extension: <?php echo esc_html( $err ); ?></p>
         </div>
         <?php
         if ( $log ){
-            $this->save_log_message( $err, "error" );
+            $this->save_log_message( $err, 'error' );
         }
     }
 
     private function save_log_message( $message, $type ){
         dt_write_log( $message );
-        $log = get_option( "dt_facebook_error_logs", [] );
+        $log = get_option( 'dt_facebook_error_logs', [] );
         $log[] = [
-            "type" => $type,
-            "time" => time(),
-            "message" => $message,
+            'type' => $type,
+            'time' => time(),
+            'message' => $message,
         ];
         if ( sizeof( $log ) > 100 ){
             array_shift( $log );
         }
-        update_option( "dt_facebook_error_logs", $log );
+        update_option( 'dt_facebook_error_logs', $log );
     }
 
     /**
@@ -577,57 +577,57 @@ class Disciple_Tools_Facebook_Integration {
         }
 
         // get the pages the user has access to.
-        if ( isset( $_POST["get_pages"] ) ) {
+        if ( isset( $_POST['get_pages'] ) ) {
             $this->get_or_refresh_pages( get_option( 'disciple_tools_facebook_access_token' ) );
         }
 
         //save changes made to the pages in the page list
-        if ( isset( $_POST["save_pages"] ) ) {
+        if ( isset( $_POST['save_pages'] ) ) {
             $get_historical_data = false;
-            $facebook_pages      = get_option( "dt_facebook_pages", [] );
+            $facebook_pages      = get_option( 'dt_facebook_pages', [] );
             $dt_custom_lists     = dt_get_option( 'dt_site_custom_lists' );
             foreach ( $facebook_pages as $id => $facebook_page ) {
                 //if sync contact checkbox is selected
-                $integrate = str_replace( ' ', '_', $facebook_page["id"] . "-integrate" );
+                $integrate = str_replace( ' ', '_', $facebook_page['id'] . '-integrate' );
                 if ( isset( $_POST[ $integrate ] ) ) {
-                    $facebook_pages[ $id ]["integrate"] = 1;
-                    if ( !isset( $dt_custom_lists["sources"][ $id ] ) ) {
-                        $dt_custom_lists["sources"][ $id ] = [
-                            'label'       => $facebook_page["name"],
+                    $facebook_pages[ $id ]['integrate'] = 1;
+                    if ( !isset( $dt_custom_lists['sources'][ $id ] ) ) {
+                        $dt_custom_lists['sources'][ $id ] = [
+                            'label'       => $facebook_page['name'],
                             'key'         => $id,
-                            'type'        => "facebook",
-                            'description' => 'Contacts coming from Facebook page: ' . $facebook_page["name"],
+                            'type'        => 'facebook',
+                            'description' => 'Contacts coming from Facebook page: ' . $facebook_page['name'],
                             'enabled'     => true,
                         ];
-                        update_option( "dt_site_custom_lists", $dt_custom_lists );
+                        update_option( 'dt_site_custom_lists', $dt_custom_lists );
                     }
                     if ( !wp_next_scheduled( 'facebook_check_for_new_conversations_cron' ) ) {
                         wp_schedule_event( time(), '5min', 'facebook_check_for_new_conversations_cron' );
                     }
                 } else {
-                    $facebook_pages[ $id ]["integrate"] = 0;
+                    $facebook_pages[ $id ]['integrate'] = 0;
                 }
                 //if the include in stats checkbox is selected
-                $report = str_replace( ' ', '_', $facebook_page["id"] . "-report" );
+                $report = str_replace( ' ', '_', $facebook_page['id'] . '-report' );
                 if ( isset( $_POST[ $report ] ) ) {
-                    if ( !isset( $facebook_pages[ $id ]["report"] ) || $facebook_pages[ $id ]["report"] == 0 ) {
+                    if ( !isset( $facebook_pages[ $id ]['report'] ) || $facebook_pages[ $id ]['report'] == 0 ) {
                         $get_historical_data = true;
                     }
-                    $facebook_pages[ $id ]["report"]  = 1;
-                    $facebook_pages[ $id ]["rebuild"] = true;
+                    $facebook_pages[ $id ]['report']  = 1;
+                    $facebook_pages[ $id ]['rebuild'] = true;
                 } else {
-                    $facebook_pages[ $id ]["report"] = 0;
+                    $facebook_pages[ $id ]['report'] = 0;
                 }
                 //set the user new Facebook contacts should be assigned to.
-                $assign_to = str_replace( ' ', '_', $facebook_page["id"] . "-assign_new_contacts_to" );
+                $assign_to = str_replace( ' ', '_', $facebook_page['id'] . '-assign_new_contacts_to' );
                 if ( isset( $_POST[$assign_to] ) ){
-                    $facebook_pages[$id]["assign_to"] = sanitize_text_field( wp_unslash( $_POST[ $assign_to ] ) );
+                    $facebook_pages[$id]['assign_to'] = sanitize_text_field( wp_unslash( $_POST[ $assign_to ] ) );
                 }
             }
-            update_option( "dt_facebook_pages", $facebook_pages );
+            update_option( 'dt_facebook_pages', $facebook_pages );
             //if a new page is added, get the reports for that page.
             if ( $get_historical_data === true ) {
-                do_action( "dt_facebook_stats" );
+                do_action( 'dt_facebook_stats' );
             }
         }
 
@@ -643,13 +643,13 @@ class Disciple_Tools_Facebook_Integration {
 //
 //            $this->get_recent_conversations( $id );
 //        }
-        if ( isset( $_POST["delete_duplicates"] ) ){
+        if ( isset( $_POST['delete_duplicates'] ) ){
             self::delete_obvious_duplicates();
         }
     }
 
     public function get_rest_url() {
-        return get_site_url() . "/wp-json/" . $this->namespace;
+        return get_site_url() . '/wp-json/' . $this->namespace;
     }
 
 
@@ -679,25 +679,25 @@ class Disciple_Tools_Facebook_Integration {
         }
         if ( !empty( $pages_data ) ) {
             $page_ids = [];
-            $pages = get_option( "dt_facebook_pages", [] );
+            $pages = get_option( 'dt_facebook_pages', [] );
             foreach ( $pages_data as $page ) {
-                $page_ids[] = (int) $page["id"];
-                if ( !isset( $pages[ $page["id"] ] ) ) {
-                    $pages[ $page["id"] ] = $page;
+                $page_ids[] = (int) $page['id'];
+                if ( !isset( $pages[ $page['id'] ] ) ) {
+                    $pages[ $page['id'] ] = $page;
                 } else {
-                    $pages[ $page["id"] ]["access_token"] = $page["access_token"];
-                    $pages[ $page["id"] ]["name"]         = $page["name"];
-                    if ( isset( $page["business"] ) ) {
-                        $pages[ $page["id"] ]["business"] = $page["business"];
+                    $pages[ $page['id'] ]['access_token'] = $page['access_token'];
+                    $pages[ $page['id'] ]['name']         = $page['name'];
+                    if ( isset( $page['business'] ) ) {
+                        $pages[ $page['id'] ]['business'] = $page['business'];
                     }
                 }
             }
             foreach ( $pages as $page_id => $page ){
                 if ( !in_array( (int) $page_id, $page_ids, true ) ){
-                    unset( $pages[$page_id]["access_token"] );
+                    unset( $pages[$page_id]['access_token'] );
                 }
             }
-            update_option( "dt_facebook_pages", $pages );
+            update_option( 'dt_facebook_pages', $pages );
         }
     }
 
@@ -712,12 +712,12 @@ class Disciple_Tools_Facebook_Integration {
 
         //get the access token
 
-        if ( isset( $get["state"] ) && strpos( $get['state'], $this->authorize_secret() ) !== false && isset( $get["code"] ) ) {
-            $url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/oauth/access_token";
-            $url .= "?client_id=" . get_option( "disciple_tools_facebook_app_id" );
-            $url .= "&redirect_uri=" . $this->get_rest_url() . "/auth";
-            $url .= "&client_secret=" . get_option( "disciple_tools_facebook_app_secret" );
-            $url .= "&code=" . $get["code"];
+        if ( isset( $get['state'] ) && strpos( $get['state'], $this->authorize_secret() ) !== false && isset( $get['code'] ) ) {
+            $url = 'https://graph.facebook.com/v' . $this->facebook_api_version . '/oauth/access_token';
+            $url .= '?client_id=' . get_option( 'disciple_tools_facebook_app_id' );
+            $url .= '&redirect_uri=' . $this->get_rest_url() . '/auth';
+            $url .= '&client_secret=' . get_option( 'disciple_tools_facebook_app_secret' );
+            $url .= '&code=' . $get['code'];
 
             $request = wp_remote_get( $url );
             if ( is_wp_error( $request ) ) {
@@ -728,17 +728,17 @@ class Disciple_Tools_Facebook_Integration {
                 $body = wp_remote_retrieve_body( $request );
                 $data = json_decode( $body, true );
                 if ( !empty( $data ) ) {
-                    if ( isset( $data["access_token"] ) ) {
-                        update_option( 'disciple_tools_facebook_access_token', $data["access_token"] );
-                        $this->get_or_refresh_pages( $data["access_token"] );
+                    if ( isset( $data['access_token'] ) ) {
+                        update_option( 'disciple_tools_facebook_access_token', $data['access_token'] );
+                        $this->get_or_refresh_pages( $data['access_token'] );
                     }
-                    if ( isset( $data["error"] ) ) {
-                        $this->display_error( $data["error"]["message"] );
+                    if ( isset( $data['error'] ) ) {
+                        $this->display_error( $data['error']['message'] );
                     }
                 }
             }
         }
-        wp_redirect( admin_url( "admin.php?page=" . $this->context ) );
+        wp_redirect( admin_url( 'admin.php?page=' . $this->context ) );
         exit;
     }
 
@@ -750,58 +750,58 @@ class Disciple_Tools_Facebook_Integration {
         if ( isset( $_POST['_wpnonce'] ) && !wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'wp_rest' ) ) {
             return 'Are you cheating? Where did this form come from?';
         }
-        if ( current_user_can( "manage_dt" ) && check_admin_referer( 'wp_rest' ) ){
-            if ( isset( $_POST["save_app"] ) && isset( $_POST["app_secret"] ) && isset( $_POST["app_id"] ) ) {
-                update_option( 'disciple_tools_facebook_app_id', sanitize_key( $_POST["app_id"] ) );
-                $secret = sanitize_key( $_POST["app_secret"] );
-                if ( $secret !== "app_secret" ) {
+        if ( current_user_can( 'manage_dt' ) && check_admin_referer( 'wp_rest' ) ){
+            if ( isset( $_POST['save_app'] ) && isset( $_POST['app_secret'] ) && isset( $_POST['app_id'] ) ) {
+                update_option( 'disciple_tools_facebook_app_id', sanitize_key( $_POST['app_id'] ) );
+                $secret = sanitize_key( $_POST['app_secret'] );
+                if ( $secret !== 'app_secret' ) {
                     update_option( 'disciple_tools_facebook_app_secret', $secret );
                 }
                 delete_option( 'disciple_tools_facebook_access_token' );
 
-                $url = "https://facebook.com/v" . $this->facebook_api_version . "/dialog/oauth";
-                $url .= "?client_id=" . sanitize_key( $_POST["app_id"] );
-                $url .= "&redirect_uri=" . $this->get_rest_url() . "/auth";
-                $url .= "&scope=public_profile,read_insights,pages_messaging,pages_show_list,pages_read_engagement,pages_manage_metadata,read_page_mailboxes,business_management";
-                $url .= "&state=" . $this->authorize_secret();
+                $url = 'https://facebook.com/v' . $this->facebook_api_version . '/dialog/oauth';
+                $url .= '?client_id=' . sanitize_key( $_POST['app_id'] );
+                $url .= '&redirect_uri=' . $this->get_rest_url() . '/auth';
+                $url .= '&scope=public_profile,read_insights,pages_messaging,pages_show_list,pages_read_engagement,pages_manage_metadata,read_page_mailboxes,business_management';
+                $url .= '&state=' . $this->authorize_secret();
 
                 wp_redirect( $url );
                 exit;
-            } elseif ( isset( $_POST["log_out"] ) ){
-                delete_option( "disciple_tools_facebook_app_secret" );
-                delete_option( "disciple_tools_facebook_app_id" );
-                delete_option( "dt_facebook_pages" );
-                delete_option( "disciple_tools_facebook_access_token" );
-                if ( isset( $_SERVER["HTTP_REFERER"] ) ){
-                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
+            } elseif ( isset( $_POST['log_out'] ) ){
+                delete_option( 'disciple_tools_facebook_app_secret' );
+                delete_option( 'disciple_tools_facebook_app_id' );
+                delete_option( 'dt_facebook_pages' );
+                delete_option( 'disciple_tools_facebook_access_token' );
+                if ( isset( $_SERVER['HTTP_REFERER'] ) ){
+                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
                     exit;
                 }
-            } elseif ( isset( $_POST["save_email"], $_POST["contact_email_address"] ) ){
-                $email = sanitize_text_field( wp_unslash( $_POST["contact_email_address"] ) );
+            } elseif ( isset( $_POST['save_email'], $_POST['contact_email_address'] ) ){
+                $email = sanitize_text_field( wp_unslash( $_POST['contact_email_address'] ) );
                 if ( !empty( $email ) ){
-                    update_option( "dt_facebook_contact_email", $email );
+                    update_option( 'dt_facebook_contact_email', $email );
                 }
-                if ( isset( $_SERVER["HTTP_REFERER"] ) ){
-                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
+                if ( isset( $_SERVER['HTTP_REFERER'] ) ){
+                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
                     exit;
                 }
-            } elseif ( isset( $_POST["save_close_after_months"], $_POST["close_after_months"] ) ){
-                $months = sanitize_text_field( wp_unslash( $_POST["close_after_months"] ) );
+            } elseif ( isset( $_POST['save_close_after_months'], $_POST['close_after_months'] ) ){
+                $months = sanitize_text_field( wp_unslash( $_POST['close_after_months'] ) );
                 if ( isset( $months ) ){
-                    update_option( "dt_facebook_close_after_months", $months );
+                    update_option( 'dt_facebook_close_after_months', $months );
                 }
-                if ( isset( $_SERVER["HTTP_REFERER"] ) ){
-                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
+                if ( isset( $_SERVER['HTTP_REFERER'] ) ){
+                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
                     exit;
                 }
-            } elseif ( isset( $_POST["save_disable_cron"] ) ){
-                if ( isset( $_POST["dt_facebook_disable_cron"] ) ){
-                    update_option( "dt_facebook_disable_cron", true );
+            } elseif ( isset( $_POST['save_disable_cron'] ) ){
+                if ( isset( $_POST['dt_facebook_disable_cron'] ) ){
+                    update_option( 'dt_facebook_disable_cron', true );
                 } else {
-                    update_option( "dt_facebook_disable_cron", false );
+                    update_option( 'dt_facebook_disable_cron', false );
                 }
-                if ( isset( $_SERVER["HTTP_REFERER"] ) ){
-                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER["HTTP_REFERER"] ) ) );
+                if ( isset( $_SERVER['HTTP_REFERER'] ) ){
+                    wp_redirect( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
                     exit;
                 }
             }
@@ -810,18 +810,18 @@ class Disciple_Tools_Facebook_Integration {
 
 
     public function get_participant_profile_pic( $user_id, $facebook_data, $contact_id, $page_id = null ){
-        $facebook_pages = get_option( "dt_facebook_pages", [] );
-        if ( isset( $facebook_data["profile_pic"] ) ) {
-            return $facebook_data["profile_pic"];
+        $facebook_pages = get_option( 'dt_facebook_pages', [] );
+        if ( isset( $facebook_data['profile_pic'] ) ) {
+            return $facebook_data['profile_pic'];
         }
 
-        $page_id = $page_id ?: $facebook_data["page_ids"][0];
+        $page_id = $page_id ?: $facebook_data['page_ids'][0];
         if ( ! isset( $facebook_pages[ $page_id ] ) ){
             return false;
         }
         $page = $facebook_pages[ $page_id ];
         $access_token = $page['access_token'];
-        $url = "https://graph.facebook.com/v" . $this->facebook_api_version . "/$user_id/picture?redirect=0&access_token=$access_token";
+        $url = 'https://graph.facebook.com/v' . $this->facebook_api_version . "/$user_id/picture?redirect=0&access_token=$access_token";
         $request = wp_remote_get( $url );
 
         if ( is_wp_error( $request ) ) {
@@ -829,10 +829,10 @@ class Disciple_Tools_Facebook_Integration {
         } else {
             $body_json = wp_remote_retrieve_body( $request );
             $body = json_decode( $body_json, true );
-            if ( isset( $body["data"]["url"] ) ) {
-                $facebook_data["profile_pic"] = $body["data"]["url"];
-                update_post_meta( $contact_id, "facebook_data", $facebook_data );
-                return $body["data"]["url"];
+            if ( isset( $body['data']['url'] ) ) {
+                $facebook_data['profile_pic'] = $body['data']['url'];
+                update_post_meta( $contact_id, 'facebook_data', $facebook_data );
+                return $body['data']['url'];
             } else {
                 return false;
             }
@@ -856,7 +856,7 @@ class Disciple_Tools_Facebook_Integration {
             GROUP BY pm.meta_value, pm2.meta_value HAVING c>1
         ", ARRAY_A );
         $dup_number_option = sizeof( $dups );
-        update_option( "dt_facebook_dups_found", $dup_number_option );
+        update_option( 'dt_facebook_dups_found', $dup_number_option );
 
         foreach ( $dups as $dup ){
             $to_delete = [];
@@ -871,40 +871,40 @@ class Disciple_Tools_Facebook_Integration {
                 AND pm.meta_value = %s
                 GROUP BY pm.post_id
                 ORDER BY pm.post_id
-            ", 'contact_facebook%', '%_details', $dup["fb_id"] ), ARRAY_A );
+            ", 'contact_facebook%', '%_details', $dup['fb_id'] ), ARRAY_A );
 
             $with_user_activity = [];
             $max_comments_index = 0;
             foreach ( $rows as $index => $row ){
-                if ( !empty( $row["user_id"] ) ){
-                    $with_user_activity[] = $row["post_id"];
+                if ( !empty( $row['user_id'] ) ){
+                    $with_user_activity[] = $row['post_id'];
                 }
-                if ( (int) $row["c_count"] >= (int) $rows[$max_comments_index]["c_count"] ){
+                if ( (int) $row['c_count'] >= (int) $rows[$max_comments_index]['c_count'] ){
                     $max_comments_index = $index;
                 }
             }
             if ( sizeof( $with_user_activity ) === 0 ){
                 //keep contact with most facebook comments
-                $with_user_activity[] = $rows[$max_comments_index]["post_id"];
+                $with_user_activity[] = $rows[$max_comments_index]['post_id'];
             }
             foreach ( $rows as $index => $row ){
-                if ( sizeof( $with_user_activity ) > 0 && !in_array( $row["post_id"], $with_user_activity ) && empty( $row["user_id"] ) ){
+                if ( sizeof( $with_user_activity ) > 0 && !in_array( $row['post_id'], $with_user_activity ) && empty( $row['user_id'] ) ){
                     $to_delete[] = $row;
                 }
             }
             foreach ( $to_delete as $row ){
-                DT_Posts::delete_post( "contacts", $row["post_id"], false );
+                DT_Posts::delete_post( 'contacts', $row['post_id'], false );
                 dt_write_log( $row );
             }
         }
         $dup_number_option = 0;
-        update_option( "dt_facebook_dups_found", $dup_number_option, false );
+        update_option( 'dt_facebook_dups_found', $dup_number_option, false );
     }
 
 
 
     public function dt_facebook_log_email( $subject, $text ){
-        $email_address = get_option( "dt_facebook_contact_email" );
+        $email_address = get_option( 'dt_facebook_contact_email' );
         if ( !empty( $email_address ) ){
             dt_send_email( $email_address, $subject, $text );
         }
