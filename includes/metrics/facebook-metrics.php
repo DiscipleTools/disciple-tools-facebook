@@ -21,7 +21,7 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
         if ( !$this->has_permission() ){
             return;
         }
-        $url_path = dt_get_url_path();
+        $url_path = dt_get_url_path( true );
 
         // only load scripts if exact url
         if ( "metrics/$this->base_slug/$this->slug" === $url_path ) {
