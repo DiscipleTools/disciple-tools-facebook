@@ -116,7 +116,7 @@ class Disciple_Tools_Facebook_Sync {
         $facebook_pages = get_option( 'dt_facebook_pages', [] );
         if ( is_wp_error( $conversations_page ) ){
             if ( $conversations_page->get_error_code() !== 190 ){
-                if ( 'The access token could not be decrypted' === $conversations_page['error']['message'] ){
+                if ( 'The access token could not be decrypted' === $conversations_page->get_error_message() ){
                     $facebook_pages[$page_id]['integrate'] = 0;
                     update_option( 'dt_facebook_pages', $facebook_pages );
                 }

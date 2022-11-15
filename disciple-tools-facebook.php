@@ -19,7 +19,7 @@
 if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
-$dt_facebook_required_dt_theme_version = '1.0.0';
+$dt_facebook_required_dt_theme_version = '1.0.1';
 
 /**
  * Gets the instance of the `DT_Facebook` class.
