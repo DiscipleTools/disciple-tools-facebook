@@ -138,7 +138,7 @@ class Disciple_Tools_Facebook_Tile {
         if ( $post_type === 'contacts' ){
             $sections[] = [
                 'key' => 'facebook',
-                'label' => __( 'Facebook', 'disciple-tools-facebook' )
+                'label' => __( 'Facebook Sync Integration', 'disciple-tools-facebook' )
             ];
         }
         return $sections;
