@@ -135,7 +135,7 @@ class Disciple_Tools_Facebook_Integration {
 
         $sync_needed = false;
         foreach ( $facebook_pages as $page_id => $facebook_page ){
-            if ( isset( $facebook_page['integrate'] ) && $facebook_page['integrate'] === 1 && !empty( $facebook_page['access_token'] ) ){
+            if ( isset( $facebook_page['integrate'] ) && $facebook_page['integrate'] === 1 && !empty( $facebook_page['access_token'] ) && !empty( $facebook_page['id'] ) ){
                 if ( empty( $facebook_page['reached_the_end'] ) ){
                     $sync_needed = $facebook_page;
                 }
