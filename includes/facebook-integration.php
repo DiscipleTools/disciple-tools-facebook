@@ -160,7 +160,7 @@ class Disciple_Tools_Facebook_Integration {
                             type: "GET",
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
-                            url: `<?php echo esc_url_raw( rest_url() ) ?>dt_facebook/v1/${url_end}`,
+                            url: `<?php echo esc_url_raw( rest_url() ) ?>dt_facebook/v1/${url_end}?time=${new Date().getTime()}`,
                             data: {page_id:'<?php echo esc_html( $sync_needed['id'] ); ?>'},
                             beforeSend: (xhr) => {
                                 xhr.setRequestHeader("X-WP-Nonce", '<?php echo esc_html( wp_create_nonce( 'wp_rest' ) ) ?>');
@@ -211,7 +211,7 @@ class Disciple_Tools_Facebook_Integration {
                                 type: "GET",
                                 contentType: "application/json; charset=utf-8",
                                 dataType: "json",
-                                url: `<?php echo esc_url_raw( rest_url() ) ?>dt_facebook/v1/${url_end}`,
+                                url: `<?php echo esc_url_raw( rest_url() ) ?>dt_facebook/v1/${url_end}?time=${new Date().getTime()}`,
                                 beforeSend: (xhr) => {
                                     xhr.setRequestHeader("X-WP-Nonce", '<?php echo esc_html( wp_create_nonce( 'wp_rest' ) ) ?>');
                                 },
