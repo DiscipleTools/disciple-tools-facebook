@@ -80,7 +80,7 @@ class Disciple_Tools_Facebook_Sync {
             if ( is_wp_error( $data ) ){
                 return $data;
             }
-            if ( empty( $data )){
+            if ( empty( $data ) ){
                 return new WP_Error( __METHOD__, 'Failed to get conversations', [ 'status' => 400 ] );
             }
             $data['jobs'] = wp_queue_count_jobs( 'facebook_conversation' );
