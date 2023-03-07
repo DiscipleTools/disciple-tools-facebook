@@ -394,6 +394,21 @@ class DT_Facebook_Tab_Instructions {
                 <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/other_type.png' ) ?>" height="400px" /></td>
             </tr>
             <tr>
+                <td>7.1 Facebook Login For Business</td>
+                <td>
+                    If on the left you see <strong>Facebook Login For Business</strong> instead of "Facebook Login".
+                    <br>
+                    <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/fb-login-business.png' ) ?>"
+                    />
+                    <br>
+                    Open that page and at the top click "Switch to Facebook Login".
+                    <br>
+                    <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/switch-back.png' ) ?>"/>
+                    <br>
+                    Click other and then confirm with 'Switch to Facebook Login'.
+                </td>
+            </tr>
+            <tr>
                 <td>8. In the <strong>Valid OAuth Redirect URIs</strong> field add:
                     <br>
                     <br>
