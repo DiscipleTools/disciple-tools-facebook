@@ -364,7 +364,15 @@ class DT_Facebook_Tab_Instructions {
             </tr>
             <tr>
                 <td>
-                    3. Select Business Integration
+                    3. Select Other
+                </td>
+                <td>
+                    <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/select_other.png' ) ?>" height="300px" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    4. Select Business
                 </td>
                 <td>
                     <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/select_business.png' ) ?>" height="300px" />
@@ -373,7 +381,7 @@ class DT_Facebook_Tab_Instructions {
 
             <tr>
                 <td>
-                    4. You can name the app "Disciple.Tools integration"
+                    4.1 You can name the app "Disciple.Tools integration"
                     <br>
                     Add your business manage account if you have one already.
                 </td>
@@ -382,31 +390,16 @@ class DT_Facebook_Tab_Instructions {
                 </td>
             </tr>
             <tr>
-                <td>5. You should be on the "Add a Product screen." Click <strong>Set Up</strong> on the "Facebook Login" box</td>
+                <td>5. You should be on the "Add a Product screen." Scroll down and click <strong>Set Up</strong> on the "Facebook Login for Business" box</td>
                 <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/products.png' ) ?>" height="400px" /></td>
             </tr>
             <tr>
-                <td>6. Choose the <strong>Other</strong> option</td>
+                <td>6. Click Switch to Facebook Login</td>
                 <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/login_type.png' ) ?>" height="200px" /></td>
             </tr>
             <tr>
-                <td>7. On the left click <strong>settings</strong> under <strong>Facebook Login</strong></td>
-                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/other_type.png' ) ?>" height="400px" /></td>
-            </tr>
-            <tr>
-                <td>7.1 Facebook Login For Business</td>
-                <td>
-                    If on the left you see <strong>Facebook Login For Business</strong> instead of "Facebook Login".
-                    <br>
-                    <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/fb-login-business.png' ) ?>"
-                    />
-                    <br>
-                    Open that page and at the top click "Switch to Facebook Login".
-                    <br>
-                    <img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/switch-back.png' ) ?>"/>
-                    <br>
-                    Click other and then confirm with 'Switch to Facebook Login'.
-                </td>
+                <td>7. Click Other and click the blue button Switch to Facebook Login</td>
+                <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/login_type_2.png' ) ?>" height="200px" /></td>
             </tr>
             <tr>
                 <td>8. In the <strong>Valid OAuth Redirect URIs</strong> field add:
