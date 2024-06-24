@@ -181,6 +181,11 @@ class Disciple_Tools_Facebook_Sync {
 
     public static function save_conversation( $page_id, $conversation ){
         $facebook_pages = get_option( 'dt_facebook_pages', [] );
+
+        if ( empty( $conversation['messages'] ) ){
+            return;
+        }
+
         foreach ( $conversation['participants']['data'] as $participant ) {
             if ( (string) $participant['id'] != $page_id ) {
                 $contact_id = self::update_or_create_contact( $participant, $conversation['updated_time'], $facebook_pages[$page_id], $conversation );
