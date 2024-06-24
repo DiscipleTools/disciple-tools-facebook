@@ -108,13 +108,13 @@ class Disciple_Tools_Facebook_Tile {
 
             if ( isset( $facebook_data['links'] ) ) {
                 ?>
-                <div class="section-subheader">
-                    <?php esc_html_e( 'Conversation Links:', 'disciple-tools-facebook' ) ?>
-                </div>
-                <?php
-                foreach ( $facebook_data['links'] as $link ): ?>
-                    <p class="facebook_message_links"><a href="<?php echo esc_html( 'http://facebook.com'. $link ) ?>" target="_blank"><?php echo esc_html( $link )?></a></p>
-                <?php endforeach; ?>
+<!--                <div class="section-subheader">-->
+<!--                    --><?php //esc_html_e( 'Conversation Links:', 'disciple-tools-facebook' ) ?>
+<!--                </div>-->
+<!--                --><?php
+//                foreach ( $facebook_data['links'] as $link ): ?>
+<!--                    <p class="facebook_message_links"><a href="--><?php //echo esc_html( 'http://facebook.com'. $link ) ?><!--" target="_blank">--><?php //echo esc_html( $link )?><!--</a></p>-->
+<!--                --><?php //endforeach; ?>
                 <?php
             }
             ?>
