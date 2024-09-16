@@ -515,7 +515,7 @@ class Disciple_Tools_Facebook_Integration {
                                        value="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"/>
 
                                 <input type="hidden" class="button" name="page_id" />
-                                <button type="submit" class="button" name="delete_duplicates"><?php esc_html_e( 'Try deleting duplicates', 'disciple-tools-facebook' ) ?></button>
+                                <button type="submit" class="button" name="delete_duplicates"><?php esc_html_e( 'Try deleting duplicates facebook contacts', 'disciple-tools-facebook' ) ?></button>
                                 <?php
                                 $dup_number_option = get_option( 'dt_facebook_dups_found', 0 );
                                 if ( !empty( $dup_number_option ) ){
