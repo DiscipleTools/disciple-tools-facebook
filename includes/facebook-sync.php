@@ -356,6 +356,7 @@ class Disciple_Tools_Facebook_Sync {
         global $wpdb;
         $sql = "INSERT INTO $wpdb->comments (comment_post_ID, comment_author, comment_date, comment_date_gmt, comment_content, comment_approved, comment_type, comment_parent, user_id) VALUES ";
         $comments_to_add = '';
+        $new_messages= [];
         if ( $message_count != $saved_number ){
             foreach ( $messages as $message ){
                 $saved_ids = $facebook_data['message_ids'] ?? [];
@@ -364,6 +365,7 @@ class Disciple_Tools_Facebook_Sync {
                     if ( empty( $comment ) ){
                         $comment = '[picture, sticker or emoji]';
                     }
+                    $new_messages[] = $comment;
                     $date = dt_format_date( $message['created_time'], 'Y-m-d H:i:s' );
                     $comments_to_add .= $wpdb->prepare( '( %d, %s, %s, %s, %s, %d, %s, %d, %d ),',
                         $contact_id,
@@ -384,10 +386,11 @@ class Disciple_Tools_Facebook_Sync {
                 $sql .= $comments_to_add;
                 $sql .= ';';
                 $sql = str_replace( ',;', ';', $sql ); // remove last comma
-            }
-            $insert_comments = $wpdb->query( $sql ); // @phpcs:ignore
-            if ( empty( $insert_comments ) || is_wp_error( $insert_comments ) ) {
-                return new WP_Error( __FUNCTION__, 'Failed to insert comments' );
+                $insert_comments = $wpdb->query( $sql ); // @phpcs:ignore
+                if ( empty( $insert_comments ) || is_wp_error( $insert_comments ) ) {
+                    return new WP_Error( __FUNCTION__, 'Failed to insert comments' );
+                }
+                do_action( 'dt_facebook_comments_added', $contact_id, $new_messages );
             }
 
             $message_ids = $facebook_data['message_ids'];
