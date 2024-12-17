@@ -2,7 +2,7 @@
 /**
  *Plugin Name: Disciple.Tools - Facebook
  * Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
- * Description: Disciple.Tools - Facebook plugin extends the Disciple.Tools system to collect data and contacts from Facebook.
+ * Description: Sync contacts and messages to Disciple.Tools from Facebook page conversations.
  * Version:  1.0.10
  * Author URI: https://github.com/DiscipleTools
  * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook

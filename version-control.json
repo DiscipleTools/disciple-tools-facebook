@@ -23,7 +23,7 @@
   },
   "icon": "https://raw.githubusercontent.com/DiscipleTools/disciple-tools-facebook/master/includes/assets/facebook-icon.png",
   "sections": {
-    "description": "Disciple.Tools - Facebook. Adds integration to Facebook pages and creates contacts from Direct Message conversations. This is a key plugin for outreach through Facebook. ",
+    "description": "Sync contacts and messages to Disciple.Tools from Facebook page conversations.",
     "installation": "(Required) You must have Disciple.Tools Theme installed before using this plugin. Once Disciple.Tools is installed, you can use the normal Plugin system to install the plugin.",
     "changelog": ""
   }
