@@ -25,7 +25,7 @@ function dt_facebook_get_object_with_paging( $url, $current_records = [] ) {
     }
 }
 
-function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app_scoped_id = null, string $app_id = null ){
+function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app_scoped_id = null, string $app_id = null ): array {
     if ( sizeof( $page_scoped_ids ) === 0 && ( empty( $app_scoped_id ) || empty( $app_id ) ) ){
         return [];
     }
@@ -44,7 +44,7 @@ function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app
     //phpcs:disable
     // WordPress.WP.PreparedSQL.NotPrepare
     $posts = $wpdb->get_results( "
-        SELECT ID 
+        SELECT ID, post_title AS name, post_type
         FROM $wpdb->posts
         INNER JOIN $wpdb->postmeta pm ON ( pm.post_id = ID )
         WHERE post_type = 'contacts'
@@ -73,4 +73,16 @@ function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app
         }
     }
     return $matching;
+}
+
+function dt_facebook_delete_data( string $post_type, int $post_id ): bool{
+    if ( !isset( $post_type, $post_id ) ) {
+        return false;
+    }
+
+    global $wpdb;
+
+    $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->postmeta WHERE post_id = %s AND meta_key = 'facebook_data'", $post_id ) );
+
+    return true;
 }

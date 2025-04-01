@@ -42,11 +42,52 @@ class Disciple_Tools_Facebook_Sync {
                 'permission_callback' => '__return_true',
             ]
         );
+        register_rest_route(
+            $namespace, 'data_request_id_search', [
+                'methods'  => 'POST',
+                'callback' => [ $this, 'data_request_id_search' ],
+                'permission_callback' => '__return_true',
+            ]
+        );
+        register_rest_route(
+            $namespace, 'data_request_record_actions', [
+                'methods'  => 'POST',
+                'callback' => [ $this, 'data_request_record_actions' ],
+                'permission_callback' => '__return_true',
+            ]
+        );
     }
 
     public function cron_trigger(){
 //        $this->facebook_check_for_new_conversations_cron();
 //        wp_queue()->cron()->cron_worker();
+    }
+
+    public function data_request_id_search( WP_REST_Request $request ): array {
+        $params = $request->get_params();
+
+        return dt_facebook_find_contacts_with_ids( $params['ids'] ?? [] );
+    }
+
+    public function data_request_record_actions( WP_REST_Request $request ): array {
+        $success = false;
+        $params = $request->get_params();
+        if ( isset( $params['action'], $params['post_type'], $params['post_id'] ) ) {
+            switch ( $params['action'] ) {
+                case 'del-data':
+                    $success = dt_facebook_delete_data( $params['post_type'], $params['post_id'] );
+                    break;
+                case 'del-record':
+                    $success = DT_Posts::delete_post( $params['post_type'], $params['post_id'] );
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return [
+            'success' => $success
+        ];
     }
 
     public function facebook_check_for_new_conversations_cron(){
