@@ -95,6 +95,8 @@ class DT_Facebook_Menu {
                    class="nav-tab <?php ( $tab == 'instructions' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'disciple-tools-facebook' ) : print ''; ?>"><?php esc_attr_e( 'Instructions', 'disciple-tools-facebook' ) ?></a>
                 <a href="<?php echo esc_attr( $link ) . 'log' ?>"
                    class="nav-tab <?php ( $tab == 'log' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'disciple-tools-facebook' ) : print ''; ?>"><?php esc_attr_e( 'Log', 'disciple-tools-facebook' ) ?></a>
+                <a href="<?php echo esc_attr( $link ) . 'data_request' ?>"
+                   class="nav-tab <?php ( $tab == 'data_request' || !isset( $tab ) ) ? esc_attr_e( 'nav-tab-active', 'disciple-tools-facebook' ) : print ''; ?>"><?php esc_attr_e( 'Data Request', 'disciple-tools-facebook' ) ?></a>
             </h2>
 
             <?php
@@ -109,6 +111,10 @@ class DT_Facebook_Menu {
                     break;
                 case 'log':
                     $object = new DT_Facebook_Tab_Log();
+                    $object->content();
+                    break;
+                case 'data_request':
+                    $object = new DT_Facebook_Tab_Data_Request();
                     $object->content();
                     break;
                 default:
@@ -563,5 +569,85 @@ class DT_Facebook_Tab_Instructions {
         <br>
         <!-- End Box -->
         <?php
+    }
+}
+
+
+
+/**
+ * Class DT_Facebook_Tab_Data_Request
+ */
+class DT_Facebook_Tab_Data_Request {
+
+    public function content() {
+        ?>
+        <div class="wrap">
+            <div id="poststuff">
+                <div id="post-body" class="metabox-holder columns-2">
+                    <div id="post-body-content">
+                        <!-- Main Column -->
+
+                        <?php $this->main_column() ?>
+
+                        <!-- End Main Column -->
+                    </div><!-- end post-body-content -->
+                    <div id="postbox-container-1" class="postbox-container">
+                        <!-- Right Column -->
+
+                        <?php //$this->right_column() ?>
+
+                        <!-- End Right Column -->
+                    </div><!-- postbox-container 1 -->
+                    <div id="postbox-container-2" class="postbox-container">
+                    </div><!-- postbox-container 2 -->
+                </div><!-- post-body meta box container -->
+            </div><!--poststuff end -->
+        </div><!-- wrap end -->
+        <?php
+    }
+
+    public function main_column() {
+        ?>
+        <!-- Box -->
+        <table class="widefat striped">
+            <thead>
+            <tr>
+                <th><?php esc_html_e( 'Data Request ID Search', 'disciple_tools' ) ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <p>Paste in the IDs one per line to search for their contact records.</p>
+                    <?php Disciple_Tools_Facebook_Integration::instance()->facebook_settings_data_request_search_view() ?>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br>
+        <!-- End Box -->
+
+        <!-- Box -->
+        <table id="data_request_id_search_results_section" style="display: none;" class="widefat striped">
+            <thead>
+            <tr>
+                <th><?php esc_html_e( 'Matched Data Request Records', 'disciple_tools' ) ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <?php Disciple_Tools_Facebook_Integration::instance()->facebook_settings_data_request_results_view() ?>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <br>
+        <!-- End Box -->
+        <?php
+    }
+
+    public function right_column() {
+
     }
 }

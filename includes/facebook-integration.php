@@ -103,6 +103,191 @@ class Disciple_Tools_Facebook_Integration {
     }
 
     /**
+     * Render the Facebook Settings Data Request Views
+     */
+
+    public function facebook_settings_data_request_search_view() {
+        ?>
+        <textarea id="data_request_id_search_textarea" rows="5" style="min-width: 100%;"></textarea>
+        <button id="data_request_id_search_button" class="button" style="min-width: 100%;">
+            <span id="data_request_id_search_button_label"><?php esc_html_e( 'Search', 'disciple-tools-facebook' ) ?></span>
+            <img id="data_request_id_search_spinner" style="margin-top: 7px; display: none;" src="<?php echo esc_url( trailingslashit( get_stylesheet_directory_uri() ) ) ?>spinner.svg" width="22px" alt="spinner "/>
+        </button>
+        <br><br>
+        <span id="data_request_id_search_message" style="display: none;"></span>
+
+        <script>
+            jQuery(document).ready(function ($) {
+
+                function make_api_call(url, method = 'POST', payload = {}) {
+                    return jQuery.ajax({
+                        type: method,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        data: JSON.stringify(payload),
+                        url: `<?php echo esc_url_raw( rest_url() ) ?>dt_facebook/v1/${url}`,
+                        beforeSend: (xhr) => {
+                            xhr.setRequestHeader("X-WP-Nonce", '<?php echo esc_html( wp_create_nonce( 'wp_rest' ) ) ?>');
+                        }
+                    })
+                }
+
+                function refresh_results(ids, callback = null) {
+                    make_api_call('data_request_id_search', 'POST', {
+                        ids
+                    })
+                    .then(response => {
+                        console.log(response);
+
+                        const results_section = $('#data_request_id_search_results_section');
+                        const results_tbody = $('#data_request_id_search_results');
+                        results_section.fadeOut('fast', () => {
+
+                            // Ensure valid results have been returned.
+                            if (!Array.isArray(response)) {
+                                message.text(generic_error);
+                                message.show();
+
+                            } else {
+
+                                // Display matched contact records.
+                                results_tbody.empty();
+                                const url_root = '<?php echo esc_url_raw( site_url( '/' ) ) ?>';
+                                const delete_data_label = '<?php esc_html_e( 'Delete Facebook Data and Conversations', 'disciple-tools-facebook' ) ?>';
+                                const delete_record_label = '<?php esc_html_e( 'Delete Contact', 'disciple-tools-facebook' ) ?>';
+                                response.forEach((item) => {
+                                    if ( item['ID'] && item['name'] && item['post_type'] ) {
+                                        results_tbody.append(`
+                                                <tr>
+                                                    <td><a href="${url_root}${item['post_type']}/${item['ID']}" target="_blank">${ item['name'] }</a></td>
+                                                    <td>${ item['app_scoped_ids'] ? Object.keys(item['app_scoped_ids']).join(', ') : '' }</td>
+                                                    <td colspan="2" style="text-align: right;">
+                                                        <button class="button data-request-id-search-action-but" data-action="del-data" data-post_type="${item['post_type']}" data-post_id="${item['ID']}">${ delete_data_label }</button>
+                                                        <button class="button data-request-id-search-action-but" data-action="del-record" data-post_type="${item['post_type']}" data-post_id="${item['ID']}">${ delete_record_label }</button>
+                                                    </td>
+                                                </tr>
+                                                `);
+                                    }
+                                });
+                                //if empty
+                                if (response.length === 0) {
+                                    results_tbody.append(`
+                                        <tr>
+                                            <td colspan="4" style="text-align: center;">
+                                                <?php esc_html_e( 'No results found.', 'disciple-tools-facebook' ) ?>
+                                            </td>
+                                        </tr>
+                                    `);
+                                }
+
+                                results_section.fadeIn('slow');
+                            }
+
+                            if (callback) {
+                                callback();
+                            }
+                        });
+                    })
+                    .catch(error => {
+                        console.log(error);
+
+                        if (callback) {
+                            callback();
+                        }
+                    });
+                }
+
+                document.querySelector('#data_request_id_search_button').addEventListener('click', (e) => {
+
+                    // Ensure valid id line items have been specified.
+                    const entry = $('#data_request_id_search_textarea').val();
+                    const ids = entry.split('\n');
+
+                    const message = $('#data_request_id_search_message');
+                    const generic_error = '<?php esc_html_e( 'Unable to process search request; please ensure valid ids have been specified.', 'disciple-tools-facebook' ) ?>';
+                    if (!entry || !Array.isArray(ids) || ids.length === 0) {
+                        message.text(generic_error);
+                        message.show();
+
+                        return;
+                    }
+                    message.fadeOut('slow');
+
+                    // Proceed with id search.....
+                    const search_label = $('#data_request_id_search_button_label');
+                    const spinner = $('#data_request_id_search_spinner');
+
+                    search_label.fadeOut('fast', () => {
+                        spinner.fadeIn('slow', () => {
+                            refresh_results(ids, () => {
+                                spinner.fadeOut('fast', () => {
+                                    search_label.fadeIn('slow');
+                                });
+                            });
+                        });
+                    });
+                });
+
+                $(document).on('click', '.data-request-id-search-action-but', (e) => {
+                    const action = $(e.target).data('action');
+                    const post_type = $(e.target).data('post_type');
+                    const post_id = $(e.target).data('post_id');
+
+                    if (action && post_type && post_id) {
+                        const confirm_msg = `Are you sure you wish to delete ${ (action === 'del-data') ? 'all facebook data?' : 'record?' }`;
+                        if (confirm(confirm_msg)) {
+
+                            const message = $('#data_request_id_search_message');
+                            const generic_error = '<?php esc_html_e( 'Unable to process action request; please try again.', 'disciple-tools-facebook' ) ?>';
+
+                            make_api_call('data_request_record_actions', 'POST', {
+                                action,
+                                post_type,
+                                post_id
+                            })
+                            .then(response => {
+                                console.log(response);
+
+                                if (response?.success) {
+                                    message.fadeOut('slow');
+                                    refresh_results($('#data_request_id_search_textarea').val().split('\n'));
+
+                                } else {
+                                    message.text(generic_error);
+                                    message.show();
+                                }
+                            })
+                            .catch(error => {
+                                console.log(error);
+
+                                message.text(generic_error);
+                                message.show();
+                            });
+                        }
+                    }
+                });
+            });
+        </script>
+        <?php
+    }
+
+    public function facebook_settings_data_request_results_view() {
+        ?>
+        <table class="widefat striped" style="min-width: 100%;">
+            <thead>
+            <tr>
+                <th><?php esc_html_e( 'Name', 'disciple-tools-facebook' ) ?></th>
+                <th><?php esc_html_e( 'App ID', 'disciple-tools-facebook' ) ?></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody id="data_request_id_search_results"></tbody>
+        </table>
+        <?php
+    }
+
+    /**
      * Render the Facebook Settings Page
      */
     public function facebook_settings_page() {
