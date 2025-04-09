@@ -25,7 +25,7 @@ function dt_facebook_get_object_with_paging( $url, $current_records = [] ) {
     }
 }
 
-function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app_scoped_id = null, string $app_id = null ){
+function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app_scoped_id = null, string $app_id = null ): array {
     if ( sizeof( $page_scoped_ids ) === 0 && ( empty( $app_scoped_id ) || empty( $app_id ) ) ){
         return [];
     }
@@ -44,33 +44,29 @@ function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app
     //phpcs:disable
     // WordPress.WP.PreparedSQL.NotPrepare
     $posts = $wpdb->get_results( "
-        SELECT ID 
+        SELECT ID, post_title AS name, post_type
         FROM $wpdb->posts
         INNER JOIN $wpdb->postmeta pm ON ( pm.post_id = ID )
         WHERE post_type = 'contacts'
         AND ( $meta_query )
     ", OBJECT );
     //phpcs:enable
-    $matching = [];
-    $matching_ids = [];
-    foreach ( $posts as $post ) {
-        $facebook_data = get_post_meta( $post->ID, 'facebook_data', true );
-        foreach ( $page_scoped_ids as $page_scoped_id ){
-            if ( isset( $facebook_data['page_scoped_ids'] ) && in_array( $page_scoped_id, $facebook_data['page_scoped_ids'] ) ){
-                if ( !in_array( $post->ID, $matching_ids ) ){
-                    $matching[] = $post;
-                    $matching_ids[] = $post->ID;
-                }
-            }
-        }
-        if ( isset( $facebook_data['app_scoped_ids'] ) && !empty( $app_scoped_id ) && !empty( $app_id ) ){
-            if ( ( isset( $facebook_data['app_scoped_ids'][$app_id] ) && $facebook_data['app_scoped_ids'][$app_id] == $app_scoped_id ) ){
-                if ( !in_array( $post->ID, $matching_ids ) ){
-                    $matching[] = $post;
-                    $matching_ids[] = $post->ID;
-                }
-            }
-        }
+    return $posts;
+}
+
+function dt_facebook_delete_data( string $post_type, int $post_id ): bool{
+    if ( !isset( $post_type, $post_id ) ) {
+        return false;
     }
-    return $matching;
+
+    global $wpdb;
+
+    $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->postmeta WHERE post_id = %s AND meta_key = 'facebook_data'", $post_id ) );
+    //delete comments with type facebook
+    $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->comments WHERE comment_post_ID = %s AND comment_type = 'facebook'", $post_id ) );
+
+    //add comment that facebook data was deleted
+    DT_Posts::add_post_comment( 'contacts', $post_id, 'Facebook data deleted by request.' );
+
+    return true;
 }
