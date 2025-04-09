@@ -3,7 +3,7 @@
  *Plugin Name: Disciple.Tools - Facebook
  * Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Description: Sync contacts and messages to Disciple.Tools from Facebook page conversations.
- * Version:  1.0.10
+ * Version:  1.1.0
  * Author URI: https://github.com/DiscipleTools
  * GitHub Plugin URI: https://github.com/DiscipleTools/disciple-tools-facebook
  * Requires at least: 4.7.0
