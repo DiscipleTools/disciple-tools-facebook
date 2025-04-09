@@ -18,21 +18,27 @@ class Disciple_Tools_Facebook_Sync {
             $namespace, 'get_conversations_endpoint', [
                 'methods'  => 'GET',
                 'callback' => [ $this, 'get_conversations_endpoint' ],
-                'permission_callback' => '__return_true',
+                'permission_callback' => function() {
+                    return current_user_can( 'manage_dt' );
+                },
             ]
         );
         register_rest_route(
             $namespace, 'process_conversations_job', [
                 'methods'  => 'GET',
                 'callback' => [ $this, 'process_conversations_job' ],
-                'permission_callback' => '__return_true',
+                'permission_callback' => function() {
+                    return current_user_can( 'manage_dt' );
+                },
             ]
         );
         register_rest_route(
             $namespace, 'count_remaining_conversations_save', [
                 'methods'  => 'GET',
                 'callback' => [ $this, 'count_remaining_conversations_save' ],
-                'permission_callback' => '__return_true',
+                'permission_callback' => function() {
+                    return current_user_can( 'manage_dt' );
+                },
             ]
         );
         register_rest_route(
@@ -46,14 +52,18 @@ class Disciple_Tools_Facebook_Sync {
             $namespace, 'data_request_id_search', [
                 'methods'  => 'POST',
                 'callback' => [ $this, 'data_request_id_search' ],
-                'permission_callback' => '__return_true',
+                'permission_callback' => function() {
+                    return current_user_can( 'manage_dt' );
+                },
             ]
         );
         register_rest_route(
             $namespace, 'data_request_record_actions', [
                 'methods'  => 'POST',
                 'callback' => [ $this, 'data_request_record_actions' ],
-                'permission_callback' => '__return_true',
+                'permission_callback' => function() {
+                    return current_user_can( 'manage_dt' );
+                },
             ]
         );
     }

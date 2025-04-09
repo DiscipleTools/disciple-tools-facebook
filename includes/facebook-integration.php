@@ -153,8 +153,8 @@ class Disciple_Tools_Facebook_Integration {
                                 // Display matched contact records.
                                 results_tbody.empty();
                                 const url_root = '<?php echo esc_url_raw( site_url( '/' ) ) ?>';
-                                const delete_data_label = '<?php esc_html_e( 'Delete Data', 'disciple-tools-facebook' ) ?>';
-                                const delete_record_label = '<?php esc_html_e( 'Delete Record', 'disciple-tools-facebook' ) ?>';
+                                const delete_data_label = '<?php esc_html_e( 'Delete Facebook Data and Conversations', 'disciple-tools-facebook' ) ?>';
+                                const delete_record_label = '<?php esc_html_e( 'Delete Contact', 'disciple-tools-facebook' ) ?>';
                                 response.forEach((item) => {
                                     if ( item['ID'] && item['name'] && item['post_type'] ) {
                                         results_tbody.append(`

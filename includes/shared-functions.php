@@ -51,28 +51,7 @@ function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app
         AND ( $meta_query )
     ", OBJECT );
     //phpcs:enable
-    $matching = [];
-    $matching_ids = [];
-    foreach ( $posts as $post ) {
-        $facebook_data = get_post_meta( $post->ID, 'facebook_data', true );
-        foreach ( $page_scoped_ids as $page_scoped_id ){
-            if ( isset( $facebook_data['page_scoped_ids'] ) && in_array( $page_scoped_id, $facebook_data['page_scoped_ids'] ) ){
-                if ( !in_array( $post->ID, $matching_ids ) ){
-                    $matching[] = $post;
-                    $matching_ids[] = $post->ID;
-                }
-            }
-        }
-        if ( isset( $facebook_data['app_scoped_ids'] ) && !empty( $app_scoped_id ) && !empty( $app_id ) ){
-            if ( ( isset( $facebook_data['app_scoped_ids'][$app_id] ) && $facebook_data['app_scoped_ids'][$app_id] == $app_scoped_id ) ){
-                if ( !in_array( $post->ID, $matching_ids ) ){
-                    $matching[] = $post;
-                    $matching_ids[] = $post->ID;
-                }
-            }
-        }
-    }
-    return $matching;
+    return $posts;
 }
 
 function dt_facebook_delete_data( string $post_type, int $post_id ): bool{
@@ -83,6 +62,11 @@ function dt_facebook_delete_data( string $post_type, int $post_id ): bool{
     global $wpdb;
 
     $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->postmeta WHERE post_id = %s AND meta_key = 'facebook_data'", $post_id ) );
+    //delete comments with type facebook
+    $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->comments WHERE comment_post_ID = %s AND comment_type = 'facebook'", $post_id ) );
+
+    //add comment that facebook data was deleted
+    DT_Posts::add_post_comment( 'contacts', $post_id, 'Facebook data deleted by request.' );
 
     return true;
 }
