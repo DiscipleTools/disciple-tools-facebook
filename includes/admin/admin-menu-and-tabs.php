@@ -618,6 +618,7 @@ class DT_Facebook_Tab_Data_Request {
             <tbody>
             <tr>
                 <td>
+                    <p>Paste in the IDs one per line to search for their contact records.</p>
                     <?php Disciple_Tools_Facebook_Integration::instance()->facebook_settings_data_request_search_view() ?>
                 </td>
             </tr>

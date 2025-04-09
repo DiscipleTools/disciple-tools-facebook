@@ -152,7 +152,7 @@ class Disciple_Tools_Facebook_Integration {
 
                                 // Display matched contact records.
                                 results_tbody.empty();
-                                const url_root = '<?php echo esc_url_raw( site_url('/') ) ?>';
+                                const url_root = '<?php echo esc_url_raw( site_url( '/' ) ) ?>';
                                 const delete_data_label = '<?php esc_html_e( 'Delete Data', 'disciple-tools-facebook' ) ?>';
                                 const delete_record_label = '<?php esc_html_e( 'Delete Record', 'disciple-tools-facebook' ) ?>';
                                 response.forEach((item) => {
@@ -169,6 +169,16 @@ class Disciple_Tools_Facebook_Integration {
                                                 `);
                                     }
                                 });
+                                //if empty
+                                if (response.length === 0) {
+                                    results_tbody.append(`
+                                        <tr>
+                                            <td colspan="4" style="text-align: center;">
+                                                <?php esc_html_e( 'No results found.', 'disciple-tools-facebook' ) ?>
+                                            </td>
+                                        </tr>
+                                    `);
+                                }
 
                                 results_section.fadeIn('slow');
                             }
