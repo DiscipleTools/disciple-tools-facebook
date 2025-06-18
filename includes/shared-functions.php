@@ -25,7 +25,7 @@ function dt_facebook_get_object_with_paging( $url, $current_records = [] ) {
     }
 }
 
-function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, string $app_scoped_id = null, string $app_id = null ): array {
+function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, ?string $app_scoped_id = null, ?string $app_id = null ): array {
     if ( sizeof( $page_scoped_ids ) === 0 && ( empty( $app_scoped_id ) || empty( $app_id ) ) ){
         return [];
     }
