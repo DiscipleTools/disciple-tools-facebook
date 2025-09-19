@@ -13,7 +13,7 @@ if ( ! wp_next_scheduled( 'daily_facebook_cron' ) ) {
     wp_schedule_event( strtotime( 'today 1am' ), 'daily', 'daily_facebook_cron' );
 }
 add_action( 'daily_facebook_cron', 'dt_facebook_daily_cron' );
-add_filter( 'dt_record_picture', 'fb_dt_record_picture', 10, 3 );
+// add_filter( 'dt_record_picture', 'fb_dt_record_picture', 10, 3 );
 add_filter( 'cron_schedules', 'dt_facebook_cron_schedules' );
 
 function dt_facebook_cron_schedules( $schedules ) {
