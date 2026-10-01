@@ -285,7 +285,7 @@ class Disciple_Tools_Facebook_Sync {
         }
         $image = wp_remote_retrieve_body( $image_response );
         $content_type = strtok( (string) wp_remote_retrieve_header( $image_response, 'content-type' ), ';' );
-        $extensions = [ 'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif' ];
+        $extensions = [ 'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp' ];
         if ( empty( $image ) || !isset( $extensions[ $content_type ] ) ){
             return;
         }
