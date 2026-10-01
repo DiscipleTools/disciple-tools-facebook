@@ -13,7 +13,6 @@ if ( ! wp_next_scheduled( 'daily_facebook_cron' ) ) {
     wp_schedule_event( strtotime( 'today 1am' ), 'daily', 'daily_facebook_cron' );
 }
 add_action( 'daily_facebook_cron', 'dt_facebook_daily_cron' );
-// add_filter( 'dt_record_picture', 'fb_dt_record_picture', 10, 3 );
 add_filter( 'cron_schedules', 'dt_facebook_cron_schedules' );
 
 function dt_facebook_cron_schedules( $schedules ) {
@@ -104,24 +103,4 @@ function dt_facebook_daily_cron(){
         );
     }
     wp_set_current_user( $my_id );
-}
-
-function fb_dt_record_picture( $picture, $post_type, $contact_id ){
-    if ( $post_type === 'contacts' ){
-        $post = DT_Posts::get_post( $post_type, $contact_id );
-        if ( isset( $post['facebook_data']['profile_pic'] ) ){
-            if ( $post['facebook_data']['profile_pic'] === false ){
-                return $picture;
-            } else {
-                $picture = $post['facebook_data']['profile_pic'];
-            }
-        } elseif ( isset( $post['facebook_data']['page_scoped_ids'] ) && !empty( $post['facebook_data']['page_scoped_ids'] ) ) {
-            $facebook_id = $post['facebook_data']['page_scoped_ids'][0];
-            $profile_pic = Disciple_Tools_Facebook_Integration::instance()->get_participant_profile_pic( $facebook_id, $post['facebook_data'], $contact_id );
-            if ( !empty( $profile_pic ) ){
-                $picture = $profile_pic;
-            }
-        }
-    }
-    return $picture;
 }

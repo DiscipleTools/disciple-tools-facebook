@@ -245,9 +245,71 @@ class Disciple_Tools_Facebook_Sync {
                     $facebook_pages[$page_id]['last_contact_id'] = $contact_id;
                     update_option( 'dt_facebook_pages', $facebook_pages );
                     self::update_facebook_messages_on_contact( $contact_id, $conversation, $participant['id'] );
+                    self::maybe_store_profile_picture( $contact_id, $participant['id'], $facebook_pages[$page_id] );
                 }
             }
         }
+    }
+
+    /**
+     * Copy the participant's Facebook profile picture into DT storage as the contact's record picture.
+     * Facebook picture URLs expire, so the image itself is stored rather than its URL.
+     * Skipped when storage is off or the contact already has a picture; failed lookups retry after a week.
+     */
+    public static function maybe_store_profile_picture( $contact_id, $page_scoped_id, $page ){
+        if ( !is_numeric( $contact_id ) || !class_exists( 'DT_Storage_API' ) || !DT_Storage_API::is_enabled() ){
+            return;
+        }
+        if ( !empty( get_post_meta( $contact_id, 'record_picture', true ) ) ){
+            return;
+        }
+        $last_checked = (int) get_post_meta( $contact_id, 'facebook_profile_pic_checked', true );
+        if ( $last_checked > time() - WEEK_IN_SECONDS ){
+            return;
+        }
+        update_post_meta( $contact_id, 'facebook_profile_pic_checked', time() );
+
+        $profile_url = 'https://graph.facebook.com/v' . Disciple_Tools_Facebook_Api::$facebook_api_version . '/' . rawurlencode( $page_scoped_id ) . '?fields=profile_pic&access_token=' . $page['access_token'];
+        $profile_response = wp_remote_get( $profile_url, [ 'timeout' => 15 ] );
+        if ( is_wp_error( $profile_response ) ){
+            return;
+        }
+        $profile = json_decode( wp_remote_retrieve_body( $profile_response ), true );
+        if ( empty( $profile['profile_pic'] ) ){
+            return;
+        }
+
+        $image_response = wp_remote_get( $profile['profile_pic'], [ 'timeout' => 15 ] );
+        if ( is_wp_error( $image_response ) || wp_remote_retrieve_response_code( $image_response ) !== 200 ){
+            return;
+        }
+        $image = wp_remote_retrieve_body( $image_response );
+        $content_type = strtok( (string) wp_remote_retrieve_header( $image_response, 'content-type' ), ';' );
+        $extensions = [ 'image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif' ];
+        if ( empty( $image ) || !isset( $extensions[ $content_type ] ) ){
+            return;
+        }
+
+        $tmp_path = tempnam( sys_get_temp_dir(), 'dt-facebook-profile-pic' );
+        if ( empty( $tmp_path ) || file_put_contents( $tmp_path, $image ) === false ){
+            return;
+        }
+        $file_name = 'facebook-profile.' . $extensions[ $content_type ];
+        $uploaded = DT_Storage_API::upload_file( 'contacts', [
+            'name' => $file_name,
+            'full_path' => $file_name,
+            'type' => $content_type,
+            'tmp_name' => $tmp_path,
+            'size' => strlen( $image ),
+        ] );
+        @unlink( $tmp_path );
+
+        if ( is_wp_error( $uploaded ) || empty( $uploaded['uploaded_key'] ) ){
+            $error = is_wp_error( $uploaded ) ? $uploaded->get_error_message() : 'unknown error';
+            Disciple_Tools_Facebook_Api::save_log_message( 'Storing Facebook profile picture failed for contact ' . $contact_id . ': ' . $error );
+            return;
+        }
+        update_post_meta( $contact_id, 'record_picture', $uploaded['uploaded_key'] );
     }
 
 

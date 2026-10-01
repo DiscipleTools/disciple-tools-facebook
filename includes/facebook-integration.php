@@ -994,36 +994,6 @@ class Disciple_Tools_Facebook_Integration {
     }
 
 
-    public function get_participant_profile_pic( $user_id, $facebook_data, $contact_id, $page_id = null ){
-        $facebook_pages = get_option( 'dt_facebook_pages', [] );
-        if ( isset( $facebook_data['profile_pic'] ) ) {
-            return $facebook_data['profile_pic'];
-        }
-
-        $page_id = $page_id ?: $facebook_data['page_ids'][0];
-        if ( ! isset( $facebook_pages[ $page_id ] ) ){
-            return false;
-        }
-        $page = $facebook_pages[ $page_id ];
-        $access_token = $page['access_token'];
-        $url = 'https://graph.facebook.com/v' . $this->facebook_api_version . "/$user_id/picture?redirect=0&access_token=$access_token";
-        $request = wp_remote_get( $url );
-
-        if ( is_wp_error( $request ) ) {
-            return false;
-        } else {
-            $body_json = wp_remote_retrieve_body( $request );
-            $body = json_decode( $body_json, true );
-            if ( isset( $body['data']['url'] ) ) {
-                $facebook_data['profile_pic'] = $body['data']['url'];
-                update_post_meta( $contact_id, 'facebook_data', $facebook_data );
-                return $body['data']['url'];
-            } else {
-                return false;
-            }
-        }
-    }
-
     public function delete_obvious_duplicates(){
         global $wpdb;
         $dup_number_option = get_option( 'dt_facebook_dups_found', 0 );
