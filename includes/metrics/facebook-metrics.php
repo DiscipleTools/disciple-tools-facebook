@@ -87,7 +87,6 @@ class DT_Facebook_Metrics extends DT_Metrics_Chart_Base
         }
         $params = $request->get_params();
         return $this->time_from_1st_message_to_meeting( $params['start'] ?? 0, $params['end'] ?? 0 );
-
     }
 
 

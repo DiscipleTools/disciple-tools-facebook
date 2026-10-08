@@ -71,5 +71,4 @@ class DT_Facebook_Migration_0001 extends DT_Facebook_Migration {
      */
     public function test() {
     }
-
 }

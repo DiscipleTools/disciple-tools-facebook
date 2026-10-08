@@ -162,11 +162,22 @@
     <!-- <exclude name="WordPress.WhiteSpace.OperatorSpacing.SpacingAfter" /> -->
     <!-- <exclude name="WordPress.WhiteSpace.OperatorSpacing.SpacingBefore" /> -->
 
+
+    <!-- Sniffs added in WordPressCS 3 that don't match this codebase's style: -->
+    <exclude name="Universal.Arrays.DisallowShortArraySyntax" />
+    <exclude name="Universal.ControlStructures.DisallowLonelyIf" />
+    <exclude name="Universal.Files.SeparateFunctionsFromOO" />
+    <exclude name="NormalizedArrays.Arrays.CommaAfterLast" />
+    <exclude name="PEAR.Files.IncludingFile" />
+    <exclude name="Generic.Files.OneObjectStructurePerFile" />
+    <exclude name="Squiz.Commenting.FunctionComment.MissingParamType" />
+    <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceBeforeBrace" />
+    <exclude name="Squiz.Functions.MultiLineFunctionDeclaration.SpaceAfterFunction" />
+    <exclude name="WordPress.Security.EscapeOutput.ExceptionNotEscaped" />
   </rule>
 
   <!-- Keeping these ones: -->
   <rule ref="Generic.ControlStructures.InlineControlStructure"/>
-  <rule ref="Generic.Debug.ClosureLinter"/>
   <rule ref="Generic.Files.ByteOrderMark"/>
   <rule ref="Generic.Files.LineEndings"/>
   <rule ref="Generic.Formatting.DisallowMultipleStatements"/>
@@ -181,7 +192,10 @@
   <rule ref="Generic.WhiteSpace.ScopeIndent">
     <properties>
       <property name="indent" value="4"/>
-      <property name="ignoreIndentationTokens" type="array" value="T_COMMENT,T_DOC_COMMENT_OPEN_TAG"/>
+      <property name="ignoreIndentationTokens" type="array">
+        <element value="T_COMMENT"/>
+        <element value="T_DOC_COMMENT_OPEN_TAG"/>
+      </property>
     </properties>
   </rule>
   <rule ref="PSR2.ControlStructures.ElseIfDeclaration"/>

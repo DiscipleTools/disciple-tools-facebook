@@ -92,6 +92,4 @@ class Disciple_Tools_Facebook_Api {
         }
         update_option( 'dt_facebook_error_logs', $log );
     }
-
 }
-

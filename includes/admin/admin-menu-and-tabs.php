@@ -46,7 +46,6 @@ class DT_Facebook_Menu {
     public function __construct() {
 
         add_action( 'admin_menu', array( $this, 'register_menu' ) );
-
     } // End __construct()
 
 
@@ -138,7 +137,6 @@ class DT_Facebook_Menu {
 
         <?php
     }
-
 }
 
 DT_Facebook_Menu::instance();
@@ -219,7 +217,6 @@ class DT_Facebook_Tab_General {
         <!-- End Box -->
         <?php
     }
-
 }
 
 class DT_Facebook_Tab_Log {
@@ -307,7 +304,6 @@ class DT_Facebook_Tab_Log {
         <!-- End Box -->
         <?php
     }
-
 }
 
 class DT_Facebook_Tab_Instructions {
@@ -648,6 +644,5 @@ class DT_Facebook_Tab_Data_Request {
     }
 
     public function right_column() {
-
     }
 }

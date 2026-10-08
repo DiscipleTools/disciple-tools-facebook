@@ -149,8 +149,4 @@ class Disciple_Tools_Facebook_Tile {
 
         return $fields;
     }
-
-
-
-
 }

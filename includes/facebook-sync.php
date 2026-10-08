@@ -474,7 +474,7 @@ class Disciple_Tools_Facebook_Sync {
         global $wpdb;
         $sql = "INSERT INTO $wpdb->comments (comment_post_ID, comment_author, comment_date, comment_date_gmt, comment_content, comment_approved, comment_type, comment_parent, user_id) VALUES ";
         $comments_to_add = '';
-        $new_messages= [];
+        $new_messages = [];
         if ( $message_count != $saved_number ){
             foreach ( $messages as $message ){
                 $saved_ids = $facebook_data['message_ids'] ?? [];
@@ -534,7 +534,6 @@ class DT_Save_Facebook_Conversation extends Job {
     public function __construct( $conversation, $page_id ){
         $this->conversation = $conversation;
         $this->page_id = $page_id;
-
     }
 
     /**

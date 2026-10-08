@@ -172,5 +172,4 @@ class Disciple_Tools_Facebook_Reports {
 //            self::get_and_save_stats_data( $date_of_last_record, $facebook_page );
 //        }
     }
-
 }
