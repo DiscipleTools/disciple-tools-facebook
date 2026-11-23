@@ -129,6 +129,7 @@ class DT_Facebook {
 //        new Disciple_Tools_Facebook_Reports();
         require_once( 'includes/facebook-tile.php' );
         require_once( 'includes/facebook-sync.php' );
+        require_once( 'includes/data-deletion.php' );
         require_once( 'includes/facebook-api.php' );
         Disciple_Tools_Facebook_Tile::instance();
         require_once( 'includes/facebook-integration.php' );

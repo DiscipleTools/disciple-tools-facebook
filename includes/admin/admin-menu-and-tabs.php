@@ -435,6 +435,15 @@ class DT_Facebook_Tab_Instructions {
                 <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/privacy_policy.png' ) ?>" height="250px" /></td>
             </tr>
             <tr>
+                <td>
+                    11.1 Under <strong>User data deletion</strong> choose <strong>Data deletion callback URL</strong> and add:
+                    <br>
+                    <br>
+                    <strong><?php echo esc_url( Disciple_Tools_Facebook_Data_Deletion::get_callback_url() ); ?></strong>
+                </td>
+                <td></td>
+            </tr>
+            <tr>
                 <td>12. Scroll down. Click <strong>Add Platform</strong>.</td>
                 <td><img src="<?php echo esc_html( plugin_dir_url( __DIR__ ) . 'assets/add_platform.png' ) ?>" width="500px" /></td>
             </tr>
@@ -614,6 +623,11 @@ class DT_Facebook_Tab_Data_Request {
             <tbody>
             <tr>
                 <td>
+                    <p>
+                        Facebook data is deleted automatically when Meta sends a deletion request, if your app's
+                        <strong>Settings &gt; Basic &gt; User data deletion</strong> is set to the data deletion callback URL:
+                        <br><strong><?php echo esc_url( Disciple_Tools_Facebook_Data_Deletion::get_callback_url() ); ?></strong>
+                    </p>
                     <p>Paste in the IDs one per line to search for their contact records.</p>
                     <?php Disciple_Tools_Facebook_Integration::instance()->facebook_settings_data_request_search_view() ?>
                 </td>

@@ -54,7 +54,7 @@ function dt_facebook_find_contacts_with_ids( array $page_scoped_ids, ?string $ap
     return $posts;
 }
 
-function dt_facebook_delete_data( string $post_type, int $post_id ): bool{
+function dt_facebook_delete_data( string $post_type, int $post_id, bool $check_permissions = true ): bool{
     if ( !isset( $post_type, $post_id ) ) {
         return false;
     }
@@ -66,7 +66,7 @@ function dt_facebook_delete_data( string $post_type, int $post_id ): bool{
     $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->comments WHERE comment_post_ID = %s AND comment_type = 'facebook'", $post_id ) );
 
     //add comment that facebook data was deleted
-    DT_Posts::add_post_comment( 'contacts', $post_id, 'Facebook data deleted by request.' );
+    DT_Posts::add_post_comment( 'contacts', $post_id, 'Facebook data deleted by request.', 'comment', [], $check_permissions );
 
     return true;
 }
